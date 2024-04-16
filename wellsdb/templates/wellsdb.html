@@ -53,8 +53,11 @@
         }
 
         /* Style for bar graph container */
-        #barGraph {
-            max-width: 98%;
+        #barGraphContainer {
+            {% comment %} max-width: 98%; {% endcomment %}
+            max-width: 200%; /* Make it twice as wide */
+            margin: auto; /* Center the bar graph horizontally */
+            float: right; /* Float the container to the right */
             height: 200px;
             text-align: center;
             margin: auto; /* Add this line to center the bar graph horizontally */
@@ -311,8 +314,8 @@
             <!-- Dropdown menu -->
             <select id="selectFeatData" onchange="selectFeatData()">
                 <option value="initial">National Oil and Gas Well Inventory</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
+                <option value="option2">EIA 923/860m</option>
+                <option value="option3">HILFD Oil Refineries</option>
             </select>
             <!-- Pie Chart Container -->
             <div id="pieChart">
@@ -324,8 +327,17 @@
 
         <!-- Grid container for bar graph, buttons, and table -->
         <div class="container2">
+            <!-- Buttons and Dropdown menu -->
+            {% comment %} <div id="buttonContainer">
+                <!-- Dropdown menus and buttons here -->
+            </div>
+
             <!-- Bar Graph Container -->
-            <div id="barGraph">
+            <div id="barGraphContainer">
+                <canvas id="myBarGraph"></canvas>
+            </div> {% endcomment %}
+            <!-- Bar Graph Container -->
+            <div id="barGraphContainer">
                 <!--<h2 class="title">Bar Graph of Cat Counts</h2> Added title -->
                 <canvas id="myBarGraph"></canvas>
             </div>
@@ -370,7 +382,8 @@
 
 
             <div id="filterResults">
-                <h3>Filtered Counts:</h3>
+                <h3> Matching Record Count:</h3>
+                <div id="totalRecordCount"></div>
                 {% for fwell in filtwells %}
                     <p>{{ fwell.stusps }}: 1</p>
                     <!-- You can add more information about the wells here -->
@@ -436,7 +449,7 @@
     <script>
 
         // Initialize Leaflet map
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        var map = L.map('map').setView([40.44062, -79.99589], 13);
     
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -601,6 +614,7 @@
                     selectedValue: selectedValue
                 },
                 success: function(data) {
+                    handleSuccess(data);
                     enableInputs();
                     filteredData = data;
                     // Update the table with the filtered AJAX response
@@ -609,6 +623,8 @@
                     updateMapMarkers(data);
                     // Update the pie chart with the new filtered data
                     updatePieChart(data);
+                    // Update the bar chart with count per county
+                    updateBarChart(data);
                     // Enable the download button
                     document.getElementById("downloadButton").disabled = false;
                                 },
@@ -620,7 +636,99 @@
             });
         }
 
+        // Function to create a new bar graph with updated data
+        function createBarGraph(data) {
+            // Clear existing bar graph if it exists
+            if (myBarGraph) {
+                myBarGraph.destroy();
+            }
 
+            // Count occurrences of each county
+            var countyCounts = {};
+            data.forEach(function(item) {
+                var county = item.county;
+                countyCounts[county] = (countyCounts[county] || 0) + 1;
+            });
+
+            // Get the bar graph canvas
+            var barGraphCanvas = document.getElementById('myBarGraph').getContext('2d');
+
+            // Create new bar graph data
+            var barGraphData = {
+                labels: Object.keys(countyCounts),
+                datasets: [{
+                    label: 'Number of Records',
+                    data: Object.values(countyCounts),
+                    backgroundColor: [
+                        'gray',
+                        '#025687',
+                        '#a3cf5f',
+                        '#0287d4',
+                        'darkgreen',
+                        '#d3c44f'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            // Create the bar graph
+            myBarGraph = new Chart(barGraphCanvas, {
+                type: 'bar',
+                data: barGraphData,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 90,
+                                minRotation: 90
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to handle AJAX success
+        function handleSuccess(data) {
+            // Parse the data if necessary
+            data = JSON.parse(data);
+
+            // Create a new bar graph with the updated data
+            createBarGraph(data);
+        }
+
+        // Function to update the bar chart with count per county
+        function updateBarChart(data) {
+            var data = JSON.parse(filteredData);
+            var countyCounts = {};
+
+            // Count occurrences of each county
+            data.forEach(function(item) {
+                var county = item.county;
+                countyCounts[county] = (countyCounts[county] || 0) + 1;
+            });
+        
+            // Get bar graph data
+            var barGraphData = myBarGraph.data.datasets[0];
+        
+            // Update bar graph labels with county names
+            var countyNames = Object.keys(countyCounts);
+            barGraphData.labels = countyNames;
+        
+            // Populate bar graph data with the number of records for each county
+            var barGraphValues = [];
+            countyNames.forEach(function(county) {
+                barGraphValues.push(countyCounts[county]);
+            });
+            barGraphData.data = barGraphValues;
+        
+            // Update bar graph
+            myBarGraph.update();
+        }
         // Function to download CSV of table data
         function downloadCSV() {
             // Check if filtered data is available
@@ -774,6 +882,9 @@
                 row += '</tr>';
                 tableBody.innerHTML += row;
             });
+
+            document.getElementById('totalRecordCount').innerText = 'Total Records: ' + data.length;
+
         }
     </script>
 </body>
