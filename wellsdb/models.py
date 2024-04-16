@@ -27,3 +27,30 @@ class Wells15(models.Model):
     
     def __str__(self) -> str:
         return super().__str__()
+    
+
+
+class HifldOilRef(models.Model):
+    objectid = models.CharField(max_length=50, blank=True, null=True)
+    ref_id = models.CharField(max_length=50, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    name = models.CharField(max_length=50, blank=True, null=True)
+    address = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    state = models.CharField(max_length=50, blank=True, null=True)
+    county = models.CharField(max_length=50, blank=True, null=True)
+    status = models.CharField(max_length=50, blank=True, null=True)
+    naics_code = models.CharField(max_length=50, blank=True, null=True)
+    naics_desc = models.CharField(max_length=50, blank=True, null=True)
+    reftype = models.CharField(max_length=50, blank=True, null=True)
+    opername = models.CharField(max_length=50, blank=True, null=True)
+    capacity = models.CharField(max_length=50, blank=True, null=True)
+    us_rank = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'hifld_oilrefineries'
+    
+    def __str__(self) -> str:
+        return super().__str__()

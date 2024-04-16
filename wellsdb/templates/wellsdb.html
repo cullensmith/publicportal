@@ -444,6 +444,52 @@
                     </tbody>
                 </table>
             </div>
+
+            <div class="table-container">
+                <table>
+                    <thead class="sticky-header-container">
+                        <tr>
+                            <th>Refinery ID</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>City</th>
+                            <th>County</th>
+                            <th>State</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>NAICS Code</th>
+                            <th>NAICS Description</th>
+                            <th>Operator</th>
+                            <th>Capacity</th>
+                            <th>US Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Repeat rows as needed -->
+                        {% for j in oilrefs %}
+                                <tr>
+                                    <td>{{ j.refid }}</td>
+                                    <td>{{ j.latitude }}</td>
+                                    <td>{{ j.longitude }}</td>
+                                    <td>{{ j.city }}</td>
+                                    <td>{{ j.county }}</td>
+                                    <td>{{ j.state }}</td>
+                                    <td>{{ j.reftype }}</td>
+                                    <td>{{ j.status }}</td>
+                                    <td>{{ j.naics_code }}</td>
+                                    <td>{{ j.naics_desc }}</td>
+                                    <td>{{ j.operatorname }}</td>
+                                    <td>{{ j.capacity }}</td>
+                                    <td>{{ j.us_rank }}</td>
+                                    <!-- Repeat cells as needed -->
+                                    <!-- {% for j in '111111111111111' %}
+                                    <td>Row {{ i.ft_uid }} Data {{ i.ft_category }}</td>
+                                    {% endfor %} -->
+                                </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>    
     </div>    
     <script>

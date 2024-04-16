@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Wells15
+from .models import Wells15,HifldOilRef
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db.models import Q
@@ -9,6 +9,11 @@ import json
 def wellsdb(request):
     wells = Wells15.objects.all()
     return render(request, 'wellsdb.html', { 'wells': wells })
+
+def oilref(request):
+    oilrefs = HifldOilRef.objects.all()
+    print(f'oilrefs:{oilrefs[0]}')
+    return render(request, 'wellsdb.html', { 'oilrefs': oilrefs })
 
 def fwells(request):
     filtwells = Wells15.objects.filter(stusps='WV')
