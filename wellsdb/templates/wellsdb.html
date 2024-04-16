@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FracTracker Data Portal</title>
+    <!-- Include Leaflet CSS and JavaScript -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+
+    <style>
+        /* Style for grid container */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Style for grid container */
+        .container2 {
+            display: grid;
+            grid-gap: 20px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        /*
+        .container,
+        .container2 {
+            border: 25px solid black;
+            background-color: white;
+            border-radius: 15px; /* Adjust the value as needed */
+            align-items: center;
+        }*/
+
+        /* Style for map container */
+        #map {
+            height: 300px;
+            width: 100%;
+            z-index: -7;
+        }
+
+        #pieChart {
+            height: 300px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Style for bar graph container */
+        #barGraph {
+            max-width: 98%;
+            height: 200px;
+            text-align: center;
+            margin: auto; /* Add this line to center the bar graph horizontally */
+        }
+
+        /* Style for table container */
+        .button_container {
+            max-height: 200px; /* Set maximum height */
+            max-width: 99%; /* Set maximum height */
+            margin: auto; /* Add this line to center the bar graph horizontally */
+        }
+
+        /* Style for table container */
+        .table-container {
+            max-height: 200px; /* Set maximum height */
+            max-width: 99%; /* Set maximum height */
+            overflow-y: auto; /* Add vertical scrollbar when necessary */
+            overflow-x: auto; /* Add vertical scrollbar when necessary */
+            border-top-left-radius: 10px; /* Round the top-left corner */
+            border-top-right-radius: 10px; /* Round the top-right corner */
+            margin: auto; /* Add this line to center the bar graph horizontally */
+        }
+
+        table {
+            background-color: white; /* Change table fill color to white */
+            border-collapse: collapse; /* Remove gaps between cells */
+        }
+
+        th, td {
+            text-align: center;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for table headers */
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            color: white;
+            background-color: #0287d4;
+            font-size: 13px; /* Adjust the font size as needed */
+            border: 5px solid #0287d4; /* Add border with increased size */
+            {% comment %} border-top-left-radius: 10px; /* Round the top-left corner */
+            border-top-right-radius: 10px; /* Round the top-right corner */ {% endcomment %}
+        }
+
+        /* Style for table row text */
+        td {
+            font-size: 12px; /* Adjust the font size as needed */
+            border: 1px solid black;
+            z-index: 5;
+            padding: 8px;
+            text-align: center;
+            font-size: 9px; /* Adjust the font size as needed */
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for filter button */
+        .button-link3 {
+            padding: 10px 20px;
+            width: 100%;
+            background-color: #f7f7f7; 
+            color: #0287d4;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            margin-right: 20px; /* Add space between buttons */
+            /*border-radius: 5px; Rounded corners */
+        }
+
+        /* Darken the button on hover */
+        .button-link3:hover {
+            width: 100%;
+            font-weight: bold;
+            background-color: lightgray; /* Darken the orange color */
+        }
+
+        /* Style for filter button */
+        .button-link2 {
+            padding: 10px 20px;
+            background-color: white; /* Change color to orange */
+            color: #025687;
+            border: none;
+            cursor: pointer;
+            font-family: "Arial Bold", sans-serif; /* Set font family to Arial */
+            font-weight: 2000;
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            margin-right: 20px; /* Add space between buttons */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease; /* Smooth transition for background color */
+        }
+        
+        /* Darken the button on hover */
+        .button-link2:hover {
+            background-color: white; /* Darken the orange color */
+            color: #0287d4;
+            text-decoration: underline;
+
+        }
+
+
+        /* Style for filter button */
+        .button-link {
+            padding: 10px 20px;
+            background-color: #a3cf5f;
+            color: darkgreen;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            margin-right: 20px; /* Add space between buttons */
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        /* Style for dropdown menu */
+        #tableDropdown {
+            margin-top: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for title */
+        .title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for navigation panel */
+        #navPanel {
+            max-height: 50px;
+            background-color: white;
+            border-bottom: 3px solid darkgray; /* Add border on the right side */
+            padding: 10px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            z-index: 5000;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        
+        /* Style for navigation links */
+        #navPanel a {
+            color: #025687;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for page background */
+        body {
+            background-color: white; /* Very light gray */
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            margin: 0; /* Reset default margin */
+            padding: 0; /* Reset default padding */
+        }
+
+        /* Add CSS for the sticky header container */
+        .sticky-header-container {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white; /* Match the table background */
+            border-bottom: 5px solid lightblue; /* Add bottom border to match table header */
+            border-radius: 10px; /* Round the corners */
+        }
+        {% comment %} .sticky-header-container {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: red; /* Match the table background */
+            border-bottom: 5px solid lightblue; /* Add bottom border to match table header */
+            border-top: 5px solid lightblue; /* Add top border to match table header */
+            border-radius: 10px; /* Round the corners */
+        } {% endcomment %}
+
+        /* Style for the sidebar */
+        #sidebar {
+            width: 125px;
+            height: 100%;
+            border-right: 1px solid darkgray; /* Add border on the right side */
+            position: fixed;
+            margin-top: 50px;
+            top: 0;
+            left: 0;
+            background-color: #f7f7f7;
+            padding: 20px 0;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* Style for sidebar links */
+        #sidebar a {
+            width: 100%;
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        /* Style for main content */
+        #main-content {
+            margin-left: 145px; /* Adjusted to accommodate the sidebar */
+            padding: 20px;
+        }
+        /* Style for filter results */
+        #filterResults {
+            margin-top: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 10px; /* Adjust margin as needed */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation panel -->
+    <div id="navPanel">
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org', '_blank')">HOME</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/about-us/', 'about')">ABOUT</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/resources/oil-and-gas-101/', 'about')">FRACKING 101</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/services', 'about')">SERVICES</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/get-involved', 'about')">GET INVOLVED</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/help', 'about')">FAQ</button>
+        <button class="button-link2" onclick="window.open('https://fractracker.networkforgood.com/', 'about')">DONATE</button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <button class="button-link3" onclick="window.open('https://app.box.com/s/i7w2tm3tlp4fqmoe3pzelyjx5gbjj2lk', '_blank')">Datasets</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/map', '_blank')">Maps</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/resources/photos/', '_blank')">Gallery</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/data/data-resources', '_blank')">Resources</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/categories/by-content/', '_blank')">Articles</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org', '_blank')">Contribute Data</button>
+    </div>
+
+    <!-- Main content -->
+    <div id="main-content">
+        <!-- Grid container for pie chart and map -->
+        <div class="container">
+            <!-- Label for data snapshot -->
+            <h3 class="title">Data Snapshot:</h3>
+            <!-- Dropdown menu -->
+            <select id="selectFeatData" onchange="selectFeatData()">
+                <option value="initial">National Oil and Gas Well Inventory</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+            </select>
+            <!-- Pie Chart Container -->
+            <div id="pieChart">
+                <canvas id="myPieChart"></canvas>
+            </div>
+            <!-- Leaflet Map Container -->
+            <div id="map"></div>
+        </div>
+
+        <!-- Grid container for bar graph, buttons, and table -->
+        <div class="container2">
+            <!-- Bar Graph Container -->
+            <div id="barGraph">
+                <!--<h2 class="title">Bar Graph of Cat Counts</h2> Added title -->
+                <canvas id="myBarGraph"></canvas>
+            </div>
+
+            <!-- Buttons and Dropdown menu -->
+            <div id="button_container">
+                <!-- Dropdown menu -->
+
+                <select id="tableDropdownMultiple" multiple>
+                    <option value="allstates">--Select State(s)--</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="OH">Ohio</option>
+                    <option value="WV">West Virginia</option>
+                </select>
+
+                <!-- Dropdown menu for categories -->
+                <select id="categoryDropdown" multiple>
+                    <option value="">--Select Category--</option>
+                    <option value="Production Well">Production Well</option>
+                    <option value="Injection / Storage / Service">Injection / Storage / Service</option>
+                    <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
+                    <option value="Other / Unknown">Other / Unknown</option>
+                    <option value="Not Drilled">Not Drilled</option>
+                    <option value="Plugged">Plugged</option>
+                </select>
+                <p>*Multiple Selections Allowed</p>
+                <!-- Accept button -->
+                <button id="acceptButton" class="button-link" onclick="acceptSelection()">Apply Filter</button>
+
+                {% comment %} <!-- Filter Button -->
+                <button class="button-link" onclick="filterData()">Filter Data</button> {% endcomment %}
+
+                <!-- Download Button -->
+                <button id="downloadButton" class="button-link" onclick="downloadCSV(filteredData)" disabled>Download CSV</button>
+            </div>
+
+            <!-- Display selected table -->
+            <div id="selectedTable"></div>
+
+            <!-- Display filtered counts -->
+            <div id="filterResults"></div>
+
+
+            <div id="filterResults">
+                <h3>Filtered Counts:</h3>
+                {% for fwell in filtwells %}
+                    <p>{{ fwell.stusps }}: 1</p>
+                    <!-- You can add more information about the wells here -->
+                {% endfor %}
+            </div>
+
+            <!-- Display selected table -->
+            <div class="table-container">
+                <table>
+                    <thead class="sticky-header-container">
+                        <tr>
+                            <th>API Number</th>
+                            <th>Other ID</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>State</th>
+                            <th>County</th>
+                            <th>Municipality</th>
+                            <th>Well Name</th>
+                            <th>Operator</th>
+                            <th>Spud Date</th>
+                            <th>Plug Date</th>
+                            <th>Well Type</th>
+                            <th>Well Status</th>
+                            <th>Well Config</th>
+                            <th>FracTracker Category</th>
+                            <th>WellWiki Site</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Repeat rows as needed -->
+                        {% for i in wells %}
+                            {% if forloop.counter <= 500 %}
+                                <tr>
+                                    <td>{{ i.api_num }}</td>
+                                    <td>{{ i.other_id }}</td>
+                                    <td>{{ i.latitude }}</td>
+                                    <td>{{ i.longitude }}</td>
+                                    <td>{{ i.stusps }}</td>
+                                    <td>{{ i.county }}</td>
+                                    <td>{{ i.municipality }}</td>
+                                    <td>{{ i.well_name }}</td>
+                                    <td>{{ i.operator }}</td>
+                                    <td>{{ i.spud_date }}</td>
+                                    <td>{{ i.plug_date }}</td>
+                                    <td>{{ i.well_type }}</td>
+                                    <td>{{ i.well_status }}</td>
+                                    <td>{{ i.well_config }}</td>
+                                    <td>{{ i.ft_category }}</td>
+                                    <td>{{ i.wellwiki }}</td>
+                                    <!-- Repeat cells as needed -->
+                                    <!-- {% for j in '111111111111111' %}
+                                    <td>Row {{ i.ft_uid }} Data {{ i.ft_category }}</td>
+                                    {% endfor %} -->
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>    
+    </div>    
+    <script>
+
+        // Initialize Leaflet map
+        var map = L.map('map').setView([51.505, -0.09], 13);
+    
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            //attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    
+        // Add a marker to the map with customized icon and popup
+        function addMarker(latitude, longitude, api_num, operator, ft_category) {
+            // Create a custom icon
+            var customIcon = L.icon({
+                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png", // URL or path to the marker icon
+                iconSize: [5, 7], // Set the size of the icon to 10 by 10 pixels
+                iconAnchor: [5, 5] // Set the anchor point of the icon to its center
+            });
+
+            // Create a marker with the custom icon
+            var marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
+
+            // Create a popup content
+            var popupContent = "<b>API Number:</b> " + api_num + "<br><b>Operator:</b> " + operator + "<br><b>Category:</b> " + ft_category + '<br>';
+
+            // Bind the popup to the marker
+            marker.bindPopup(popupContent);
+
+            // Return the marker
+            return marker;
+        }
+    
+        // Data for the pie chart
+        var pieData = {
+            labels: ["Production Well", "Injection / Storage / Service", "Orphaned / Abandoned / Unverified Plug", "Other / Unknown", "Not Drilled", "Plugged"],
+            datasets: [{
+                data: [1, 1, 1, 1, 1, 1], // Initialize counts to 1 (gray circle)
+                backgroundColor: [
+                    'gray',
+                    '#025687',
+                    '#a3cf5f',
+                    '#0287d4',
+                    'darkgreen',
+                    '#d3c44f'
+                ]
+            }]
+        };
+    
+        // Get the pie chart canvas
+        var pieChartCanvas = document.getElementById('myPieChart').getContext('2d');
+    
+        // Create the pie chart with a hole in the middle
+        var myPieChart = new Chart(pieChartCanvas, {
+            type: 'doughnut', // Change the chart type to doughnut
+            data: pieData,
+            options: {
+                cutout: '70%', // Set the size of the hole in the middle
+            }
+        });
+    
+        // Data for the bar graph
+        var barData = {
+            labels: ['County 1', 'County 2', 'County 3', "County 4", "County 5"],
+            datasets: [{
+                label: 'Count by County',
+                data: [0, 0, 0, 0, 0, 0], // Initialize counts to 0
+                backgroundColor: [
+                'gray',
+                '#025687',
+                '#a3cf5f',
+                '#0287d4',
+                'darkgreen',
+                '#d3c44f'
+                ],
+                borderWidth: 1
+            }]
+        };
+    
+        // Get the bar graph canvas
+        var barGraphCanvas = document.getElementById('myBarGraph').getContext('2d');
+    
+        // Create the bar graph
+        var myBarGraph = new Chart(barGraphCanvas, {
+            type: 'bar',
+            data: barData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 90,
+                            minRotation: 90
+                        }
+                    }
+                }
+            }
+        });
+
+        // Function to disable dropdown menus and buttons
+        function disableInputs() {
+            // Disable the dropdown menus
+            document.getElementById("tableDropdownMultiple").disabled = true;
+            document.getElementById("categoryDropdown").disabled = true;
+
+            // Disable the button
+            document.getElementById("acceptButton").disabled = true;
+        }
+
+        // Function to enable dropdown menus and buttons
+        function enableInputs() {
+            // Enable the dropdown menus
+            document.getElementById("tableDropdownMultiple").disabled = false;
+            document.getElementById("categoryDropdown").disabled = false;
+
+            // Enable the button
+            document.getElementById("acceptButton").disabled = false;
+        }
+        // Function to accept selection from dropdown menu
+        function acceptSelection() {
+            // Get the selected value from the dropdown menu
+            //var dropdown = document.getElementById("tableDropdown");
+            //var selectedValue = dropdown.options[dropdown.selectedIndex].value;
+            
+            // Disable dropdown menus and button
+            disableInputs();
+
+            {% comment %} var dropdown = document.getElementById("tableDropdownMultiple"); {% endcomment %}
+            {% comment %} var selectedValue = [];
+            for (var i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].selected) {
+                    selectedValue.push(dropdown.options[i].value);
+                }
+            }
+            console.log(selectedValue); {% endcomment %}
+
+
+            var stateDropdown = document.getElementById("tableDropdownMultiple");
+        
+            // Get the selected value from the category dropdown menu
+            var categoryDropdown = document.getElementById("categoryDropdown");
+        
+            var selectedValue = [];
+            for (var i = 0; i < stateDropdown.options.length; i++) {
+                if (stateDropdown.options[i].selected) {
+                    selectedValue.push(stateDropdown.options[i].value);
+                }
+            }
+            for (var i = 0; i < categoryDropdown.options.length; i++) {
+                if (categoryDropdown.options[i].selected) {
+                    selectedValue.push(categoryDropdown.options[i].value);
+                }
+            }
+            console.log(selectedValue);
+
+
+            // Check if selections were made in both dropdown menus
+
+            // Make an AJAX request to the Django views to get updated data
+            $.ajax({
+                url: '/wellsdb/your_view',
+                method: 'GET',
+                data: {
+                    selectedValue: selectedValue
+                },
+                success: function(data) {
+                    enableInputs();
+                    filteredData = data;
+                    // Update the table with the filtered AJAX response
+                    updateTable(data);
+                    // Update the map markers with the filtered data
+                    updateMapMarkers(data);
+                    // Update the pie chart with the new filtered data
+                    updatePieChart(data);
+                    // Enable the download button
+                    document.getElementById("downloadButton").disabled = false;
+                                },
+                error: function(xhr, status, error) {
+                    enableInputs();
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        }
+
+
+        // Function to download CSV of table data
+        function downloadCSV() {
+            // Check if filtered data is available
+            if (!filteredData) {
+                console.error("Filtered data is not available.");
+                return;
+            }
+        
+            // Parse filtered data
+            var data = JSON.parse(filteredData);
+        
+            // Function to properly encode special characters for CSV
+            function encodeForCSV(str) {
+                // If the string contains comma, double quote, or newline characters,
+                // wrap it in double quotes and escape any double quotes within the string
+                if (/[,"\n]/.test(str)) {
+                    return '"' + str.replace(/"/g, '""').replace('#','') + '"';
+                } else if (/#/.test(str)) {
+                    // If the string contains #, wrap it in double quotes to ensure it's treated as a regular character
+                    console.log(str);
+                    console.log(str.replace('#',''));
+                    return str.replace('#','');
+                }
+                return str;
+            }
+        
+            // Convert data to CSV format
+            var csvContent = "data:text/csv;charset=utf-8,";
+        
+            // Get the headers from the first data item
+            var headers = Object.keys(data[0]);
+            csvContent += headers.map(encodeForCSV).join(",") + "\n";
+        
+            // Convert each data item to CSV format
+            data.forEach(function(dataItem) {
+                var row = headers.map(function(header) {
+                    return encodeForCSV(dataItem[header]);
+                }).join(",");
+                console.log(row);
+                csvContent += row + "\n";
+            });
+        
+            // Create a Blob object with the CSV content
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "filtered_data.csv");
+        
+            // Initiate download
+            document.body.appendChild(link); // Required for Firefox
+            link.click();
+        
+            // Remove the link element
+            document.body.removeChild(link);
+        }
+
+
+
+
+        // Function to update the map markers with the filtered data
+        function updateMapMarkers(data) {
+            data = JSON.parse(data);
+
+            // Clear existing markers from the map
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Add markers for the filtered data with non-null latitude and longitude
+            var bounds = [];
+            data.forEach(function(item) {
+                // Check if latitude and longitude are not null
+                if (item.latitude !== null && item.longitude !== null) {
+                    var marker = addMarker(item.latitude, item.longitude, item.api_num, item.operator, item.ft_category);
+                    bounds.push(marker.getLatLng());
+                }
+            });
+
+            // Fit map bounds to markers
+            if (bounds.length > 0) {
+                map.fitBounds(bounds);
+            }
+        }
+        // Function to update the pie chart with the filtered data
+        function updatePieChart(data) {
+            data = JSON.parse(data);
+
+            // Initialize counts for pie chart
+            var pieCounts = [0, 0, 0, 0, 0, 0];
+
+            // Update counts for filtered data
+            data.forEach(function(item) {
+                // Increment count based on category
+                switch (item.ft_category) {
+                    case "Production Well":
+                        pieCounts[0]++;
+                        break;
+                    case "Injection / Storage / Service":
+                        pieCounts[1]++;
+                        break;
+                    case "Orphaned / Abandoned / Unverified Plug":
+                        pieCounts[2]++;
+                        break;
+                    case "Other / Unknown":
+                        pieCounts[3]++;
+                        break;
+                    case "Not Drilled":
+                        pieCounts[4]++;
+                        break;
+                    case "Plugged":
+                        pieCounts[5]++;
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            // Update pie chart data
+            myPieChart.data.datasets[0].data = pieCounts;
+            myPieChart.update();
+        }
+        // Function to update the table with the filtered AJAX response
+        function updateTable(data) {
+            data = JSON.parse(data);
+            var data_for_export = data;
+            // Clear the existing table body
+            var tableBody = document.querySelector('tbody');
+            tableBody.innerHTML = '';
+
+            // Iterate through the filtered data and add rows to the table
+            data.forEach(function(item) {
+                var row = '<tr>';
+                row += '<td>' + item.api_num + '</td>';
+                row += '<td>' + item.other_id + '</td>';
+                row += '<td>' + item.latitude + '</td>';
+                row += '<td>' + item.longitude + '</td>';
+                row += '<td>' + item.stusps + '</td>';
+                row += '<td>' + item.county + '</td>';
+                row += '<td>' + item.municipality + '</td>';
+                row += '<td>' + item.well_name + '</td>';
+                row += '<td>' + item.operator + '</td>';
+                row += '<td>' + item.spud_date + '</td>';
+                row += '<td>' + item.plug_date + '</td>';
+                row += '<td>' + item.well_type + '</td>';
+                row += '<td>' + item.well_status + '</td>';
+                row += '<td>' + item.well_config + '</td>';
+                row += '<td>' + item.ft_category + '</td>';
+                row += '<td>' + item.wellwiki + '</td>';
+                row += '</tr>';
+                tableBody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>
