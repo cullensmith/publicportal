@@ -231,15 +231,6 @@
             border-bottom: 5px solid lightblue; /* Add bottom border to match table header */
             border-radius: 10px; /* Round the corners */
         }
-        {% comment %} .sticky-header-container {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background-color: red; /* Match the table background */
-            border-bottom: 5px solid lightblue; /* Add bottom border to match table header */
-            border-top: 5px solid lightblue; /* Add top border to match table header */
-            border-radius: 10px; /* Round the corners */
-        } {% endcomment %}
 
         /* Style for the sidebar */
         #sidebar {
@@ -313,10 +304,11 @@
             <!-- Label for data snapshot -->
             <h3 class="title">Data Snapshot:</h3>
             <!-- Dropdown menu -->
-            <select id="selectFeatData" onchange="selectFeatData()">
-                <option value="initial">National Oil and Gas Well Inventory</option>
-                <option value="option2">EIA 923/860m</option>
-                <option value="option3">HILFD Oil Refineries</option>
+            <select id="selectFeatData" >
+                <option value="initial">Select the Dataset</option>
+                <option value="option1">Cracker Plants</option>
+                <option value="option2">Petrochemical Terminals</option>
+                <option value="option3">Oil Refineries</option>
             </select>
             <!-- Pie Chart Container -->
             <div id="pieChart">
@@ -328,34 +320,28 @@
 
         <!-- Grid container for bar graph, buttons, and table -->
         <div class="container2">
-            <!-- Buttons and Dropdown menu -->
-            {% comment %} <div id="buttonContainer">
-                <!-- Dropdown menus and buttons here -->
-            </div>
-
-            <!-- Bar Graph Container -->
-            <div id="barGraphContainer">
-                <canvas id="myBarGraph"></canvas>
-            </div> {% endcomment %}
-            <!-- Bar Graph Container -->
-            <div id="barGraphContainer">
+            {% comment %} <div id="barGraphContainer">
                 <!--<h2 class="title">Bar Graph of Cat Counts</h2> Added title -->
                 <canvas id="myBarGraph"></canvas>
-            </div>
+            </div> {% endcomment %}
 
             <!-- Buttons and Dropdown menu -->
             <div id="button_container">
                 <!-- Dropdown menu -->
-
+                <h3>SELECT FILTERS</h3>
+                <p>*Multiple Selections Allowed</p>
+                <label for="tableDropdownMultiple">State:<br></label>
                 <select id="tableDropdownMultiple" multiple>
-                    <option value="allstates">--Select State(s)--</option>
+                    <option value="allstates">All</option>
                     <option value="PA">Pennsylvania</option>
                     <option value="OH">Ohio</option>
-                    <option value="WV">West Virginia</option>
+                    <option value="WV">West Virginia</option> 
+                    <option value="more">madeit</option>
                 </select>
-
+                <br><br><br>
                 <!-- Dropdown menu for categories -->
-                <select id="categoryDropdown" multiple>
+                <label for="tableCatDropdownMultiple">Company:<br></label>
+                <select id="tableCatDropdownMultiple" label='Company' multiple>
                     <option value="">--Select Category--</option>
                     <option value="Production Well">Production Well</option>
                     <option value="Injection / Storage / Service">Injection / Storage / Service</option>
@@ -367,9 +353,6 @@
                 <p>*Multiple Selections Allowed</p>
                 <!-- Accept button -->
                 <button id="acceptButton" class="button-link" onclick="acceptSelection()">Apply Filter</button>
-
-                {% comment %} <!-- Filter Button -->
-                <button class="button-link" onclick="filterData()">Filter Data</button> {% endcomment %}
 
                 <!-- Download Button -->
                 <button id="downloadButton" class="button-link" onclick="downloadCSV(filteredData)" disabled>Download CSV</button>
@@ -446,7 +429,7 @@
                 </table>
             </div>
 
-            <div class="table-container">
+            {% comment %} <div class="table-container">
                 <table>
                     <thead class="sticky-header-container">
                         <tr>
@@ -490,7 +473,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+            </div> {% endcomment %}
         </div>    
     </div>    
     <script>
@@ -553,7 +536,7 @@
             }
         });
     
-        // Data for the bar graph
+        {% comment %} // Data for the bar graph
         var barData = {
             labels: ['County 1', 'County 2', 'County 3', "County 4", "County 5"],
             datasets: [{
@@ -592,27 +575,29 @@
                     }
                 }
             }
-        });
+        }); {% endcomment %}
 
         // Function to disable dropdown menus and buttons
         function disableInputs() {
-            // Disable the dropdown menus
+            {% comment %} // Disable the dropdown menus
             document.getElementById("tableDropdownMultiple").disabled = true;
             document.getElementById("categoryDropdown").disabled = true;
 
             // Disable the button
-            document.getElementById("acceptButton").disabled = true;
+            document.getElementById("acceptButton").disabled = true; {% endcomment %}
         }
 
         // Function to enable dropdown menus and buttons
         function enableInputs() {
             // Enable the dropdown menus
-            document.getElementById("tableDropdownMultiple").disabled = false;
+            {% comment %} document.getElementById("tableDropdownMultiple").disabled = false;
             document.getElementById("categoryDropdown").disabled = false;
 
             // Enable the button
-            document.getElementById("acceptButton").disabled = false;
+            document.getElementById("acceptButton").disabled = false; {% endcomment %}
         }
+
+
         // Function to accept selection from dropdown menu
         function acceptSelection() {
             // Get the selected value from the dropdown menu
@@ -632,10 +617,13 @@
             console.log(selectedValue); {% endcomment %}
 
 
+
+
+
             var stateDropdown = document.getElementById("tableDropdownMultiple");
         
             // Get the selected value from the category dropdown menu
-            var categoryDropdown = document.getElementById("categoryDropdown");
+            var categoryDropdown = document.getElementById("tableCatDropdownMultiple");
         
             var selectedValue = [];
             for (var i = 0; i < stateDropdown.options.length; i++) {
@@ -671,8 +659,8 @@
                     // Update the pie chart with the new filtered data
                     updatePieChart(data);
                     // Update the bar chart with count per county
-                    updateBarChart(data);
-                    // Enable the download button
+                    {% comment %} updateBarChart(data);
+                    // Enable the download button {% endcomment %}
                     document.getElementById("downloadButton").disabled = false;
                                 },
                 error: function(xhr, status, error) {
@@ -683,7 +671,7 @@
             });
         }
 
-        // Function to create a new bar graph with updated data
+        {% comment %} // Function to create a new bar graph with updated data
         function createBarGraph(data) {
             // Clear existing bar graph if it exists
             if (myBarGraph) {
@@ -737,7 +725,7 @@
                     }
                 }
             });
-        }
+        } {% endcomment %}
 
         // Function to handle AJAX success
         function handleSuccess(data) {
@@ -745,7 +733,7 @@
             data = JSON.parse(data);
 
             // Create a new bar graph with the updated data
-            createBarGraph(data);
+            {% comment %} createBarGraph(data); {% endcomment %}
         }
 
         // Function to update the bar chart with count per county
@@ -932,6 +920,87 @@
 
             document.getElementById('totalRecordCount').innerText = 'Total Records: ' + data.length;
 
+        }
+
+
+        $(document).ready(function() {
+            $('#selectFeatData').change(function() {
+                var selectedOption = $(this).val();
+                console.log('noticed the dropdown change')
+                console.log('chose:')
+                console.log(selectedOption)
+                // Make an AJAX request to the server when dropdown selection changes
+                $.ajax({
+                    url: '/wellsdb/added_states',
+                    type: 'GET',
+                    data: {
+                        selectedOption: selectedOption
+                    },
+                    success: function(response) {
+                        populateSecondDropdown(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        // Handle error response here
+                    }
+                });
+            });
+        });
+
+        function populateSecondDropdown(options) {
+            var options = JSON.parse(options);
+            console.log(options)
+            var secondDropdown = $('#tableDropdownMultiple');
+            secondDropdown.empty(); // Clear existing options
+
+            // Add new options based on the response
+            $.each(options, function(index, option) {
+                secondDropdown.append($('<option>', {
+                    value: option,
+                    text: option
+                }));
+            });
+        }
+
+        
+
+        $(document).ready(function() {
+            $('#selectFeatData').change(function() {
+                var selectedOption = $(this).val();
+                console.log('noticed the dropdown change')
+                console.log('chose:')
+                console.log(selectedOption)
+                // Make an AJAX request to the server when dropdown selection changes
+                $.ajax({
+                    url: '/wellsdb/added_states2',
+                    type: 'GET',
+                    data: {
+                        selectedOption: selectedOption
+                    },
+                    success: function(response) {
+                        populateThirdDropdown(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        // Handle error response here
+                    }
+                });
+            });
+        });
+
+        function populateThirdDropdown(options) {
+            var options = JSON.parse(options);
+            console.log(options)
+            var secondDropdown = $('#tableCatDropdownMultiple');
+            secondDropdown.empty(); // Clear existing options
+
+            // Add new options based on the response
+            $.each(options, function(index, option) {
+                secondDropdown.append($('<option>', {
+                    value: option,
+                    text: option
+                }));
+            });
         }
     </script>
 </body>
