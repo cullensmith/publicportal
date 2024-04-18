@@ -27,6 +27,7 @@ urlpatterns = [
     path('about/',views.about),
     path('posts/', include('posts.urls')),
     path('wellsdb/', include('wellsdb.urls')),
+    path('boxdata/', include('boxdata.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

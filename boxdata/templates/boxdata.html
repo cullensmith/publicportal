@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FracTracker Data Portal</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+
+    <style>
+        /* Style for grid container */
+        .container {
+            display: flex;
+            margin: auto;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            width: 50%;
+        }
+
+        /* Center the table */
+        .table-container {
+            margin: 0;
+            text-align: center;
+            float: right;
+        }
+
+
+        /* Style for table row text */
+        td {
+            font-size: 12px; /* Adjust the font size as needed */
+            border: 1px solid black;
+            z-index: 5;
+            padding: 8px;
+            text-align: center;
+            font-size: 9px; /* Adjust the font size as needed */
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for filter button */
+        .button-link3 {
+            padding: 10px 20px;
+            width: 100%;
+            background-color: #f7f7f7; 
+            color: #0287d4;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            margin-right: 20px; /* Add space between buttons */
+            /*border-radius: 5px; Rounded corners */
+        }
+
+        /* Darken the button on hover */
+        .button-link3:hover {
+            width: 100%;
+            font-weight: bold;
+            background-color: lightgray; /* Darken the orange color */
+        }
+
+        /* Style for filter button */
+        .button-link2 {
+            padding: 10px 20px;
+            background-color: white; /* Change color to orange */
+            color: #025687;
+            border: none;
+            cursor: pointer;
+            font-family: "Arial Bold", sans-serif; /* Set font family to Arial */
+            font-weight: 2000;
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            margin-right: 20px; /* Add space between buttons */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s ease; /* Smooth transition for background color */
+        }
+        
+        /* Darken the button on hover */
+        .button-link2:hover {
+            background-color: white; /* Darken the orange color */
+            color: #0287d4;
+            text-decoration: underline;
+
+        }
+
+        /* Style for filter button */
+        .button-link {
+            padding: 10px 20px;
+            background-color: #a3cf5f;
+            color: darkgreen;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            margin-right: 20px; /* Add space between buttons */
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        /* Style for dropdown menu */
+        #tableDropdown {
+            margin-top: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for title */
+        .title {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for navigation panel */
+        #navPanel {
+            max-height: 50px;
+            background-color: white;
+            border-bottom: 3px solid darkgray; /* Add border on the right side */
+            padding: 10px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            z-index: 5000;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        
+        /* Style for navigation links */
+        #navPanel a {
+            color: #025687;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+
+        /* Style for page background */
+        body {
+            background-color: white; /* Very light gray */
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            margin: 0; /* Reset default margin */
+            padding: 0; /* Reset default padding */
+        }
+
+        /* Add CSS for the sticky header container */
+        .sticky-header-container {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white; /* Match the table background */
+            border-bottom: 5px solid lightblue; /* Add bottom border to match table header */
+            border-radius: 10px; /* Round the corners */
+        }
+        /* Style for the sidebar */
+        #sidebar {
+            width: 125px;
+            height: 100%;
+            border-right: 1px solid darkgray; /* Add border on the right side */
+            position: fixed;
+            margin-top: 50px;
+            top: 0;
+            left: 0;
+            background-color: #f7f7f7;
+            padding: 20px 0;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* Style for sidebar links */
+        #sidebar a {
+            width: 100%;
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        /* Style for main content */
+        #main-content {
+            margin-left: 145px; /* Adjusted to accommodate the sidebar */
+            padding: 20px;
+        }
+        /* Style for filter results */
+        #filterResults {
+            margin-top: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 10px; /* Adjust margin as needed */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation panel -->
+    <div id="navPanel">
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org', '_blank')">HOME</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/about-us/', 'about')">ABOUT</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/resources/oil-and-gas-101/', 'about')">FRACKING 101</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/services', 'about')">SERVICES</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/get-involved', 'about')">GET INVOLVED</button>
+        <button class="button-link2" onclick="window.open('https://www.fractracker.org/help', 'about')">FAQ</button>
+        <button class="button-link2" onclick="window.open('https://fractracker.networkforgood.com/', 'about')">DONATE</button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <button class="button-link3" onclick="window.open('http://127.0.0.1:8000/wellsdb', '_blank')">Dashboard</button>
+        <button class="button-link3" onclick="window.open('https://app.box.com/s/i7w2tm3tlp4fqmoe3pzelyjx5gbjj2lk', '_blank')">Box</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/map', '_blank')">Maps</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/resources/photos/', '_blank')">Gallery</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/data/data-resources', '_blank')">Resources</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org/categories/by-content/', '_blank')">Articles</button>
+        <button class="button-link3" onclick="window.open('https://www.fractracker.org', '_blank')">Contribute Data</button>
+    </div>
+    <div class="container">
+        <div>
+            <label for="dropdown1">Category:</label>
+            <select id="dropdown1">
+                <option value="option1">National</option>
+                <option value="option2">State Specific</option>
+                <option value="option3">Regional</option>
+                <option value="option4">International</option>
+            </select>
+        </div>
+        <div>
+            <label for="dropdown2">Data Type:</label>
+            <select id="dropdown2">
+                <option value="option1">Geospatial</option>
+                <option value="option2">CSV</option>
+                <option value="option3">Images</option>
+            </select>
+        </div>
+        <div>
+            <label for="dropdown3">Sort:</label>
+            <select id="dropdown3">
+                <option value="option1">A to Z</option>
+                <option value="option2">Z to A</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Table container -->
+    <div> class="table-container">
+        <label for="results">Results:</label>
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Column Headerrrrrrrrrrrrrrrrrrrrrrrr</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in boxsets %}
+                   <tr><td><h3>r.name</h3><br><p>r.desc</p></td></tr>
+                {% endfor %}
+                <tr>gggggggggggggggggggggggggggggggggggggggggggggggg</tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        console.log('table loads')
+        $(document).ready(function () {
+            // Function to update the table count label
+            function updateTableCount() {
+                var rowCount = $('#resultsTable tbody tr').length;
+                $('#results').text("Results: " + rowCount);
+            }
+
+            // Function to fetch filtered results from Django view
+            function fetchFilteredResults() {
+                // Example AJAX call to Django view
+                $.ajax({
+                    url: '/boxdata/your_view',
+                    type: 'GET',
+                    data: {
+                        dropdown1Value: $('#dropdown1').val(),
+                        dropdown2Value: $('#dropdown2').val(),
+                        dropdown3Value: $('#dropdown3').val()
+                    },
+                    success: function (data) {
+                        // Assuming data is the HTML for updated table rows
+                        $('#resultsTable tbody').html(data);
+                        updateTableCount();
+                    },
+                    error: function (error) {
+                        console.log("Error fetching filtered results:", error);
+                    }
+                });
+            }
+
+            // Event listener for dropdown change
+            $('#dropdown1, #dropdown2, #dropdown3').change(function () {
+                fetchFilteredResults();
+            });
+
+            // Initial update of table count label
+            updateTableCount();
+        });
+    </script>
+
+</body>
+</html>

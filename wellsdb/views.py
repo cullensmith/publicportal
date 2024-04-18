@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Wells15,HifldOilRef
+from .models import Wells15,HifldOilRef,BoxData,Cracker,TermPetro
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db.models import Q
@@ -10,14 +10,22 @@ def wellsdb(request):
     wells = Wells15.objects.all()
     return render(request, 'wellsdb.html', { 'wells': wells })
 
+def cracker(request):
+    crackers = Cracker.objects.all()
+    return render(request, 'wellsdb.html', { 'crackers': crackers })
+
+def terminalspetro(request):
+    petroterms = TermPetro.objects.all()
+    return render(request, 'wellsdb.html', { 'petroterms': petroterms })
+
+def boxdata(request):
+    boxsets = BoxData.objects.all()
+    return render(request, 'boxdata.html', { 'boxsets': boxsets })
+
 def oilref(request):
     oilrefs = HifldOilRef.objects.all()
     print(f'oilrefs:{oilrefs[0]}')
     return render(request, 'wellsdb.html', { 'oilrefs': oilrefs })
-
-def fwells(request):
-    filtwells = Wells15.objects.filter(stusps='WV')
-    return render(request, 'wellsdb.html', {'filtwells': filtwells})
 
 def your_view(request):
     # Get the selected value from the AJAX request
