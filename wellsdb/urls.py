@@ -14,4 +14,8 @@ urlpatterns = [
     path('added_states',views.added_states, name="added_states"),
     path('cracker_states2',views.cracker_states2, name="cracker_states2"),
     path('added_states2',views.added_states2, name="added_states2"),
+    path('generate_new_table',views.generate_new_table, name="generate_new_table"),
+    path('update_table',views.update_table, name="update_table"),
+    path('generate_geojson',views.generate_geojson, name="generate_geojson"),
+
 ]

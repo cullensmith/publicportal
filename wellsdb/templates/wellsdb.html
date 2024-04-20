@@ -3,9 +3,14 @@
 <head>
     <title>FracTracker Data Portal</title>
     <!-- Include Leaflet CSS and JavaScript -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- Include Chart.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin="" />
+    <link rel="stylesheet" href="https://cdn.rawgit.com/mapbox/supercluster/v4.0.1/demo/cluster.css" />
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet-src.js" integrity="sha512-IkGU/uDhB9u9F8k+2OsA6XXoowIhOuQL1NTgNZHY1nkURnqEGlDZq3GsfmdJdKFe1k1zOc6YU2K7qY+hF9AodA==" crossorigin=""></script>
+    <script src="https://unpkg.com/supercluster@4.0.1/dist/supercluster.js"></script>
+    {% comment %} <script src="https://code.jquery.com/jquery-1.12.4.js"></script> {% endcomment %}
+    <!-- for the underscore variable/js function-->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -13,48 +18,173 @@
 
     <style>
         /* Style for grid container */
-        .container {
+        .main-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-gap: 20px;
-            margin-bottom: 20px;
+            {% comment %} z-index: 80000; {% endcomment %}
+            grid-template-rows: 500px 300px 510px;
+            {% comment %} border: 2px solid;  {% endcomment %}
+            {% comment %} border-color: black; {% endcomment %}
+            {% comment %} width: 88%; {% endcomment %}
+            margin-top: 2%;
+            margin-bottom: 2%;
+            margin-left: 14%;
+            margin-right: 2%;
+            grid-gap: 4%;
+            background-color: #ededed;
+            border: 12px solid;
+            border-color: #ededed;
+            border-radius: 20px;
         }
-
-        /* Style for grid container */
-        .container2 {
+        .featurecontainer {
+            height: 500px;
             display: grid;
-            grid-gap: 20px;
-            margin-top: 40px;
-            margin-bottom: 20px;
+            grid-template-columns: 33% 63%;
+            {% comment %} grid-template-columns: repeat(2, 50%); {% endcomment %}
+            grid-template-rows: 100%;
+            {% comment %} border: 1px solid;
+            border-color: red;  {% endcomment %}
+            grid-gap: 4%;
+            {% comment %} margin-bottom: 20px; {% endcomment %}
+            {% comment %} margin-top: 2%; {% endcomment %}
+            {% comment %} margin-bottom: 2%;
+            margin-left: 14%;
+            margin-right: 2%; {% endcomment %}
         }
-
-        /*
-        .container,
-        .container2 {
-            border: 25px solid black;
-            background-color: white;
-            border-radius: 15px; /* Adjust the value as needed */
+        .child {
+            z-index: 5000;
+            display: grid;
+            height: 100%;
+            grid-template-rows: 12% 88%;
+            grid-template-columns: 100%;
+            {% comment %} border: 5px solid;
+            border-color: orange; {% endcomment %}
+          }
+        .subchild1 {
+            display: grid;
+            grid-template-rows: 100%;
+            {% comment %} grid-template-columns: 30% 70%; {% endcomment %}
             align-items: center;
-        }*/
+            justify-content: center;
+            {% comment %} border: 5px solid;
+            border-color: lightgreen; {% endcomment %}
 
+        }
+        .subchild2 {
+            {% comment %} display: float; {% endcomment %}
+            {% comment %} grid-template-rows: 100%;
+            grid-template-columns: 100%; {% endcomment %}
+            max-height: 100%;
+            {% comment %} height: 100%; {% endcomment %}
+            max-width: 100%;
+            {% comment %} margin-top: auto; {% endcomment %}
+            {% comment %} align-items: center;
+            justify-content: center; {% endcomment %}
+            {% comment %} border: 5px solid;
+            border-color: green; {% endcomment %}
+
+        }
+        /* Style for filter grid container */
+        .filterscontainer {
+            display: grid;
+            height: 100%;
+            {% comment %} grid-template-columns: repeat(4, 25%); {% endcomment %}
+            grid-template-rows: 60% 25% 15%;
+            {% comment %} border: 1px solid green; {% endcomment %}
+            {% comment %} grid-gap: 20px; {% endcomment %}
+            {% comment %} margin-top: 3%;
+            margin-bottom: 2%;
+            margin-left: 14%;
+            margin-right: 2%; {% endcomment %}
+        }
+        .filterschild2 {
+            display: grid;
+            height: 100%;
+            grid-template-columns: repeat(4, 23.5%);
+            {% comment %} grid-template-rows: 80% 15% 5%; {% endcomment %}
+            {% comment %} border: 1px solid green; {% endcomment %}
+            grid-gap: 2%;
+            {% comment %} margin-top: 3%;
+            margin-bottom: 2%;
+            margin-left: 14%;
+            margin-right: 2%; {% endcomment %}        
+        }
+        .filterschild3 {
+            {% comment %} border: 1px solid red; {% endcomment %}
+            display: grid;
+            height: 100%;
+            grid-template-columns: repeat(4, 23.5%);
+            grid-gap: 2%;
+
+        }
+        .filterschild1 {
+            {% comment %} border: 10px solid yellow; {% endcomment %}
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 33.33%);
+        }
+        .filterschild1a {
+            {% comment %} border: 1px solid purple; {% endcomment %}
+            margin-left: 0; 
+            {% comment %} margin-right: 0; {% endcomment %}
+        }
+        .filterschild1b {
+            {% comment %} border: 1px solid purple; {% endcomment %}
+            margin: auto;
+        }
+        .filterschild1c {
+            {% comment %} border: 1px solid purple; {% endcomment %}
+            margin-left: auto;
+            margin-right: 0;
+        }
+        .child2 {
+            {% comment %} border: 5px solid red; {% endcomment %}
+        }
+
+        .child2a {
+            border: 1px solid blue;
+        }
+        .form {
+            z-index: 500;
+            {% comment %} border: 10px solid green; {% endcomment %}
+            height: 100%;
+        } 
+        #selectFeatData {
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            font-size: 30px;
+        }
+        #datasetdropdown select {
+            font-size: 30px; /* Placeholder font size */
+          }
+          
+        #datasetdropdown select option {
+            font-size: 15px; /* Choices font size */
+        }
+        #datasetdropdowntitle {
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+        }
         /* Style for map container */
         #map {
-            height: 300px;
-            width: 100%;
-            z-index: -7;
+            height: 500px;
+            width: 100%; 
+            z-index: 501;
+            border: 1px solid darkgray;
         }
 
         #pieChart {
-            height: 300px;
-            width: 100%;
-            display: flex;
+            max-height: 100%;
+            max-width: 100%;
             justify-content: center;
             align-items: center;
         }
 
         /* Style for bar graph container */
         #barGraphContainer {
-            {% comment %} max-width: 98%; {% endcomment %}
             max-width: 200%; /* Make it twice as wide */
             margin: auto; /* Center the bar graph horizontally */
             float: right; /* Float the container to the right */
@@ -69,21 +199,53 @@
             max-width: 99%; /* Set maximum height */
             margin: auto; /* Add this line to center the bar graph horizontally */
         }
-
+        #tableCatDropdownMultiple {
+            background-color: red;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            font-size: 30px;
+        }
+        .filterdropdowns {
+            {% comment %} background-color: red; {% endcomment %}
+            {% comment %} border: 1px solid red; {% endcomment %}
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            font-size: 15px;
+        }
+        .filterdropdowns select {
+            font-size: 25px; /* Placeholder font size */
+            width: 100%;
+        }
+          
+        .filterdropdowns select option {
+            font-size: 17px; /* Choices font size */
+        }
         /* Style for table container */
-        .table-container {
-            max-height: 200px; /* Set maximum height */
-            max-width: 99%; /* Set maximum height */
+        .tablecontainer {
+            /*display: grid;*/
+            {% comment %} border: 1px solid red; {% endcomment %}
+            {% comment %} margin-top: 4000;
+            margin-bottom: 2%;
+            margin-left: 175px;
+            margin-right: 2%; {% endcomment %}
+            max-height: 400px; 
+            max-width: 100%; 
+            {% comment %} min-width: 99%; /* Set maximum height */ {% endcomment %}
             overflow-y: auto; /* Add vertical scrollbar when necessary */
-            overflow-x: auto; /* Add vertical scrollbar when necessary */
+            overflow-x: auto; /* Add horizontal scrollbar when necessary */
             border-top-left-radius: 10px; /* Round the top-left corner */
             border-top-right-radius: 10px; /* Round the top-right corner */
-            margin: auto; /* Add this line to center the bar graph horizontally */
+            {% comment %} border: 1px solid #0287d4; {% endcomment %}
         }
 
         table {
+            width: 100%;
+            max-width: 100%;
             background-color: white; /* Change table fill color to white */
             border-collapse: collapse; /* Remove gaps between cells */
+            {% comment %} border: 5px solid red; {% endcomment %}
         }
 
         th, td {
@@ -99,9 +261,9 @@
             color: white;
             background-color: #0287d4;
             font-size: 13px; /* Adjust the font size as needed */
-            border: 5px solid #0287d4; /* Add border with increased size */
+            {% comment %} border: 5px solid #0287d4; /* Add border with increased size */ {% endcomment %}
             {% comment %} border-top-left-radius: 10px; /* Round the top-left corner */
-            border-top-right-radius: 10px; /* Round the top-right corner */ {% endcomment %}
+            border-top-right-radius: 10px; /* Round the top-right corner */  {% endcomment %}
         }
 
         /* Style for table row text */
@@ -119,7 +281,7 @@
         .button-link3 {
             padding: 10px 20px;
             width: 100%;
-            background-color: #f7f7f7; 
+            background-color: #ededed; 
             color: #0287d4;
             border: none;
             cursor: pointer;
@@ -166,7 +328,7 @@
         .button-link {
             padding: 10px 20px;
             background-color: #a3cf5f;
-            color: darkgreen;
+            {% comment %} color: darkgreen; {% endcomment %}
             border: none;
             cursor: pointer;
             font-family: Arial, sans-serif; /* Set font family to Arial */
@@ -175,7 +337,19 @@
             margin-right: 20px; /* Add space between buttons */
             border-radius: 5px; /* Rounded corners */
         }
-
+        /* Style for filter button */
+        .button-dl {
+            padding: 10px 20px;
+            background-color: #a3cf5f;
+            {% comment %} color: darkgreen; {% endcomment %}
+            {% comment %} border: 2px solid; {% endcomment %}
+            cursor: pointer;
+            font-family: Arial, sans-serif; /* Set font family to Arial */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Ensure buttons appear in-line */
+            {% comment %} margin-right: 20px; /* Add space between buttons */ {% endcomment %}
+            border-radius: 5px; /* Rounded corners */
+        }
         /* Style for dropdown menu */
         #tableDropdown {
             margin-top: 20px;
@@ -192,12 +366,15 @@
 
         /* Style for navigation panel */
         #navPanel {
-            max-height: 50px;
+            {% comment %} max-height: 30px;
+            height: 30px; {% endcomment %}
+            max-width: 100%;
             background-color: white;
             border-bottom: 3px solid darkgray; /* Add border on the right side */
-            padding: 10px;
+            padding-top: .5%;
+            padding-bottom: .5%;
             font-family: Arial, sans-serif; /* Set font family to Arial */
-            z-index: 5000;
+            z-index: 50000;
             position: sticky;
             top: 0;
             width: 100%;
@@ -228,21 +405,24 @@
             top: 0;
             z-index: 10;
             background-color: white; /* Match the table background */
-            border-bottom: 5px solid lightblue; /* Add bottom border to match table header */
+            border-bottom: 5px solid #0287d4; /* Add bottom border to match table header */
             border-radius: 10px; /* Round the corners */
+            border: 2px solid #0287d4;
         }
 
         /* Style for the sidebar */
         #sidebar {
-            width: 125px;
+            width: 12%;
             height: 100%;
-            border-right: 1px solid darkgray; /* Add border on the right side */
+            {% comment %} border-top:1px solid red; {% endcomment %}
+            border-right: 1px solid darkgray; /* Add border on the right side */ 
             position: fixed;
-            margin-top: 50px;
+            {% comment %} margin-top: 50px; {% endcomment %}
             top: 0;
             left: 0;
-            background-color: #f7f7f7;
-            padding: 20px 0;
+            background-color: #ededed;
+            padding-top: 5.5%;
+            {% comment %} margin-top: 3%; {% endcomment %}
             text-align: center;
             z-index: 1;
         }
@@ -258,11 +438,7 @@
             margin-right: 10px;
         }
 
-        /* Style for main content */
-        #main-content {
-            margin-left: 145px; /* Adjusted to accommodate the sidebar */
-            padding: 20px;
-        }
+
         /* Style for filter results */
         #filterResults {
             margin-top: 20px;
@@ -272,9 +448,11 @@
             text-align: center;
             margin-bottom: 10px; /* Adjust margin as needed */
         }
+
     </style>
 </head>
 <body>
+
     <!-- Navigation panel -->
     <div id="navPanel">
         <button class="button-link2" onclick="window.open('https://www.fractracker.org', '_blank')">HOME</button>
@@ -298,216 +476,230 @@
     </div>
 
     <!-- Main content -->
-    <div id="main-content">
+    <div class="main-container">
         <!-- Grid container for pie chart and map -->
-        <div class="container">
-            <!-- Label for data snapshot -->
-            <h3 class="title">Data Snapshot:</h3>
-            <!-- Dropdown menu -->
-            <select id="selectFeatData" >
-                <option value="initial">Select the Dataset</option>
-                <option value="option1">Cracker Plants</option>
-                <option value="option2">Petrochemical Terminals</option>
-                <option value="option3">Oil Refineries</option>
-            </select>
-            <!-- Pie Chart Container -->
-            <div id="pieChart">
-                <canvas id="myPieChart"></canvas>
-            </div>
-            <!-- Leaflet Map Container -->
+        <div class="featurecontainer">
+            <div class="child">
+                <div class="subchild1">
+                    {% comment %} <div id="datasetdropdowntitle">
+                        DATA SNAPSHOT:
+                    </div> {% endcomment %}
+                    <div id="datasetdropdown">
+                        <form>
+                            <select id="selectFeatData" size=1>
+                                <option value="initial">Select the Dataset</option>
+                                <option value="option1">Cracker Plants</option>
+                                <option value="option2">Petrochemical Terminals</option>
+                                <option value="option3">Oil Refineries</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                <!-- Pie Chart Container -->
+                <div class="subchild2" id="pieChart">
+                    <canvas id="myPieChart"></canvas>
+                </div>
+            </div>  
+
             <div id="map"></div>
         </div>
-
-        <!-- Grid container for bar graph, buttons, and table -->
-        <div class="container2">
+        <!-- Grid container for bar buttons-->
+        <div class="filterscontainer">
             {% comment %} <div id="barGraphContainer">
                 <!--<h2 class="title">Bar Graph of Cat Counts</h2> Added title -->
                 <canvas id="myBarGraph"></canvas>
             </div> {% endcomment %}
 
             <!-- Buttons and Dropdown menu -->
-            <div id="button_container">
-                <!-- Dropdown menu -->
-                <h3>SELECT FILTERS</h3>
-                <p>*Multiple Selections Allowed</p>
-                <label for="tableDropdownMultiple">State:<br></label>
-                <select id="tableDropdownMultiple" multiple>
-                    <option value="allstates">All</option>
-                    <option value="PA">Pennsylvania</option>
-                    <option value="OH">Ohio</option>
-                    <option value="WV">West Virginia</option> 
-                    <option value="more">madeit</option>
-                </select>
-                <br><br><br>
-                <!-- Dropdown menu for categories -->
-                <label for="tableCatDropdownMultiple">Company:<br></label>
-                <select id="tableCatDropdownMultiple" label='Company' multiple>
-                    <option value="">--Select Category--</option>
-                    <option value="Production Well">Production Well</option>
-                    <option value="Injection / Storage / Service">Injection / Storage / Service</option>
-                    <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
-                    <option value="Other / Unknown">Other / Unknown</option>
-                    <option value="Not Drilled">Not Drilled</option>
-                    <option value="Plugged">Plugged</option>
-                </select>
-                <p>*Multiple Selections Allowed</p>
-                <!-- Accept button -->
-                <button id="acceptButton" class="button-link" onclick="acceptSelection()">Apply Filter</button>
-
-                <!-- Download Button -->
-                <button id="downloadButton" class="button-link" onclick="downloadCSV(filteredData)" disabled>Download CSV</button>
+            <div class="filterschild2">
+                <div class="filterdropdowns" id="filterdropdown1">
+                    <!-- Dropdown menu -->
+                    <label for="filterdropdownmulti1">State:<br></label>
+                    <select id="filterdropdownmulti1" size=6 multiple>
+                        <option value="allstates"></option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="OH">Ohio</option>
+                        <option value="WV">West Virginia</option> 
+                        {% comment %} <option value="more">madeit</option> {% endcomment %}
+                    </select>
+                </div>
+                <div class="filterdropdowns" id="filterdropdown2">
+                    <!-- Dropdown menu for categories -->
+                    <label id="secondDropdownLabel" for="filterdropdownmulti2">Company:<br></label>
+                    <select id="filterdropdownmulti2" size=6 multiple>
+                        <option value="">--Select Category--</option>
+                        <option value="Production Well">Production Well</option>
+                        <option value="Injection / Storage / Service">Injection / Storage / Service</option>
+                        <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
+                        <option value="Other / Unknown">Other / Unknown</option>
+                        <option value="Not Drilled">Not Drilled</option>
+                        <option value="Plugged">Plugged</option>
+                    </select>
+                </div>
+                <div class="filterdropdowns" id="filterdropdown3">
+                    {% comment %} <h3>SELECT FILTERS:</h3> {% endcomment %}
+                    {% comment %} <p>*Multiple Selections Allowed</p> {% endcomment %}
+                    <label for="filterdropdownmulti3">State:<br></label>
+                    <select id="filterdropdownmulti3" size=6 multiple>
+                        <option value="allstates">All</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="OH">Ohio</option>
+                        <option value="WV">West Virginia</option> 
+                        <option value="more">madeit</option>
+                    </select>
+                </div>
+                <div class="filterdropdowns" id="filterdropdown4">
+                        <!-- Dropdown menu for categories -->
+                    <label id="secondDropdownLabel" for="filterdropdownmulti4">Company:<br></label>
+                    <select id="filterdropdownmulti4" size=6 multiple>
+                        <option value="">--Select Category--</option>
+                        <option value="Production Well">Production Well</option>
+                        <option value="Injection / Storage / Service">Injection / Storage / Service</option>
+                        <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
+                        <option value="Other / Unknown">Other / Unknown</option>
+                        <option value="Not Drilled">Not Drilled</option>
+                        <option value="Plugged">Plugged</option>
+                    </select>
+                </div>
             </div>
-
-            <!-- Display selected table -->
-            <div id="selectedTable"></div>
-
-            <!-- Display filtered counts -->
-            <div id="filterResults"></div>
-
-
-            <div id="filterResults">
-                <h3> Matching Record Count:</h3>
-                <div id="totalRecordCount"></div>
-                {% for fwell in filtwells %}
-                    <p>{{ fwell.stusps }}: 1</p>
-                    <!-- You can add more information about the wells here -->
-                {% endfor %}
+            <div class="filterschild3">
+                <div id="selections1"></div>
+                <div id="selections2"></div>        
+                <div id="selections3"></div>
+                <div id="selections4"></div>
             </div>
+            <div class="filterschild1">
+                <div class="filterschild1a">
+                    <!-- Accept button -->
+                    <button id="acceptButton" class="button-link" onclick="acceptSelection()">Apply Filter</button>
+                </div>
+                <div class="filterschild1b">
+                    <div id="filterResults">
+                        <div class="matchingtext" id="totalRecordCount"></div>
+                        {% comment %} <div id="totalRecordCount"></div> {% endcomment %}
+                    </div>
+                </div>
+                <div class="filterschild1c">
+                    <!-- Download Button -->
+                    <button id="downloadButton" class="button-dl" onclick="downloadCSV(filteredData)" disabled>Download CSV</button>
+                </div>
+    
 
+            </div>
+        </div>
+        <!-- Grid container for the table -->
+        
+        <div class="tablecontainer">
             <!-- Display selected table -->
-            <div class="table-container">
-                <table>
-                    <thead class="sticky-header-container">
+            {% comment %} <div class="table-container"> {% endcomment %}
+                <table id="maintable">
+                    <thead id="maintableheader" class="sticky-header-container">
                         <tr>
-                            <th>API Number</th>
-                            <th>Other ID</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th>State</th>
-                            <th>County</th>
-                            <th>Municipality</th>
-                            <th>Well Name</th>
-                            <th>Operator</th>
-                            <th>Spud Date</th>
-                            <th>Plug Date</th>
-                            <th>Well Type</th>
-                            <th>Well Status</th>
-                            <th>Well Config</th>
-                            <th>FracTracker Category</th>
-                            <th>WellWiki Site</th>
+                            <th>DATA TABLE</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        <!-- Repeat rows as needed -->
-                        {% for i in wells %}
-                            {% if forloop.counter <= 500 %}
-                                <tr>
-                                    <td>{{ i.api_num }}</td>
-                                    <td>{{ i.other_id }}</td>
-                                    <td>{{ i.latitude }}</td>
-                                    <td>{{ i.longitude }}</td>
-                                    <td>{{ i.stusps }}</td>
-                                    <td>{{ i.county }}</td>
-                                    <td>{{ i.municipality }}</td>
-                                    <td>{{ i.well_name }}</td>
-                                    <td>{{ i.operator }}</td>
-                                    <td>{{ i.spud_date }}</td>
-                                    <td>{{ i.plug_date }}</td>
-                                    <td>{{ i.well_type }}</td>
-                                    <td>{{ i.well_status }}</td>
-                                    <td>{{ i.well_config }}</td>
-                                    <td>{{ i.ft_category }}</td>
-                                    <td>{{ i.wellwiki }}</td>
-                                    <!-- Repeat cells as needed -->
-                                    <!-- {% for j in '111111111111111' %}
-                                    <td>Row {{ i.ft_uid }} Data {{ i.ft_category }}</td>
-                                    {% endfor %} -->
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
+                    <tbody id="maintablebody">
+                        <tr><td></td></tr>
                     </tbody>
                 </table>
-            </div>
-
-            {% comment %} <div class="table-container">
-                <table>
-                    <thead class="sticky-header-container">
-                        <tr>
-                            <th>Refinery ID</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th>City</th>
-                            <th>County</th>
-                            <th>State</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>NAICS Code</th>
-                            <th>NAICS Description</th>
-                            <th>Operator</th>
-                            <th>Capacity</th>
-                            <th>US Rank</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <!-- Repeat rows as needed -->
-                        {% for j in oilrefs %}
-                                <tr>
-                                    <td>{{ j.refid }}</td>
-                                    <td>{{ j.latitude }}</td>
-                                    <td>{{ j.longitude }}</td>
-                                    <td>{{ j.city }}</td>
-                                    <td>{{ j.county }}</td>
-                                    <td>{{ j.state }}</td>
-                                    <td>{{ j.reftype }}</td>
-                                    <td>{{ j.status }}</td>
-                                    <td>{{ j.naics_code }}</td>
-                                    <td>{{ j.naics_desc }}</td>
-                                    <td>{{ j.operatorname }}</td>
-                                    <td>{{ j.capacity }}</td>
-                                    <td>{{ j.us_rank }}</td>
-                                    <!-- Repeat cells as needed -->
-                                    <!-- {% for j in '111111111111111' %}
-                                    <td>Row {{ i.ft_uid }} Data {{ i.ft_category }}</td>
-                                    {% endfor %} -->
-                                </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div> {% endcomment %}
-        </div>    
+            {% comment %} </div> {% endcomment %}
+        </div>  
     </div>    
     <script>
 
         // Initialize Leaflet map
-        var map = L.map('map').setView([40.44062, -79.99589], 13);
-    
-        // Add OpenStreetMap tile layer
+        var map = L.map('map').setView([40.4406, -79.9959], 12);
+        
+        function onEachFeatureFn(prop, feature, layer) {
+                layer.feature.property.longitude
+            
+          }
+        // Empty Layer Group that will receive the clusters data on the fly.
+        var markers = L.geoJSON(null, {
+          pointToLayer: createClusterIcon,
+          onEachFeature: function (feature, layer) {
+                layer.bindPopup("<b>Longitude:</b> " + feature.properties.longitude +
+                "<br><b>Latitude: </b>" + feature.properties.latitude
+                );
+        }
+        }).addTo(map);
+
+        
+        // Update the displayed clusters after user pan / zoom.
+        map.on('moveend', update);
+        
+        function update() {
+          if (!ready) return;
+          var bounds = map.getBounds();
+          var bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+          var zoom = map.getZoom();
+          var clusters = index.getClusters(bbox, zoom);
+          markers.clearLayers();
+          markers.addData(clusters);
+
+        }
+        
+        // Zoom to expand the cluster clicked by user.
+        markers.on('click', function(e) {
+          var clusterId = e.layer.feature.properties.cluster_id;
+          var center = e.latlng;
+          var expansionZoom;
+          if (clusterId) {
+            expansionZoom = index.getClusterExpansionZoom(clusterId);
+            map.flyTo(center, expansionZoom);
+          }
+        });
+        
+        
+        function createClusterIcon(feature, latlng) {
+          if (!feature.properties.cluster) return L.marker(latlng);
+        
+          var count = feature.properties.point_count;
+          var size =
+            count < 100 ? 'small' :
+            count < 1000 ? 'medium' : 'large';
+          var icon = L.divIcon({
+            html: '<div><span>' + feature.properties.point_count_abbreviated + '</span></div>',
+            className: 'marker-cluster marker-cluster-' + size,
+            iconSize: L.point(40, 40)
+          });
+        
+          return L.marker(latlng, {
+            icon: icon
+          });
+        }
+
+         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             //attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
     
-        // Add a marker to the map with customized icon and popup
-        function addMarker(latitude, longitude, api_num, operator, ft_category) {
-            // Create a custom icon
-            var customIcon = L.icon({
-                iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png", // URL or path to the marker icon
-                iconSize: [5, 7], // Set the size of the icon to 10 by 10 pixels
-                iconAnchor: [5, 5] // Set the anchor point of the icon to its center
+        // Function to update the map markers with the filtered data
+        function updateMapMarkers(data) {
+            data = JSON.parse(data);
+
+            // Clear existing markers from the map
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
             });
 
-            // Create a marker with the custom icon
-            var marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
+            index = supercluster({
+                radius: 20,
+                extent: 256,
+                maxZoom: 18
+              }).load(data.features); // Expects an array of Features.
+            ready = true;
+            
+            {% comment %} map.fitBounds(Bounds); {% endcomment %}
+            console.log('______________markers___________________')
+            {% comment %} console.log(layer.getbounds()) {% endcomment %}
+            map.addLayer(markers);
+            update();
+            // Get the bounding box of the markers
+            }
 
-            // Create a popup content
-            var popupContent = "<b>API Number:</b> " + api_num + "<br><b>Operator:</b> " + operator + "<br><b>Category:</b> " + ft_category + '<br>';
-
-            // Bind the popup to the marker
-            marker.bindPopup(popupContent);
-
-            // Return the marker
-            return marker;
-        }
-    
         // Data for the pie chart
         var pieData = {
             labels: ["Production Well", "Injection / Storage / Service", "Orphaned / Abandoned / Unverified Plug", "Other / Unknown", "Not Drilled", "Plugged"],
@@ -532,10 +724,66 @@
             type: 'doughnut', // Change the chart type to doughnut
             data: pieData,
             options: {
-                cutout: '70%', // Set the size of the hole in the middle
+                cutout: '60%', // Set the size of the hole in the middle
+                plugins: {
+                    legend:{
+                        display:false
+                        }
+                    }
+                
             }
         });
     
+
+        // Function to update the pie chart with the filte
+        
+        
+        {% comment %} data {% endcomment %}
+        function updatePieChart(data) {
+            data = JSON.parse(data);
+            console.log(data)
+            thedataset = $('#selectFeatData').val()
+            console.log('did this work???')
+            console.log(thedataset)
+            thecat = ''
+            switch(thedataset) {
+                case "option1":
+                    thecat = "company";
+                    break;
+                case "option2":
+                    thecat = "typedesc";
+                    break;
+                case "option3":
+                    thecat = "reftype";
+                    break;
+                default:
+                    thecat = "";
+            }
+            // Initialize counts for pie chart
+            var pieCounts = [];
+
+            // Update counts for filtered data
+
+            here = _.countBy(data, function(data) { return data.company; });
+            console.log('here is the here>>>>>>>>>>>>>>>>>:')
+            console.log(here.length)
+            h = Object.keys(here)
+            for (let i = 0; i < h.length; i++) {
+                pieCounts[i] = here[h[i]];
+              }
+            console.log('pie data')
+            console.log(here['BASF/Total'])
+            console.log(pieCounts)
+            // Update pie chart data
+            myPieChart.data.datasets[0].data = pieCounts;
+            myPieChart.data.labels = h;
+            myPieChart.update();
+        }
+
+
+
+
+
         {% comment %} // Data for the bar graph
         var barData = {
             labels: ['County 1', 'County 2', 'County 3', "County 4", "County 5"],
@@ -597,7 +845,32 @@
             document.getElementById("acceptButton").disabled = false; {% endcomment %}
         }
 
+        document.addEventListener("DOMContentLoaded", function() {
+            const selectionsContainer1 = document.getElementById('selections1');
+          
+            filterdropdownmulti1.addEventListener('change', function() {
+              const selectedOptions1 = Array.from(filterdropdownmulti1.selectedOptions).map(option => option.text);
+              selectionsContainer1.textContent = selectedOptions1.join(', ');
+            });
 
+            const selectionsContainer2 = document.getElementById('selections2');
+            filterdropdownmulti2.addEventListener('change', function() {
+              const selectedOptions2 = Array.from(filterdropdownmulti2.selectedOptions).map(option => option.text);
+              selectionsContainer2.textContent = 'Selection(s): ' + selectedOptions2.join(', ');
+            });
+            const selectionsContainer3 = document.getElementById('selections3');
+          
+            filterdropdownmulti3.addEventListener('change', function() {
+              const selectedOptions3 = Array.from(filterdropdownmulti3.selectedOptions3).map(option => option.text);
+              selectionsContainer3.textContent = 'Selection(s): ' + selectedOptions3.join(', ');
+            });
+            const selectionsContainer4 = document.getElementById('selections4');
+          
+            filterdropdownmulti4.addEventListener('change', function() {
+              const selectedOptions4 = Array.from(filterdropdownmulti4.selectedOptions4).map(option => option.text);
+              selectionsContainer4.textContent = 'Selection(s): ' + selectedOptions4.join(', ');
+            });
+          });
         // Function to accept selection from dropdown menu
         function acceptSelection() {
             // Get the selected value from the dropdown menu
@@ -607,37 +880,38 @@
             // Disable dropdown menus and button
             disableInputs();
 
-            {% comment %} var dropdown = document.getElementById("tableDropdownMultiple"); {% endcomment %}
-            {% comment %} var selectedValue = [];
-            for (var i = 0; i < dropdown.options.length; i++) {
-                if (dropdown.options[i].selected) {
-                    selectedValue.push(dropdown.options[i].value);
-                }
-            }
-            console.log(selectedValue); {% endcomment %}
-
-
-
-
-
-            var stateDropdown = document.getElementById("tableDropdownMultiple");
+            var stateDropdown = document.getElementById("filterdropdownmulti1");
         
             // Get the selected value from the category dropdown menu
-            var categoryDropdown = document.getElementById("tableCatDropdownMultiple");
+            var categoryDropdown = document.getElementById("filterdropdownmulti2");
         
-            var selectedValue = [];
+            var selectedStates = [];
+            var featDropdown = document.getElementById("selectFeatData");
+
+            var selectedDataset = [];
+            
+            for (var i = 0; i < featDropdown.options.length; i++) {
+                if (featDropdown.options[i].selected) {
+                    selectedDataset.push(featDropdown.options[i].value);
+                }
+            }
+            var selectedCat = [];
             for (var i = 0; i < stateDropdown.options.length; i++) {
                 if (stateDropdown.options[i].selected) {
-                    selectedValue.push(stateDropdown.options[i].value);
+                    selectedStates.push(stateDropdown.options[i].value);
                 }
             }
             for (var i = 0; i < categoryDropdown.options.length; i++) {
                 if (categoryDropdown.options[i].selected) {
-                    selectedValue.push(categoryDropdown.options[i].value);
+                    selectedCat.push(categoryDropdown.options[i].value);
                 }
             }
-            console.log(selectedValue);
-
+            console.log('selectedStates')
+            console.log(selectedStates);
+            console.log('selectedDataset')
+            console.log(selectedDataset);
+            console.log('selectedCat')
+            console.log(selectedCat);
 
             // Check if selections were made in both dropdown menus
 
@@ -646,7 +920,9 @@
                 url: '/wellsdb/your_view',
                 method: 'GET',
                 data: {
-                    selectedValue: selectedValue
+                    selectedStates: selectedStates,
+                    selectedDataset: selectedDataset,
+                    selectedCat: selectedCat
                 },
                 success: function(data) {
                     handleSuccess(data);
@@ -655,7 +931,7 @@
                     // Update the table with the filtered AJAX response
                     updateTable(data);
                     // Update the map markers with the filtered data
-                    updateMapMarkers(data);
+                    getmapdata(selectedStates, selectedDataset, selectedCat);
                     // Update the pie chart with the new filtered data
                     updatePieChart(data);
                     // Update the bar chart with count per county
@@ -669,8 +945,31 @@
                     console.error(error);
                 }
             });
-        }
 
+        }
+        function getmapdata(selectedStates, selectedDataset, selectedCat) {
+            {% comment %} console.log('printing filtered data');
+            console.log(data) {% endcomment %}
+            $.ajax({
+                url: '/wellsdb/generate_geojson',
+                method: 'GET',
+                data: {
+                    selectedStates: selectedStates,
+                    selectedDataset: selectedDataset,
+                    selectedCat: selectedCat
+                },
+                success: function(data) {
+                    updateMapMarkers(data);
+                    console.log('here is the geojson')
+                    console.log(data)
+                    },
+                error: function(xhr, status, error) {
+                    enableInputs();
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        }
         {% comment %} // Function to create a new bar graph with updated data
         function createBarGraph(data) {
             // Clear existing bar graph if it exists
@@ -823,118 +1122,116 @@
 
 
 
-        // Function to update the map markers with the filtered data
-        function updateMapMarkers(data) {
-            data = JSON.parse(data);
 
-            // Clear existing markers from the map
-            map.eachLayer(function(layer) {
-                if (layer instanceof L.Marker) {
-                    map.removeLayer(layer);
-                }
-            });
 
-            // Add markers for the filtered data with non-null latitude and longitude
-            var bounds = [];
-            data.forEach(function(item) {
-                // Check if latitude and longitude are not null
-                if (item.latitude !== null && item.longitude !== null) {
-                    var marker = addMarker(item.latitude, item.longitude, item.api_num, item.operator, item.ft_category);
-                    bounds.push(marker.getLatLng());
-                }
-            });
 
-            // Fit map bounds to markers
-            if (bounds.length > 0) {
-                map.fitBounds(bounds);
-            }
-        }
-        // Function to update the pie chart with the filtered data
-        function updatePieChart(data) {
-            data = JSON.parse(data);
-
-            // Initialize counts for pie chart
-            var pieCounts = [0, 0, 0, 0, 0, 0];
-
-            // Update counts for filtered data
-            data.forEach(function(item) {
-                // Increment count based on category
-                switch (item.ft_category) {
-                    case "Production Well":
-                        pieCounts[0]++;
-                        break;
-                    case "Injection / Storage / Service":
-                        pieCounts[1]++;
-                        break;
-                    case "Orphaned / Abandoned / Unverified Plug":
-                        pieCounts[2]++;
-                        break;
-                    case "Other / Unknown":
-                        pieCounts[3]++;
-                        break;
-                    case "Not Drilled":
-                        pieCounts[4]++;
-                        break;
-                    case "Plugged":
-                        pieCounts[5]++;
-                        break;
-                    default:
-                        break;
-                }
-            });
-
-            // Update pie chart data
-            myPieChart.data.datasets[0].data = pieCounts;
-            myPieChart.update();
-        }
         // Function to update the table with the filtered AJAX response
         function updateTable(data) {
             data = JSON.parse(data);
             var data_for_export = data;
             // Clear the existing table body
-            var tableBody = document.querySelector('tbody');
-            tableBody.innerHTML = '';
+            //var tableBody = document.getElementById('tableBody2');
+            console.log('here is the datas that has returned');
+            console.log(data);
 
+            console.log('printing tbody')
+
+            //console.log(tableBody)
+
+            var tableBody = '';
+            //console.log(tableBody.innerHTML)
+            
+            var k = '<tr>'
+            for(i of Object.keys(data[0])) {
+                k += '<th>' + i + '</th>';
+            };
+            k += '</tr>'
+            tableBody += k
             // Iterate through the filtered data and add rows to the table
             data.forEach(function(item) {
                 var row = '<tr>';
-                row += '<td>' + item.api_num + '</td>';
-                row += '<td>' + item.other_id + '</td>';
-                row += '<td>' + item.latitude + '</td>';
-                row += '<td>' + item.longitude + '</td>';
-                row += '<td>' + item.stusps + '</td>';
-                row += '<td>' + item.county + '</td>';
-                row += '<td>' + item.municipality + '</td>';
-                row += '<td>' + item.well_name + '</td>';
-                row += '<td>' + item.operator + '</td>';
-                row += '<td>' + item.spud_date + '</td>';
-                row += '<td>' + item.plug_date + '</td>';
-                row += '<td>' + item.well_type + '</td>';
-                row += '<td>' + item.well_status + '</td>';
-                row += '<td>' + item.well_config + '</td>';
-                row += '<td>' + item.ft_category + '</td>';
-                row += '<td>' + item.wellwiki + '</td>';
+                var r = '';
+
+                var keys 
+                for(i of Object.keys(item)) {
+                    r += '<td>' + item[i] + '</td>';
+                };
+                row += r;
                 row += '</tr>';
-                tableBody.innerHTML += row;
+                console.log('here are the rs')
+                console.log(r)
+                console.log('here are the rows')
+                console.log(row)
+                tableBody += row;
+                //h = document.getElementById('maintable').insertRow(row)
             });
 
-            document.getElementById('totalRecordCount').innerText = 'Total Records: ' + data.length;
+            $("#maintable").html(tableBody);
+            console.log('what is in the table body now')
+            console.log(tableBody)
+
+
+            document.getElementById('totalRecordCount').innerText = "Filtered Records: " + data.length;
 
         }
+        //newstuff
 
 
         $(document).ready(function() {
             $('#selectFeatData').change(function() {
-                var selectedOption = $(this).val();
-                console.log('noticed the dropdown change')
+                
+                var selectedDataset = $(this).val();
+                console.log('noticed the dataset change')
                 console.log('chose:')
-                console.log(selectedOption)
+                console.log(selectedDataset)
+
+                var datasetlist = new Array(selectedDataset);
+                // Make an AJAX request to the server when dropdown selection changes
+                $.ajax({
+                    url: '/wellsdb/update_table',
+                    type: 'GET',
+                    data: {
+                        selectedDataset: datasetlist
+                    },
+                    success: function(response) {
+                        $('#maintable').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        // Handle error response here
+                    }
+                });
+            });
+        });
+
+
+        $(document).ready(function() {
+            $('#selectFeatData').change(function() {
+                
+                var selectedDataset = $(this).val();
+                console.log('noticed the dataset change')
+                console.log('chose:')
+                console.log(selectedDataset)
+                switch(selectedDataset) {
+                    case "option1":
+                        secondDropdownLabel.innerText = "Company:\n";
+                        break;
+                    case "option2":
+                        secondDropdownLabel.innerText = "Type:\n";
+                        break;
+                    case "option3":
+                        secondDropdownLabel.innerText = "Type:\n";
+                        break;
+                    default:
+                        secondDropdownLabel.innerText = "Category:";
+                }
+                var datasetlist = new Array(selectedDataset);
                 // Make an AJAX request to the server when dropdown selection changes
                 $.ajax({
                     url: '/wellsdb/added_states',
                     type: 'GET',
                     data: {
-                        selectedOption: selectedOption
+                        selectedDataset: datasetlist
                     },
                     success: function(response) {
                         populateSecondDropdown(response);
@@ -947,10 +1244,14 @@
             });
         });
 
+
+
+
         function populateSecondDropdown(options) {
             var options = JSON.parse(options);
+            console.log('we are doing this')
             console.log(options)
-            var secondDropdown = $('#tableDropdownMultiple');
+            var secondDropdown = $('#filterdropdownmulti1');
             secondDropdown.empty(); // Clear existing options
 
             // Add new options based on the response
@@ -960,7 +1261,17 @@
                     text: option
                 }));
             });
-        }
+        
+
+
+            // Add new options based on the response
+            $.each(options, function(index, option) {
+                secondDropdown.append($('<option>', {
+                    value: option,
+                    text: option
+                }));
+            });
+        } 
 
         
 
@@ -970,6 +1281,8 @@
                 console.log('noticed the dropdown change')
                 console.log('chose:')
                 console.log(selectedOption)
+                var selectedOption = new Array(selectedOption);
+
                 // Make an AJAX request to the server when dropdown selection changes
                 $.ajax({
                     url: '/wellsdb/added_states2',
