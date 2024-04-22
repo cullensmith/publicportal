@@ -17,5 +17,7 @@ urlpatterns = [
     path('generate_new_table',views.generate_new_table, name="generate_new_table"),
     path('update_table',views.update_table, name="update_table"),
     path('generate_geojson',views.generate_geojson, name="generate_geojson"),
+    path('dataset_categories',views.dataset_categories, name="dataset_categories"),
+
 
 ]

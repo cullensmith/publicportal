@@ -63,10 +63,10 @@
             display: grid;
             grid-template-rows: 100%;
             {% comment %} grid-template-columns: 30% 70%; {% endcomment %}
-            align-items: center;
+            {% comment %} align-items: center; {% endcomment %}
             justify-content: center;
-            {% comment %} border: 5px solid;
-            border-color: lightgreen; {% endcomment %}
+            margin-top: 0;
+            {% comment %} border: 5px solid lightgreen; {% endcomment %}
 
         }
         .subchild2 {
@@ -76,12 +76,14 @@
             max-height: 100%;
             {% comment %} height: 100%; {% endcomment %}
             max-width: 100%;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
             {% comment %} margin-top: auto; {% endcomment %}
             {% comment %} align-items: center;
             justify-content: center; {% endcomment %}
-            {% comment %} border: 5px solid;
-            border-color: green; {% endcomment %}
-
+            {% comment %} border: 5px solid green; {% endcomment %}
+            
         }
         /* Style for filter grid container */
         .filterscontainer {
@@ -341,9 +343,8 @@
         .button-dl {
             padding: 10px 20px;
             background-color: #a3cf5f;
-            {% comment %} color: darkgreen; {% endcomment %}
-            {% comment %} border: 2px solid; {% endcomment %}
             cursor: pointer;
+            border:none;
             font-family: Arial, sans-serif; /* Set font family to Arial */
             text-decoration: none; /* Remove underline */
             display: inline-block; /* Ensure buttons appear in-line */
@@ -514,51 +515,41 @@
             <div class="filterschild2">
                 <div class="filterdropdowns" id="filterdropdown1">
                     <!-- Dropdown menu -->
-                    <label for="filterdropdownmulti1">State:<br></label>
+                    {% comment %} <label for="filterdropdownmulti1">State(s):<br></label> {% endcomment %}
+                    <select id="filterdropdownmulti1top" size=1 >
+                        <option value="allstates">State(s)</option>
+                    </select>
                     <select id="filterdropdownmulti1" size=6 multiple>
                         <option value="allstates"></option>
-                        <option value="PA">Pennsylvania</option>
-                        <option value="OH">Ohio</option>
-                        <option value="WV">West Virginia</option> 
-                        {% comment %} <option value="more">madeit</option> {% endcomment %}
                     </select>
                 </div>
                 <div class="filterdropdowns" id="filterdropdown2">
                     <!-- Dropdown menu for categories -->
-                    <label id="secondDropdownLabel" for="filterdropdownmulti2">Company:<br></label>
+                    <select id="filterdropdownmulti2top" size=1 >
+                        <option value="allstates"></option>
+                    </select>
+                    {% comment %} <label id="secondDropdownLabel" for="filterdropdownmulti2">Company:<br></label> {% endcomment %}
                     <select id="filterdropdownmulti2" size=6 multiple>
-                        <option value="">--Select Category--</option>
-                        <option value="Production Well">Production Well</option>
-                        <option value="Injection / Storage / Service">Injection / Storage / Service</option>
-                        <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
-                        <option value="Other / Unknown">Other / Unknown</option>
-                        <option value="Not Drilled">Not Drilled</option>
-                        <option value="Plugged">Plugged</option>
+                        <option value="">-- Select Filter --</option>
                     </select>
                 </div>
                 <div class="filterdropdowns" id="filterdropdown3">
-                    {% comment %} <h3>SELECT FILTERS:</h3> {% endcomment %}
-                    {% comment %} <p>*Multiple Selections Allowed</p> {% endcomment %}
-                    <label for="filterdropdownmulti3">State:<br></label>
+                    <select id="filterdropdownmulti3top" size=1 >
+                        <option value="allstates"></option>
+                    </select>
+                    {% comment %} <label for="filterdropdownmulti3">State:<br></label> {% endcomment %}
                     <select id="filterdropdownmulti3" size=6 multiple>
-                        <option value="allstates">All</option>
-                        <option value="PA">Pennsylvania</option>
-                        <option value="OH">Ohio</option>
-                        <option value="WV">West Virginia</option> 
-                        <option value="more">madeit</option>
+                        <option value="">-- Select Filter --</option>
                     </select>
                 </div>
                 <div class="filterdropdowns" id="filterdropdown4">
                         <!-- Dropdown menu for categories -->
-                    <label id="secondDropdownLabel" for="filterdropdownmulti4">Company:<br></label>
+                    <select id="filterdropdownmulti4top" size=1 >
+                        <option value="allstates"></option>
+                    </select>
+                    {% comment %} <label id="secondDropdownLabel" for="filterdropdownmulti4">Company:<br></label> {% endcomment %}
                     <select id="filterdropdownmulti4" size=6 multiple>
-                        <option value="">--Select Category--</option>
-                        <option value="Production Well">Production Well</option>
-                        <option value="Injection / Storage / Service">Injection / Storage / Service</option>
-                        <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
-                        <option value="Other / Unknown">Other / Unknown</option>
-                        <option value="Not Drilled">Not Drilled</option>
-                        <option value="Plugged">Plugged</option>
+                        <option value="">-- Select Filter --</option>
                     </select>
                 </div>
             </div>
@@ -608,7 +599,7 @@
     <script>
 
         // Initialize Leaflet map
-        var map = L.map('map').setView([40.4406, -79.9959], 12);
+        var map = L.map('map').setView([39.8283,-98.5795], 4);
         
         function onEachFeatureFn(prop, feature, layer) {
                 layer.feature.property.longitude
@@ -1173,6 +1164,14 @@
 
             document.getElementById('totalRecordCount').innerText = "Filtered Records: " + data.length;
 
+            {% comment %} update the filter categories since we are here {% endcomment %}
+
+            thecols = Object.keys(data[0])
+            console.log('here are the categories to use for the filters')
+            console.log(thecols)
+            populateThirdDropdown()
+
+
         }
         //newstuff
 
@@ -1204,6 +1203,34 @@
             });
         });
 
+        $(document).ready(function() {
+            $('#selectFeatData').change(function() {
+                
+                var selectedDataset = $(this).val();
+                console.log('noticed the dataset change')
+                console.log('chose:')
+                console.log(selectedDataset)
+
+                var datasetlist = new Array(selectedDataset);
+                // Make an AJAX request to the server when dropdown selection changes
+                $.ajax({
+                    url: '/wellsdb/dataset_categories',
+                    type: 'GET',
+                    data: {
+                        selectedDataset: datasetlist
+                    },
+                    success: function(response) {
+                        updatefiltercats(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        console.log('getting the categories failed')
+                        // Handle error response here
+                    }
+                });
+            });
+        });
+
 
         $(document).ready(function() {
             $('#selectFeatData').change(function() {
@@ -1212,19 +1239,7 @@
                 console.log('noticed the dataset change')
                 console.log('chose:')
                 console.log(selectedDataset)
-                switch(selectedDataset) {
-                    case "option1":
-                        secondDropdownLabel.innerText = "Company:\n";
-                        break;
-                    case "option2":
-                        secondDropdownLabel.innerText = "Type:\n";
-                        break;
-                    case "option3":
-                        secondDropdownLabel.innerText = "Type:\n";
-                        break;
-                    default:
-                        secondDropdownLabel.innerText = "Category:";
-                }
+
                 var datasetlist = new Array(selectedDataset);
                 // Make an AJAX request to the server when dropdown selection changes
                 $.ajax({
@@ -1262,49 +1277,18 @@
                 }));
             });
         
-
-
-            // Add new options based on the response
-            $.each(options, function(index, option) {
-                secondDropdown.append($('<option>', {
-                    value: option,
-                    text: option
-                }));
-            });
         } 
 
         
 
-        $(document).ready(function() {
-            $('#selectFeatData').change(function() {
-                var selectedOption = $(this).val();
-                console.log('noticed the dropdown change')
-                console.log('chose:')
-                console.log(selectedOption)
-                var selectedOption = new Array(selectedOption);
 
-                // Make an AJAX request to the server when dropdown selection changes
-                $.ajax({
-                    url: '/wellsdb/added_states2',
-                    type: 'GET',
-                    data: {
-                        selectedOption: selectedOption
-                    },
-                    success: function(response) {
-                        populateThirdDropdown(response);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                        // Handle error response here
-                    }
-                });
-            });
-        });
 
-        function populateThirdDropdown(options) {
-            var options = JSON.parse(options);
+        function updatefiltercats(response) {
+            console.log('we returned with: ')
+            console.log(response)
+            var options = JSON.parse(response);
             console.log(options)
-            var secondDropdown = $('#tableCatDropdownMultiple');
+            var secondDropdown = $('#filterdropdownmulti2top');
             secondDropdown.empty(); // Clear existing options
 
             // Add new options based on the response

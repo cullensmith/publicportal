@@ -15,7 +15,7 @@ def cracker(request):
     return render(request, 'wellsdb.html', { 'crackers': crackers })
 
 def cracker_states(request):
-    print('reached the cracker_states view')
+    # print('reached the cracker_states view')
     states = list()
     for d in request:
         if d == 'option1':
@@ -28,8 +28,8 @@ def cracker_states(request):
             for s in HifldOilRef.objects.all():
                 states.append(s.state)
     cstates = set(states)
-    print('did we even look?')
-    print(f'new state list: {cstates}')
+    # print('did we even look?')
+    # print(f'new state list: {cstates}')
     cstates = list(map(lambda x: x, cstates))
     return cstates
 
@@ -39,7 +39,7 @@ def added_states(request):
     # selected_states = request.GET.getlist('selectedValue[]')
     selected_ds = request.GET.getlist('selectedDataset[]')
     # print(f'selected states: {selected_states}')
-    print(f'selected dataset: {selected_ds}')
+    # print(f'selected dataset: {selected_ds}')
 
     # Call the cracker_states function to get additional selections
     additional_selections = cracker_states(selected_ds)
@@ -49,6 +49,25 @@ def added_states(request):
     additional_selections = json.dumps(additional_selections)
 
     return JsonResponse(additional_selections, safe=False)
+
+def dataset_categories(request):
+    datasets={'option1':Cracker,'option2':TermPetro,'option3':HifldOilRef}
+    print(f'thedataset to get categories of: {request}')
+    selected_ds = request.GET.getlist('selectedDataset[]')
+    print(f'selected_ds= {selected_ds[0]}')
+    ds_cats = vars(datasets[selected_ds[0]].objects.all()[0])
+    print(f'ds_cats: {ds_cats}')
+    skip2 = list()
+    for n,k in enumerate(ds_cats.keys()):
+        if n>1:
+            skip2.append(title(k))
+    skip2.sort()
+    print(f'the categories to filter with: {skip2}')
+    # Return the additional selections as JSON response
+    ds_cats = json.dumps(skip2)
+
+    return JsonResponse(ds_cats, safe=False)
+
 
 def cracker_states2(request):
     # print('reached the cracker_states TWO view')
@@ -115,14 +134,14 @@ def update_table(request):
             for s in HifldOilRef.objects.all():
                 cols=['objectid','ref_id','latitude','longitude','name','address','city','state','county','status','naics_code','naics_desc','reftype','opername','capacity','us_rank']
     # Simulate fetching data from a database or performing some computation
-    print(f'here are what the columns should be: {cols}')
+    # print(f'here are what the columns should be: {cols}')
     new_table = generate_new_table(cols)
     return HttpResponse(new_table)
 
 def generate_new_table(cols):
     # Simulate generating a new table
     new_table_html = "<tr>"
-    print(f'here are the columns{cols}')
+    # print(f'here are the columns{cols}')
     for i in cols:
         new_table_html += f"<th>{i}</th>"
     new_table_html += "</tr>"
@@ -270,3 +289,7 @@ def your_view(request):
         newwell.append(tmp)
     newwells = json.dumps(newwell)
     return JsonResponse(newwells, safe=False)
+
+
+
+
