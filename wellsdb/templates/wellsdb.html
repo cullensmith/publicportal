@@ -530,7 +530,7 @@
                     </select>
                     {% comment %} <label id="secondDropdownLabel" for="filterdropdownmulti2">Company:<br></label> {% endcomment %}
                     <select id="filterdropdownmulti2" size=6 multiple>
-                        <option value="">-- Select Filter --</option>
+                        <option value="">-- Select Filter Above --</option>
                     </select>
                 </div>
                 <div class="filterdropdowns" id="filterdropdown3">
@@ -539,7 +539,7 @@
                     </select>
                     {% comment %} <label for="filterdropdownmulti3">State:<br></label> {% endcomment %}
                     <select id="filterdropdownmulti3" size=6 multiple>
-                        <option value="">-- Select Filter --</option>
+                        <option value="">-- Select Filter Above --</option>
                     </select>
                 </div>
                 <div class="filterdropdowns" id="filterdropdown4">
@@ -549,7 +549,7 @@
                     </select>
                     {% comment %} <label id="secondDropdownLabel" for="filterdropdownmulti4">Company:<br></label> {% endcomment %}
                     <select id="filterdropdownmulti4" size=6 multiple>
-                        <option value="">-- Select Filter --</option>
+                        <option value="">-- Select Filter Above --</option>
                     </select>
                 </div>
             </div>
@@ -841,7 +841,7 @@
           
             filterdropdownmulti1.addEventListener('change', function() {
               const selectedOptions1 = Array.from(filterdropdownmulti1.selectedOptions).map(option => option.text);
-              selectionsContainer1.textContent = selectedOptions1.join(', ');
+              selectionsContainer1.textContent = 'Selection(s): ' + selectedOptions1.join(', ');
             });
 
             const selectionsContainer2 = document.getElementById('selections2');
@@ -1169,7 +1169,7 @@
             thecols = Object.keys(data[0])
             console.log('here are the categories to use for the filters')
             console.log(thecols)
-            populateThirdDropdown()
+            {% comment %} populateThirdDropdown() {% endcomment %}
 
 
         }
@@ -1268,7 +1268,8 @@
             console.log(options)
             var secondDropdown = $('#filterdropdownmulti1');
             secondDropdown.empty(); // Clear existing options
-
+            console.log(options)
+            //options.append('Choose Second Filter')
             // Add new options based on the response
             $.each(options, function(index, option) {
                 secondDropdown.append($('<option>', {
@@ -1279,16 +1280,63 @@
         
         } 
 
-        
-
-
-
         function updatefiltercats(response) {
             console.log('we returned with: ')
             console.log(response)
             var options = JSON.parse(response);
             console.log(options)
             var secondDropdown = $('#filterdropdownmulti2top');
+            secondDropdown.empty(); // Clear existing options
+            secondDropdown.append($('<option>', {
+                value: '',
+                text: 'Choose Second Filter'}));
+            // Add new options based on the response
+            $.each(options, function(index, option) {
+                secondDropdown.append($('<option>', {
+                    value: option,
+                    text: option
+                }));
+            });
+        }
+
+        $(document).ready(function() {
+            $('#filterdropdownmulti2top').change(function() {
+                
+                var selectedCat = $(this).val();
+                var selectFeatDS = $(selectFeatData).val();
+                console.log('noticed the dataset change')
+                console.log('chose:')
+                
+
+                var datasetlist = new Array(selectedCat,selectFeatDS);
+                console.log(datasetlist)
+                // Make an AJAX request to the server when dropdown selection changes
+                $.ajax({
+                    url: '/wellsdb/get_catvals',
+                    type: 'GET',
+                    data: {
+                        selectedCat: datasetlist
+                        
+                    },
+                    success: function(response) {
+                        populateSecondDropdownBottom(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        // Handle error response here
+                    }
+                });
+            });
+        });
+
+
+
+        function populateSecondDropdownBottom(response) {
+            console.log('we returned with: ')
+            console.log(response)
+            var options = JSON.parse(response);
+            console.log(options)
+            var secondDropdown = $('#filterdropdownmulti2');
             secondDropdown.empty(); // Clear existing options
 
             // Add new options based on the response

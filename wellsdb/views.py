@@ -50,6 +50,33 @@ def added_states(request):
 
     return JsonResponse(additional_selections, safe=False)
 
+def get_catvals(request):
+    datasets={'option1':Cracker,'option2':TermPetro,'option3':HifldOilRef}
+    print(f'thedataset to get categories of: {request}')
+    selecteds = request.GET.getlist('selectedCat[]')
+    print(f'thestuff------>{selecteds}')
+    for i in selecteds:
+        print(f'i: {i}')
+    selected_ds = selecteds[1]
+    selected_col = selecteds[0]
+    print(f'selected_ds= {selected_ds}')
+    ds_cats = datasets[selected_ds].objects.all()
+    # print(f'ds_cats: {ds_cats}')
+    skip2 = list()
+    for n,k in enumerate(ds_cats):
+        if n>1:
+            print(f'varsk= {vars(k)}')
+            print('-----')
+            print(f'{vars(k)[selected_col]}')
+            print('=========')
+            skip2.append(vars(k)[selected_col])
+    sorted_vals = sorted(set(skip2))
+    print(f'the categories to filter with: {sorted_vals}')
+    # Return the additional selections as JSON response
+    ds_cats = json.dumps(sorted_vals)
+
+    return JsonResponse(ds_cats, safe=False)
+
 def dataset_categories(request):
     datasets={'option1':Cracker,'option2':TermPetro,'option3':HifldOilRef}
     print(f'thedataset to get categories of: {request}')
@@ -60,7 +87,7 @@ def dataset_categories(request):
     skip2 = list()
     for n,k in enumerate(ds_cats.keys()):
         if n>1:
-            skip2.append(title(k))
+            skip2.append(k)
     skip2.sort()
     print(f'the categories to filter with: {skip2}')
     # Return the additional selections as JSON response
