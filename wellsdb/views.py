@@ -6,9 +6,9 @@ from django.db.models import Q
 import json 
 
 # Create your views here.
-def wellsdb(request):
+def petrochem(request):
     wells = Wells15.objects.all()
-    return render(request, 'wellsdb.html', { 'wells': wells })
+    return render(request, 'petrochem.html', { 'wells': wells })
 
 def cracker(request):
     crackers = Cracker.objects.all()
@@ -181,11 +181,14 @@ def generate_new_table(cols):
 
 def generate_geojson(request):
     # Get the selected value from the AJAX request
+    print(f"here are is the states request: {request.GET.getlist('selectedStates[]')}")
     selected_dataset = request.GET.getlist('selectedDataset[]')
     selected_states = request.GET.getlist('selectedStates[]')
     selected_cat = request.GET.getlist('selectedCat[]')
-    print(f'selected_states: {selected_dataset}')
-    print(f'selected_states: {selected_states}')
+    selected_cat2 = request.GET.getlist('selectedCat2[]')
+    print('why is this empty????')
+    print(request.GET.getlist('selectedCat2[]'))
+    print('^^^^^^^^^^^^^^^')
 
     states = list()
     cats = list()
@@ -223,14 +226,31 @@ def generate_geojson(request):
         filter_cats=cats
 
     print(f'filter state: {filter_state}')
+    print(f'filter sel cats: {selected_cat2}')
+
+    print(f'filter cats: {filter_cats}')
+
+    # print(f'filter state: {filter_state}')
+    filter_kwargs = dict()
 
     for d in selected_dataset:
         if d == 'option1':
-            attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(company__in=filter_cats))
+            filter_kwargs.update({f'{selected_cat2[0]}__in':filter_cats})
+            filter_kwargs.update(state__in=filter_state)
+            # attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
+            attrvals = Cracker.objects.filter(**filter_kwargs)
         elif d == 'option2':
-            attrvals = TermPetro.objects.filter(Q(state__in=filter_state)&Q(typedesc__in=filter_cats))
+            filter_kwargs.update({f'{selected_cat2[0]}__in':filter_cats})
+            filter_kwargs.update(state__in=filter_state)
+            # attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
+            attrvals = TermPetro.objects.filter(**filter_kwargs)
+            # attrvals = TermPetro.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
         elif d == 'option3':
-            attrvals = HifldOilRef.objects.filter(Q(state__in=filter_state)&Q(reftype__in=filter_cats))
+            filter_kwargs.update({f'{selected_cat2[0]}__in':filter_cats})
+            filter_kwargs.update(state__in=filter_state)
+            # attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
+            attrvals = HifldOilRef.objects.filter(**filter_kwargs)
+            # attrvals = HifldOilRef.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
     newwell = list()
     for n,x in enumerate(attrvals):
         # if n<=5:
@@ -260,6 +280,7 @@ def your_view(request):
     selected_dataset = request.GET.getlist('selectedDataset[]')
     selected_states = request.GET.getlist('selectedStates[]')
     selected_cat = request.GET.getlist('selectedCat[]')
+    selected_cat2 = request.GET.getlist('selectedCat2[]')
 
     states = list()
     cats = list()
@@ -300,14 +321,26 @@ def your_view(request):
         filter_cats=cats
 
     # print(f'filter state: {filter_state}')
+    filter_kwargs = dict()
 
     for d in selected_dataset:
         if d == 'option1':
-            attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(company__in=filter_cats))
+            filter_kwargs.update({f'{selected_cat2[0]}__in':filter_cats})
+            filter_kwargs.update(state__in=filter_state)
+            # attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
+            attrvals = Cracker.objects.filter(**filter_kwargs)
         elif d == 'option2':
-            attrvals = TermPetro.objects.filter(Q(state__in=filter_state)&Q(typedesc__in=filter_cats))
+            filter_kwargs.update({f'{selected_cat2[0]}__in':filter_cats})
+            filter_kwargs.update(state__in=filter_state)
+            # attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
+            attrvals = TermPetro.objects.filter(**filter_kwargs)
+            # attrvals = TermPetro.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
         elif d == 'option3':
-            attrvals = HifldOilRef.objects.filter(Q(state__in=filter_state)&Q(reftype__in=filter_cats))
+            filter_kwargs.update({f'{selected_cat2[0]}__in':filter_cats})
+            filter_kwargs.update(state__in=filter_state)
+            # attrvals = Cracker.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
+            attrvals = HifldOilRef.objects.filter(**filter_kwargs)
+            # attrvals = HifldOilRef.objects.filter(Q(state__in=filter_state)&Q(f'{selected_cat2[0]}__in'==filter_cats))
     newwell = list()
     for n,x in enumerate(attrvals):
         # if n<=5:

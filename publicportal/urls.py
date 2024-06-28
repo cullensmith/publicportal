@@ -27,6 +27,9 @@ urlpatterns = [
     path('about/',views.about),
     path('posts/', include('posts.urls')),
     path('wellsdb/', include('wellsdb.urls')),
+    path('petrochem/', include('wellsdb.urls')),
+    path('wells/', include('wells.urls')),
+    path('allegheny/', include('allegheny.urls')),
     path('boxdata/', include('boxdata.urls')),
 ]
 

@@ -5,7 +5,7 @@ from . import views
 app_name = 'wellsdb'
 
 urlpatterns = [
-    path('',views.wellsdb, name="wellsdb"),
+    path('',views.petrochem, name="petrochem"),
     path('cracker',views.cracker, name="cracker"),
     path('terminalspetro',views.terminalspetro, name="terminalspetro"),
     path('boxdata',views.boxdata, name="boxdata"),
@@ -19,6 +19,4 @@ urlpatterns = [
     path('generate_geojson',views.generate_geojson, name="generate_geojson"),
     path('dataset_categories',views.dataset_categories, name="dataset_categories"),
     path('get_catvals',views.get_catvals, name="get_catvals"),
-
-
 ]
