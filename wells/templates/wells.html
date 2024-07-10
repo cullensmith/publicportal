@@ -10,7 +10,6 @@
     {% comment %} <script src="https://code.jquery.com/jquery-1.12.4.js"></script> {% endcomment %}
     <!-- for the underscore variable/js function-->
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -43,20 +42,6 @@
             grid-template-rows: 12% 88%;
             grid-template-columns: 100%;
         }
-        .subchild1 {
-            display: grid;
-            grid-template-rows: 100%;
-            justify-content: center;
-            margin-top: 0;
-        }
-        .subchild2 {
-            max-height: 100%;
-            max-width: 100%;
-            justify-content: center;
-            align-items: center;
-            margin: auto;
-
-        }
         /* Style for filter grid container */
         .filterscontainer {
             {% comment %} border: 5px solid red; {% endcomment %}
@@ -66,14 +51,7 @@
             grid-template-rows: repeat(3, 33%);
             grid-template-columns: 50% 50%;
         }
-        .filterschild2 {
-            display: grid;
-            height: 100%;
-            {% comment %} border: 5px solid red; {% endcomment %}
-            {% comment %} grid-template-columns: repeat(4, 23.5%); {% endcomment %}
-            grid-template-columns: 29% 29% 29% 10%;
-            grid-gap: 1%;
-        }
+
         .filterschild1grid {
             display: grid;
             height: 100%;
@@ -112,37 +90,11 @@
             height: 90%
         }
 
-        .child2 {
-            {% comment %} border: 5px solid red; {% endcomment %}
-        }
-
-        .child2a {
-            border: 1px solid blue;
-        }
         .form {
             z-index: 500;
             height: 100%;
         } 
-        #selectFeatData {
-            height: 100%;
-            width: 100%;
-            font-family: Arial, sans-serif; /* Set font family to Arial */
-            font-size: 30px;
-        }
-        #datasetdropdown select {
-            font-size: 30px; /* Placeholder font size */
-          }
-          
-        #datasetdropdown select option {
-            font-size: 15px; /* Choices font size */
-        }
-        #datasetdropdowntitle {
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 20px;
-            font-family: Arial, sans-serif; /* Set font family to Arial */
-        }
+
         /* Style for map container */
         #map {
             height: 500px;
@@ -153,33 +105,6 @@
             border-top-left-radius: 17px;
         }
 
-        /* Style for table container */
-        .button_container {
-            max-height: 200px; /* Set maximum height */
-            max-width: 99%; /* Set maximum height */
-            margin: auto; /* Add this line to center the bar graph horizontally */
-        }
-        #tableCatDropdownMultiple {
-            background-color: red;
-            height: 100%;
-            width: 100%;
-            font-family: Arial, sans-serif; /* Set font family to Arial */
-            font-size: 30px;
-        }
-        .filterdropdowns {
-            height: 100%;
-            width: 100%;
-            font-family: Arial, sans-serif; /* Set font family to Arial */
-            font-size: 15px;
-        }
-        .filterdropdowns select {
-            font-size: 25px; /* Placeholder font size */
-            width: 100%;
-        }
-          
-        .filterdropdowns select option {
-            font-size: 17px; /* Choices font size */
-        }
         /* Style for table container */
         .tablecontainer {
             max-height: 450px; 
@@ -286,12 +211,6 @@
             border-radius: 5px; /* Rounded corners */
         }
 
-        /* Style for dropdown menu */
-        #tableDropdown {
-            margin-top: 20px;
-            font-family: Arial, sans-serif; /* Set font family to Arial */
-        }
-
         /* Style for title */
         .title {
             text-align: center;
@@ -315,7 +234,6 @@
             margin-bottom: 10px;
         }
 
-        
         /* Style for navigation links */
         #navPanel a {
             color: #025687;
@@ -369,19 +287,44 @@
             margin-right: 10px;
         }
 
-
-        /* Style for filter results */
-        #filterResults {
-            margin-top: 20px;
-            font-family: Arial, sans-serif; /* Set font family to Arial */
-        }
         .title {
             text-align: center;
             margin-bottom: 10px; /* Adjust margin as needed */
         }
-        #sortfields2 {
-            width: 15%;
+
+        /* Style for the icon container */
+        .icon-container {
+            position: relative;
+            display: inline-block;
         }
+        
+        /* Style for the icon image */
+        .icon {
+            width: 15px; /* Adjust as needed */
+            height: 15px; /* Adjust as needed */
+        }
+        
+        /* Style for the popup text */
+        .popup-text {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 10000;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px; /* Adjust as needed */
+        }
+        
+        /* Show the popup text on hover */
+        .icon-container:hover .popup-text {
+            visibility: visible;
+        }
+
     </style>
 </head>
 <body>
@@ -435,7 +378,12 @@
                             <option value="option3">contains</option>
                             <option value="option4">starts with</option>
                         </select>
+                        <div class="icon-container">
+                            <img src="../media/info-icon.png" alt=" " class="icon">
+                            <span class="popup-text"><b><u>Filtering tips:</b></u><br><br><b><u>any:</b></u> Will override an entered input and will not filter based on this field<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u><br><br><b><u>starts with:</b></u></span>
+                        </div>
                     </div>
+
                 </div>
                 <div class="filterschild1">
                         <input type="text" id="well_county" name="well_county" placeholder="Enter County...">
@@ -452,6 +400,10 @@
                             <option value="option3">contains</option>
                             <option value="option4">starts with</option>
                         </select>
+                        <div class="icon-container">
+                            <img src="../media/info-icon.png" alt=" " class="icon">
+                            <span class="popup-text">If you're targeting a specific county enter the name below.</span>
+                        </div>
                     </div>
                 </div>
                 <div class="filterschild1">
@@ -469,6 +421,10 @@
                             <option value="option3">contains</option>
                             <option value="option4">starts with</option>
                         </select>
+                        <div class="icon-container">
+                            <img src="../media/info-icon.png" alt=" " class="icon">
+                            <span class="popup-text">If you're targeting a specific county enter the name below.</span>
+                        </div>
                     </div>
                 </div>
                 <div class="filterschild1">
@@ -487,6 +443,10 @@
                             <option value="option3">contains</option>
                             <option value="option4">starts with</option>
                         </select>
+                        <div class="icon-container">
+                            <img src="../media/info-icon.png" alt=" " class="icon">
+                            <span class="popup-text">If you're targeting a specific county enter the name below.</span>
+                        </div>
                     </div>
                 </div>
                 <div class="filterschild1">
@@ -499,11 +459,16 @@
                     <!-- Add input box for category -->
                     <div id="categoryInput">
                         <label for="category">FracTracker Category:</label>
+                        <div class="icon-container">
+                            <img src="../media/info-icon.png" alt=" " class="icon">
+                            <span class="popup-text">These categories are FracTracker's attempt to normalize well status and type across the national dataset.</span>
+                        </div>
                     </div>
+
                 </div>
                 <div class="filterschild1">
                     <select id="fta_cat" size=1>
-                        <option value="initial">Select one or more...</option>
+                        <option value="initial">Select from dropdown...</option>
                         <option value="default">All</option>
                         <option value="Injection / Storage / Service">Injection / Storage / Service</option>
                         <option value="Not Drilled">Not Drilled</option>
