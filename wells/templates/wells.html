@@ -3,9 +3,9 @@
 <head>
     <title>FracTracker Data Portal</title>
     <!-- Include Leaflet CSS and JavaScript -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ==" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.rawgit.com/mapbox/supercluster/v4.0.1/demo/cluster.css" />
-    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet-src.js" integrity="sha512-IkGU/uDhB9u9F8k+2OsA6XXoowIhOuQL1NTgNZHY1nkURnqEGlDZq3GsfmdJdKFe1k1zOc6YU2K7qY+hF9AodA==" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/supercluster@4.0.1/dist/supercluster.js"></script>
     {% comment %} <script src="https://code.jquery.com/jquery-1.12.4.js"></script> {% endcomment %}
     <!-- for the underscore variable/js function-->
@@ -14,6 +14,12 @@
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- geojson vt  -->
+    <script src="https://unpkg.com/geojson-vt@3.2.0/geojson-vt.js"></script>
+    <script src="https://unpkg.com/leaflet-geojson-vt@1.1.0/src/leaflet-geojson-vt.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* Style for grid container */
@@ -136,6 +142,7 @@
             z-index: 10;
             color: white;
             background-color: #0287d4;
+            border: 1px solid #025687;
             font-size: 13px; /* Adjust the font size as needed */
         }
 
@@ -259,7 +266,7 @@
             background-color: white; /* Match the table background */
             border-bottom: 5px solid #0287d4; /* Add bottom border to match table header */
             border-radius: 10px; /* Round the corners */
-            border: 2px solid #0287d4;
+            border: 2px solid #025687;
         }
 
         /* Style for the sidebar */
@@ -325,6 +332,184 @@
             visibility: visible;
         }
 
+        .loading-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000000;
+        }
+        .loading-popup.hidden {
+            display: none;
+        } 
+        .loading-popup.nothidden {
+            background: blue;
+        }
+
+
+
+        .leaflet-popup-content-wrapper {
+            position: relative;
+        }
+        .popup-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .popup-nav button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .popup-nav button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .container2 {
+            padding: 20px;
+            height:20px;
+            width:99%;
+            align-items:center;
+            background:none;
+            z-index: 1000000;
+        }
+        .legend {
+            background: white;
+            padding: 6px 8px;
+            font: 14px Arial, sans-serif;
+            line-height: 18px;
+            color: #555;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            z-index: 1000;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .legend-content {
+            display: none;
+        }
+        .legend-content label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-content input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .legend-content .category1 {
+            color: '#A3CF5F'; /* Red */
+        }
+        .legend-content .category2 {
+            color: 'green'; /* Green */
+        }
+        .legend-content .category3 {
+            color: '#FFC857'; /* Blue */
+        }
+        .legend-content .category4 {
+            color: '#00253B'; /* Red */
+        }
+        .legend-content .category5 {
+            color: '#0287D4'; /* Green */
+        }
+        .legend-content .category3 {
+            color: red; /* Blue */
+        }
+        .legend-content input[type="checkbox"]:checked::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: currentColor;
+            margin-right: 10px;
+        }
+        .legend-header {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legend-header span {
+            font-weight: bold;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 102%;
+            height: 81%;
+            border: 1px solid gray;
+            z-index: 5000;
+
+        }
+
+        .dropdown-toggle {
+            background-color: white;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            height: 95%;
+            {% comment %} overflow: hidden; {% endcomment %}
+            text-overflow: ellipsis;
+            {% comment %} white-space: nowrap; {% endcomment %}
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            {% comment %} width: 100%; {% endcomment %}
+            max-height: 350px;
+            overflow-y: auto;
+            overflow-x: 0;
+        }
+
+        .dropdown-menu label {
+            display: inline-table;
+            justify-content: start;
+            {% comment %} align-left: 0; {% endcomment %}
+            padding-left: 10px;
+            overflow-x: 0;
+            height: 15px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .dropdown-menu input[type="checkbox"] {
+            margin-left: 40%;
+        }
+
+        .dropdown-menu label:hover {
+            background-color: lightgray;
+        }
+
+        .show {
+            display: block;
+        }
+
+        {% comment %} .selected-items {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        } {% endcomment %}
+        /* Added CSS to give the button a basic appearance without showing selected items */
+        .selected-items {
+            display: none; /* Hide the selected items text */
+        }
     </style>
 </head>
 <body>
@@ -342,8 +527,8 @@
 
     <!-- Sidebar -->
     <div id="sidebar">
-        <button class="button-link3" onclick="window.open('http://127.0.0.1:8000/boxdata', '_blank')">Datasets</button>
-        <button class="button-link3" onclick="window.open('https://app.box.com/s/i7w2tm3tlp4fqmoe3pzelyjx5gbjj2lk', '_blank')">Box</button>
+        {% comment %} <button class="button-link3" onclick="window.open('http://127.0.0.1:8000/boxdata', '_blank')">Data Portal</button> {% endcomment %}
+        <button class="button-link3" onclick="window.open('https://app.box.com/s/i7w2tm3tlp4fqmoe3pzelyjx5gbjj2lk', '_blank')">Datasets</button>
         <button class="button-link3" onclick="window.open('https://www.fractracker.org/map', '_blank')">Maps</button>
         <button class="button-link3" onclick="window.open('https://www.fractracker.org/resources/photos/', '_blank')">Gallery</button>
         <button class="button-link3" onclick="window.open('https://www.fractracker.org/data/data-resources', '_blank')">Resources</button>
@@ -351,12 +536,33 @@
         <button class="button-link3" onclick="window.open('https://www.fractracker.org', '_blank')">Contribute Data</button>
     </div>
 
+
+
+
+
     <!-- Main content -->
     <div class="main-container">
         <!-- Grid container for pie chart and map -->
         <div class="featurecontainer">
-            <div id="map"></div>
+            <div id="map">
+                <div class="legend" id="legend">
+                    <div class="legend-header">
+                        <span>Legend</span>
+                        <i class="fa fa-chevron-down" id="legend-toggle"></i>
+                    </div>
+                    <div class="legend-content">
+                        <label class="category1"><input type="checkbox" id="category1" style="color:#A3CF5F;" checked> Injection / Storage / Service</label>
+                        <label class="category1"><input type="checkbox" id="category2" style="color:green;" checked> Not Drilled</label>
+                        <label class="category1"><input type="checkbox" id="category3" style="color:#FFC857;" checked> Orphaned / Abandoned / Unverified Plug</label>
+                        <label class="category1"><input type="checkbox" id="category4" style="color:#00253B;" checked> Other / Unknown</label>
+                        <label class="category1"><input type="checkbox" id="category5" style="color:#0287D4;" checked> Plugged</label>
+                        <label class="category1"><input type="checkbox" id="category6" style="color:red;" checked> Production Well</label>
+                    </div>
+                </div>
+            </div>
+
         </div>
+
         <div class="filterscontainer">
             <div class="filterschild1grid">
                 <div class="filterschild1">
@@ -380,13 +586,12 @@
                         </select>
                         <div class="icon-container">
                             <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text"><b><u>Filtering tips:</b></u><br><br><b><u>any:</b></u> Will override an entered input and will not filter based on this field<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u><br><br><b><u>starts with:</b></u></span>
+                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
                         </div>
                     </div>
-
                 </div>
                 <div class="filterschild1">
-                        <input type="text" id="well_county" name="well_county" placeholder="Enter County...">
+                        <input type="text" id="well_county" name="well_county" placeholder="Enter County... Ex: Washington">
                 </div>
             </div>
             <div class="filterschild1grid">
@@ -402,7 +607,7 @@
                         </select>
                         <div class="icon-container">
                             <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text">If you're targeting a specific county enter the name below.</span>
+                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
                         </div>
                     </div>
                 </div>
@@ -423,7 +628,7 @@
                         </select>
                         <div class="icon-container">
                             <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text">If you're targeting a specific county enter the name below.</span>
+                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
                         </div>
                     </div>
                 </div>
@@ -445,7 +650,7 @@
                         </select>
                         <div class="icon-container">
                             <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text">If you're targeting a specific county enter the name below.</span>
+                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
                         </div>
                     </div>
                 </div>
@@ -467,7 +672,23 @@
 
                 </div>
                 <div class="filterschild1">
-                    <select id="fta_cat" size=1>
+                    <div class="dropdown">
+                        <button class="dropdown-toggle" id="dropdownMenuButton">Select From Dropdown... <span class="selected-items" id="selectedItems">None</span></button>
+
+                        {% comment %} <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... <span class="selected-items" id="selectedItems">None</span></button> {% endcomment %}
+                        {% comment %} <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... </button> {% endcomment %}
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            {% comment %} <label><input type="checkbox" value="initial">Select from dropdown...</label> {% endcomment %}
+                            <label><input type="checkbox" value="default">All</label>
+                            <label><input type="checkbox" value="Injection / Storage / Service">Injection / Storage / Service</label>
+                            <label><input type="checkbox" value="Not Drilled">Not Drilled</label>
+                            <label><input type="checkbox" value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</label>
+                            <label><input type="checkbox" value="Other / Unknown">Other / Unknown</label>
+                            <label><input type="checkbox" value="Plugged">Plugged</label>
+                            <label><input type="checkbox" value="Production Well">Production Well</label>
+                        </div>
+                    </div>
+                    {% comment %} <select id="fta_cat" size=1>
                         <option value="initial">Select from dropdown...</option>
                         <option value="default">All</option>
                         <option value="Injection / Storage / Service">Injection / Storage / Service</option>
@@ -477,12 +698,15 @@
                         <option value="Plugged">Plugged</option>
                         <option value="Production Well">Production Well</option>
                     </select>
-                    {% comment %} <input type="text" id="category" name="category" placeholder="Select FracTracker Category..."> {% endcomment %}
+                    <input type="text" id="category" name="category" placeholder="Select FracTracker Category..."> {% endcomment %}
                 </div>
             </div>
             <div class="filterschild1">
                 <button onclick="applyCategoryFilter()">Apply Filter</button>
                 <button onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
+            </div>
+            <div id="loading-popup" class="loading-popup hidden">
+                Retrieving the Records<span id="loading-dots"></span>
             </div>
         </div>  
             
@@ -492,7 +716,7 @@
             <table id="maintable">
                 <thead id="maintableheader" class="sticky-header-container">
                     <tr>
-                        <th>TMPID</th>
+                        {% comment %} <th>TMPID</th> {% endcomment %}
                         <th>API Number</th>
                         <th>Other ID</th>
                         <th>Latitude</th>
@@ -508,7 +732,7 @@
                         <th>Well Status</th>
                         <th>Well Configuration</th>
                         <th>FracTracker Category</th>
-                        <th>UID</th>
+                        {% comment %} <th>UID</th> {% endcomment %}
                     </tr>
                 </thead>
                 <tbody id="maintablebody">
@@ -526,8 +750,172 @@
     </div>    
     <script>
         // Initialize Leaflet map
+
         var map = L.map('map').setView([39.8283,-98.5795], 4);
+        var geojsonLayer;
+        var osmUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                osm = L.tileLayer(osmUrl, { maxZoom: 20, attribution: osmAttrib }).addTo(map),
+                drawnItems = L.featureGroup().addTo(map);
+        var OpenStreetMap_Mapnik = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            {% comment %} attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' {% endcomment %}
+        });
+        var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          {% comment %} attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors' {% endcomment %}
+        });
+        var Esri_WorldTopoMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+            {% comment %} attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community' {% endcomment %}
+        });
         
+    
+    
+        var controlbase = L.control.layers({'Light': osm,'OSM':OpenStreetMap_Mapnik, 'Satellite':sat, 'Terrain':Esri_WorldTopoMap}, {}, { position: 'bottomleft', collapsed: false }).addTo(map);
+
+    
+
+
+        var geocoder = L.Control.Geocoder.nominatim();
+        if (typeof URLSearchParams !== 'undefined' && location.search) {
+          // parse /?geocoder=nominatim from URL
+          var params = new URLSearchParams(location.search);
+          var geocoderString = params.get('geocoder');
+          if (geocoderString && L.Control.Geocoder[geocoderString]) {
+            console.log('Using geocoder', geocoderString);
+            geocoder = L.Control.Geocoder[geocoderString]();
+          } else if (geocoderString) {
+            console.warn('Unsupported geocoder', geocoderString);
+          }
+        }
+  
+        var control = L.Control.geocoder({
+          collapsed: false,
+          placeholder: '',
+          position:'topright',
+          geocoder: geocoder
+        }).addTo(map);
+        var dots;
+  
+        // Call the getContainer routine.
+        var htmlObject = control.getContainer();
+        // Get the desired parent node.
+        var a = document.getElementById('search-container');
+
+        // Function to fetch GeoJSON data from a view
+        function getStates(data) {
+            var states = document.getElementById('states').value;
+            $.ajax({
+                url: '/wells/getstates_view', // Replace with your view URL
+                method: 'GET',
+                data: {
+                    states: states,
+                },
+                success: function(data) {
+                    map.eachLayer(function(layer) {
+
+                        try {
+                            if (layer._leaflet_id == stateLayer) {
+                                map.removeLayer(layer);
+                            } else {
+                                {% comment %} console.log('layer id did not match') {% endcomment %}
+                            }
+                            }
+                            catch(err) {
+                                {% comment %} console.log('no such layer exists'); {% endcomment %}
+                            }
+                         
+                    }); 
+                    // Convert GeoJSON to vector tiles using leaflet-geojson-vt
+                    var geojsonStyle = {
+                        fillColor:"#FFFFFF",
+                        color: "#000",
+                        weight: 3,
+                        opacity: .6,
+                        fillOpacity: 0.000001,
+                      };
+                    
+                    var options = {
+                        maxZoom: 20,
+                        minZoom: 6,
+                        tolerance: 3,
+                        debug: 0,
+                        style: geojsonStyle
+                    };
+                    canvasLayer_state = L.geoJSON(data, options).addTo(map);
+
+                    {% comment %} canvasLayer_state = L.geoJson.vt(data, options).addTo(map); {% endcomment %}
+
+                    stateLayer=canvasLayer_state._leaflet_id
+                    try {
+                        map.fitBounds(canvasLayer_state.getBounds());
+                    } catch(err) {
+                        {% comment %} console.log('no such layer exists just yet'); {% endcomment %}
+                    } 
+        
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        }
+        // Function to fetch GeoJSON data from a view
+        function getCounties(data) {
+            var states = document.getElementById('states').value;
+            $.ajax({
+                url: '/wells/getcounties_view', // Replace with your view URL
+                method: 'GET',
+                data: {
+                    states: states,
+                },
+                success: function(data) {
+                    console.log('GeoJSON data received:', data);
+                    // Convert GeoJSON to vector tiles using leaflet-geojson-vt
+                    map.eachLayer(function(layer) {
+
+                        try {
+                            if (layer._leaflet_id == countyLayer) {
+                                map.removeLayer(layer);
+                            } else {
+                                console.log('layer id did not match')
+                            }
+                            }
+                            catch(err) {
+                                console.log('no such layer exists');
+                            }
+                         
+                    }); 
+
+                    var geojsonStyle = {
+                        fillColor:"#FFFFFF",
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.00001,
+                      };
+                    
+                    var options = {
+                        maxZoom: 20,
+                        minZoom: 8,
+                        tolerance: 3,
+                        debug: 0,
+                        style: geojsonStyle,
+                        zIndex: 5000
+                    };
+                    canvasLayer_cty = L.geoJson.vt(data, options).addTo(map);
+
+                    countyLayer = canvasLayer_cty._leaflet_id
+                    
+                },
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error(error);
+                }
+            });
+        }
+
+        
+
         function onEachFeatureFn(prop, feature, layer) {
                 layer.feature.property.longitude
             }
@@ -535,9 +923,16 @@
         var markers = L.geoJSON(null, {
           pointToLayer: createClusterIcon,
           onEachFeature: function (feature, layer) {
-                layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + feature.properties.ft_category + "<br><b>State: </b>" + feature.properties.stusps + "<br><b>Provided Well Type: </b>" + feature.properties.well_type + "<br><b>Provided Well Status: </b>" + feature.properties.well_status + "<br><b>Well Name: </b>" + feature.properties.well_name + "<br><b>Operator: </b>" + feature.properties.operator + "<br><b>Longitude:</b> " + feature.properties.longitude +
-                "<br><b>Latitude: </b>" + feature.properties.latitude
-                );
+                const wwlink = '<br><b>WellWiki Page: </b><a href='+feature.properties.wellwiki+' target="_blank">'+feature.properties.wellwiki+'</a>';
+                layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                                                        feature.properties.ft_category + "<br><b>State: </b>" + 
+                                                        feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                                                        feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                                                        feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                                                        feature.properties.well_name + "<br><b>Operator: </b>" + 
+                                                        feature.properties.operator + "<br><b>Longitude:</b> " + 
+                                                        feature.properties.lng + "<br><b>Latitude: </b>" + 
+                                                        feature.properties.lat + wwlink);
         }
         }).addTo(map);
 
@@ -565,13 +960,35 @@
             map.flyTo(center, expansionZoom);
           }
         });
-                
+
+
+
+        function getColor(stype) {
+            switch (stype) {
+              case 'Plugged':
+                return  '#0287D4';
+              case 'Injection / Storage / Service':
+                return '#A3CF5F';
+              case 'Production Well':
+                return 'red';
+              case 'Other / Unknown':
+                return '#00253B';
+              case 'Orphaned / Abandoned / Unverified Plug':
+                return '#FFC857';
+              case 'Not Drilled':
+                return 'green';
+              default:
+                return '#FDFFFC';
+            }
+          }
+
         function createClusterIcon(feature, latlng) {
           var markerStyle = {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
                 radius: 3, // Radius // Fill opacity of the circle
           };
           if (!feature.properties.cluster) return L.circleMarker(latlng, markerStyle);
-        
           var count = feature.properties.point_count;
           var size =
             count < 100 ? 'small' :
@@ -587,37 +1004,31 @@
           });
         }
 
-         // Add OpenStreetMap tile layer
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            //attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+
     
         // Function to update the map markers with the filtered data
         function updateMapMarkers(data) {
             data = JSON.parse(data);
             console.log('updateMapMarkers')
-            console.log(data)
             // Clear existing markers from the map
             map.eachLayer(function(layer) {
                 if (layer instanceof L.Marker) {
                     map.removeLayer(layer);
-                }
+                }  
             });
 
             index = supercluster({
                 radius: 20,
                 extent: 256,
-                maxZoom: 20
+                maxZoom: 10
               }).load(data.features); // Expects an array of Features.
             ready = true;
-            
-            {% comment %} map.fitBounds(markers.getBounds()); {% endcomment %}
-            {% comment %} console.log('______________markers___________________') {% endcomment %}
-            {% comment %} console.log(layer.getbounds()) {% endcomment %}
+
             map.addLayer(markers);
             update();
             // Get the bounding box of the markers
             updateTable(data.features);
+            document.getElementById('loading-popup').classList.add('hidden');
         }
 
         function getmapdata(selectedStates, selectedDataset, selectedCat) {
@@ -630,9 +1041,7 @@
                 },
                 success: function(data) {
                     updateMapMarkers(data);
-                    console.log('here is the geojson')
-                    {% comment %} console.log(data) {% endcomment %}
-                    },
+                },
                 error: function(xhr, status, error) {
                     enableInputs();
                     // Handle error
@@ -641,9 +1050,46 @@
             });
         }
             
+
+        const dropdownButton = document.getElementById('dropdownMenuButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const selectedItems = document.getElementById('selectedItems');
+
+        let selectedValues = [];  // Variable to store selected items
+
+        dropdownButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        dropdownMenu.addEventListener('change', () => {
+            selectedValues = Array.from(dropdownMenu.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(checkbox => checkbox.value);
+            // Update the button text based on selected items
+            selectedItems.textContent = selectedValues.length === 0 ? 'None' : selectedValues.join(', ');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        {% comment %} // Function to get selected values
+        window.getSelectedValues = () => {
+            return selectedValues;
+        }; {% endcomment %}
+
         // Function to apply category filter
         function applyCategoryFilter(category, states) {
-            var category = document.getElementById('fta_cat').value;
+
+            // Function to get selected values
+            var category = window.getSelectedValues = () => {
+                return selectedValues;
+            };
+            console.log('here are the lucky categories')
+            console.log(category)
+            console.log('did we get em?')
+            {% comment %} var category = document.getElementById('fta_cat').value; {% endcomment %}
             var states = document.getElementById('states').value;
             var statesop = document.getElementById('states').value;
             var county = document.getElementById('well_county').value;
@@ -655,7 +1101,25 @@
             var well_name = document.getElementById('well_name').value;
             var well_nameop = document.getElementById('op_51').value;
             // Perform AJAX call to fetch filtered data based on 'category'
-            console.log('sending the request')
+            console.log('sending the request');
+            document.getElementById('loading-popup').classList.remove('hidden');
+
+
+            document.getElementById('loading-popup').classList.remove('hidden');
+            // Start adding periods to the text
+            let dots = '';
+            let dotCount = 0;
+            dotInterval = setInterval(() => {
+                dotCount += 1;
+                if (dotCount > 2) {
+                    thetext = '   '; // Reset dots
+                    dotCount = 0;
+                } else {
+                    thetext = '...'
+                }
+                document.getElementById('loading-dots').textContent = thetext;
+            }, 1000); // Update text every 500ms
+
             $.ajax({
                 url: '/wells/generate_geojson',
                 method: 'GET',
@@ -677,14 +1141,17 @@
                     filteredData = data
                     console.log('had success')
                     updateMapMarkers(data);
-                    console.log('start updating the table')
-                    {% comment %} updateTable(data); {% endcomment %}
-                    console.log('should be done')
+                    console.log('should be done');
+                    getCounties(data);
+                    getStates(data);
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
+                    document.getElementById('loading-popup').classList.add('hidden');
                 }
             });
+            
+
         }
         
         function updateTable(features) {
@@ -716,9 +1183,10 @@
         
                     // Loop through each property in feature to create cells
                     for (var prop in feature.properties) {
+                        if (prop == 'id' || prop == 'wellwiki' || prop == 'ftuid') {continue;} else {
                         var cell = document.createElement('td');
                         cell.textContent = feature.properties[prop]; // Display each property
-                        row.appendChild(cell);
+                        row.appendChild(cell);}
                     }
         
                     tableBody.appendChild(row);
@@ -855,6 +1323,25 @@
         document.body.removeChild(link);
     }
     
+    // Toggle legend content
+    document.getElementById('legend-toggle').addEventListener('click', function() {
+        var content = document.querySelector('.legend-content');
+        var icon = document.getElementById('legend-toggle');
+
+        if (content.style.display === 'none' || content.style.display === '') {
+            content.style.display = 'block';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            content.style.display = 'none';
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    });
+
+    // Initialize legend state
+    document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
+
     </script>
 </body>
 </html>

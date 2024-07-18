@@ -1,7 +1,55 @@
 from django.db import models
 
 # Create your models here.
+class States(models.Model):
+    geomjson = models.CharField()
+    statename = models.CharField()
+    class Meta:
+        managed = False
+        db_table = 'states_json'
+    
+    def __str__(self) -> str:
+        return super().__str__()
+    
+class Counties(models.Model):
+    geomjson = models.CharField()
+    statename = models.CharField()
+    county = models.CharField()
+
+    class Meta:
+        managed = False
+        db_table = 'counties_json'
+    
+    def __str__(self) -> str:
+        return super().__str__()
+
 class Wells(models.Model):
+    api_num = models.CharField(max_length=50, blank=True, null=True)
+    other_id = models.CharField(max_length=50, blank=True, null=True)
+    lat = models.FloatField(blank=True, null=True)
+    lng = models.FloatField(blank=True, null=True)
+    stusps = models.CharField(max_length=50, blank=True, null=True)
+    county = models.CharField(max_length=50, blank=True, null=True)
+    municipality = models.CharField(max_length=50, blank=True, null=True)
+    well_name = models.CharField(max_length=50, blank=True, null=True)
+    operator = models.CharField(max_length=50, blank=True, null=True)
+    spud_date = models.CharField(max_length=50, blank=True, null=True)
+    plug_date = models.CharField(max_length=50, blank=True, null=True)
+    well_type = models.CharField(max_length=50, blank=True, null=True)
+    well_status = models.CharField(max_length=50, blank=True, null=True)
+    well_configuration = models.CharField(max_length=50, blank=True, null=True)
+    ft_category = models.CharField(max_length=50, blank=True, null=True)
+    wellwiki = models.CharField(max_length=50, blank=True, null=True)
+    ftuid = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wells_240701'
+    
+    def __str__(self) -> str:
+        return super().__str__()
+    
+class Wells_PA(models.Model):
     api_num = models.CharField(max_length=50, blank=True, null=True)
     other_id = models.CharField(max_length=50, blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
@@ -17,16 +65,67 @@ class Wells(models.Model):
     well_status = models.CharField(max_length=50, blank=True, null=True)
     well_configuration = models.CharField(max_length=50, blank=True, null=True)
     ft_category = models.CharField(max_length=50, blank=True, null=True)
-    fta_uid = models.IntegerField(blank=True, null=True)
+    wellwiki = models.CharField(max_length=50, blank=True, null=True)
+    ftuid = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'wells_20240601'
+        db_table = 'wells_pa'
     
     def __str__(self) -> str:
         return super().__str__()
     
+class Wells_OH(models.Model):
+    api_num = models.CharField(max_length=50, blank=True, null=True)
+    other_id = models.CharField(max_length=50, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    stusps = models.CharField(max_length=50, blank=True, null=True)
+    county = models.CharField(max_length=50, blank=True, null=True)
+    municipality = models.CharField(max_length=50, blank=True, null=True)
+    well_name = models.CharField(max_length=50, blank=True, null=True)
+    operator = models.CharField(max_length=50, blank=True, null=True)
+    spud_date = models.CharField(max_length=50, blank=True, null=True)
+    plug_date = models.CharField(max_length=50, blank=True, null=True)
+    well_type = models.CharField(max_length=50, blank=True, null=True)
+    well_status = models.CharField(max_length=50, blank=True, null=True)
+    well_configuration = models.CharField(max_length=50, blank=True, null=True)
+    ft_category = models.CharField(max_length=50, blank=True, null=True)
+    wellwiki = models.CharField(max_length=50, blank=True, null=True)
+    ftuid = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        managed = False
+        db_table = 'wells_oh'
+    
+    def __str__(self) -> str:
+        return super().__str__()
+
+class Wells_TX(models.Model):
+    api_num = models.CharField(max_length=50, blank=True, null=True)
+    other_id = models.CharField(max_length=50, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    stusps = models.CharField(max_length=50, blank=True, null=True)
+    county = models.CharField(max_length=50, blank=True, null=True)
+    municipality = models.CharField(max_length=50, blank=True, null=True)
+    well_name = models.CharField(max_length=50, blank=True, null=True)
+    operator = models.CharField(max_length=50, blank=True, null=True)
+    spud_date = models.CharField(max_length=50, blank=True, null=True)
+    plug_date = models.CharField(max_length=50, blank=True, null=True)
+    well_type = models.CharField(max_length=50, blank=True, null=True)
+    well_status = models.CharField(max_length=50, blank=True, null=True)
+    well_configuration = models.CharField(max_length=50, blank=True, null=True)
+    ft_category = models.CharField(max_length=50, blank=True, null=True)
+    wellwiki = models.CharField(max_length=50, blank=True, null=True)
+    ftuid = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'wells_tx'
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 class HifldOilRef(models.Model):
     objectid = models.CharField(max_length=50, blank=True, null=True)

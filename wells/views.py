@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from .models import Wells
+from .models import Wells, Counties, States, Wells_OH, Wells_PA, Wells_TX
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
 from django.core.serializers import serialize
 from django.db.models import Q
 import json 
-
+import ast
 
 
 
@@ -14,6 +14,100 @@ import json
 def wells(request):
     wells = Wells.objects.all()
     return render(request, 'wells.html', { 'wells': wells })
+
+def getstates_view(request):
+    print('now were getting the states for the map')
+    print(f'here is the request: {request}')
+    print(f"states requested: {request.GET.getlist('states')}")
+    states_in = request.GET.getlist('states')[0].split(',')
+    print(f'states in = {states_in}')
+    states = list()
+    for s in states_in:
+        h = s.strip()
+        # states.append(h)
+        # states.append(h.upper())
+        # states.append(h.lower())
+        states.append(h.title())
+    print(f"states--{len(states)}->{states}")
+    filter_kwargs = dict()
+    # if len(states) == 1:
+    #     filter_kwargs.update(f'statename__iexact={states}')
+    # else:
+    # for getstate in states:
+        
+    filter_kwargs.update({'statename__in':states})
+
+    print(f'the query = {filter_kwargs}')
+    polygons = States.objects.filter(**filter_kwargs)  # Query all polygons
+    print(f'state polygons-_-_-_-->{polygons}')
+    features = []
+    for i,polygon in enumerate(polygons):
+        # if i > 5:
+        #     break
+        # Parse GeoJSON text from the geomjson field
+        geojson_data = polygon.geomjson
+        # Add GeoJSON feature to the list
+        feature = dict()
+        feature['type'] = "Feature"
+        feature['properties'] = {}
+        feature['geometry'] = ast.literal_eval(geojson_data)
+        features.append(feature)
+        # print('so we got here')
+        
+    # Create GeoJSON FeatureCollection
+    geojson_collection = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+    # print(geojson_collection)
+    return JsonResponse(geojson_collection)
+
+
+def getcounties_view(request):
+    print('now were getting the counties for the map')
+    print(f'here is the request: {request}')
+    print(f"states requested: {request.GET.getlist('states')}")
+    states_in = request.GET.getlist('states')[0].split(',')
+    print(f'states in = {states_in}')
+    states = list()
+    for s in states_in:
+        h = s.strip()
+        # states.append(h)
+        # states.append(h.upper())
+        # states.append(h.lower())
+        states.append(h.title())
+    print(f"states--{len(states)}->{states}")
+    filter_kwargs = dict()
+    # if len(states) == 1:
+    #     filter_kwargs.update(f'statename__iexact={states}')
+    # else:
+    # for getstate in states:
+        
+    filter_kwargs.update({'statename__in':states})
+
+    print(f'the query = {filter_kwargs}')
+    polygons = Counties.objects.filter(**filter_kwargs)  # Query all polygons
+    features = []
+    for i,polygon in enumerate(polygons):
+        # if i > 5:
+        #     break
+        # Parse GeoJSON text from the geomjson field
+        geojson_data = polygon.geomjson
+        # Add GeoJSON feature to the list
+        feature = dict()
+        feature['type'] = "Feature"
+        feature['properties'] = {}
+        feature['geometry'] = ast.literal_eval(geojson_data)
+        features.append(feature)
+        # print('so we got here')
+        
+    # Create GeoJSON FeatureCollection
+    geojson_collection = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+    # print(geojson_collection)
+    return JsonResponse(geojson_collection)
 
 def update_table():
     # selected_dataset = request.GET.getlist('selectedDataset[]')
@@ -62,6 +156,8 @@ def generate_new_table(cols):
     for i in range(1, 2):
         new_table_html += "<tr>"
         for j in range(1, len(cols)+1):
+            if j in (1,len(cols)):
+                continue
             new_table_html += f"<td>Row {i} Data {j}</td>"
         new_table_html += "</tr>"
     return new_table_html
@@ -74,9 +170,9 @@ def generate_geojson(request):
     states = list()
     for s in states_in:
         h = s.strip()
-        states.append(h)
-        states.append(h.upper())
-        states.append(h.lower())
+        # states.append(h)
+        # states.append(h.upper())
+        # states.append(h.lower())
         states.append(h.title())
     states = list(set(states))
     cats = list()
@@ -109,14 +205,31 @@ def generate_geojson(request):
         well_name.append(h.title())
     well_name = list(set(well_name))
     category = request.GET.getlist('category')
+    fcats = list()
+    catsplit = category[0].split(',')
+    print(f'here is catsplit -->{catsplit}')
+    if 'default' in catsplit or 'initial' in catsplit:
+        fcats.append('default')
+    elif catsplit == ['']:
+        fcats.append('default')
+    else:
+        for c in category[0].split(','):
+            fcats.append(c)
     stateop = request.GET.getlist('statesop')
     county_in = request.GET.getlist('county')[0].split(',')
     county = list()
     for s in county_in:
         h = s.strip()
+        # # h = s.replace('County','').replace('COUNTY','').strip()
+        # print(f'the county records are: {h}')
+        # print('****************************=')
+        # h = s.strip()
+        h = s.replace('County','').replace('COUNTY','').replace('county','').strip()
+        print(f'the new county records are: {h}')
+        print('===============================')
         county.append(h)
         county.append(h.upper())
-        county.append(h.lower())
+        # county.append(h.lower())
         county.append(h.title())
     county = list(set(county))
     ctyop = request.GET.getlist('countyop')
@@ -129,7 +242,7 @@ def generate_geojson(request):
                      'well_type':['well_type',wtop,well_type],
                      'well_name':['well_name',wnop,well_name],
                      'county':['county',ctyop,county],
-                     'category':['category','',category]
+                     'category':['category','',fcats]
                     }
 
     
@@ -145,13 +258,14 @@ def generate_geojson(request):
     print(f'here is the main dict: {filterop_dict}')
 
     for k,v in filterop_dict.items():
-        print(f'here is k: {k} and v: {v}')
+        # print(f'here is the first layer: {k} and v: {v}')
+        # print('======================================')
         # h = str(f)
         for s in v:
             if len(s) > 0:
-                print(f'here if v: {v}')
-                print(f'here if s: {s}')
-                print(f'here is k: {k}')
+                # print(f'here if v: {v}')
+                # print(f'here if s: {s}')
+                # print(f'here is k: {k}')
                 if k == 'states':
                     aval = filterop_dict[k]
                     # print(f'the states aval = {aval}')
@@ -160,8 +274,8 @@ def generate_geojson(request):
                 # else:
                 elif k in filter_dict.keys():
                     aval = filterop_dict[k]
-                    print(f'avalue= {aval}')
-                    print(f'opt={filterop_dict[k]}')
+                    # print(f'avalue= {aval}')
+                    # print(f'opt={filterop_dict[k]}')
                     if aval[1] == ['default']:
                         # filter_kwargs.update({f'{aval[0]}__in':aval[2][0]})
                         continue
@@ -178,15 +292,37 @@ def generate_geojson(request):
                     # else:
                     #     filter_kwargs.update({f'{aval[0]}__in':aval[2]})
                 elif k == 'category':
-                    aval = filterop_dict[k]
-                    if aval[2] == ['default'] or aval[2] == ['initial']:
+                    print('here is what we are looking at')
+                    print(k)
+                    print(filterop_dict[k])
+                    here = filterop_dict[k][2]
+                    print(here)
+                    print(aval[2])
+                    if here == ['default']:
                         continue
                     else:
-                        filter_kwargs.update({f'ft_category__in':aval[2]})
+                        filter_kwargs.update({f'ft_category__in':here})
 
     print(f'kwargs = {filter_kwargs}')
+    attrvals = list()
+    # for u in filter_kwargs['stusps__in']:
+    #     if u == 'pennsylvania':
+    #         if len(filter_kwargs)>1:
+    #             attrvals.extend(Wells_PA.objects.filter(**filter_kwargs))
+    #         else:
+    #             attrvals.extend(Wells_PA.objects.all())
+    #         print('got pa!!!!!!!!!!!!')
+    #     elif u == 'ohio':
+    #         if len(filter_kwargs)>1:
+    #             attrvals.extend(Wells_OH.objects.filter(**filter_kwargs))
+    #         else:
+    #             attrvals.extend(Wells_OH.objects.all())
+    #         print('retrieved ohio!!!!!!!!!!')
+    #     elif u == 'texas':
+    #         attrvals.extend(Wells_TX.objects.filter(**filter_kwargs))   
+    
     attrvals = Wells.objects.filter(**filter_kwargs)
-
+    print('got to here')
 
     newwell = list()
     for n,x in enumerate(attrvals):
@@ -203,7 +339,7 @@ def generate_geojson(request):
             "type": "Feature",
             "geometry" : {
                 "type": "Point",
-                "coordinates": [d["longitude"], d["latitude"]],
+                "coordinates": [d["lng"], d["lat"]],
                 },
             "properties" : d,
         } for d in newwell]
