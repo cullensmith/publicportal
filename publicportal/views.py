@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 def homepage(request):
     #return HttpResponse("Welcome to the Public Facing Data Portal")
-    return render(request, 'home.html')
+    return render(request, '/wells/templates/wells.html')
 
 def about(request):
     #return HttpResponse("Datasets are currently limited")
