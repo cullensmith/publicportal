@@ -7,6 +7,7 @@ from django.core.serializers import serialize
 from django.db.models import Q
 import json 
 import ast
+import jsonify
 
 
 
@@ -14,6 +15,33 @@ import ast
 def wells(request):
     wells = Wells.objects.all()
     return render(request, 'wells.html', { 'wells': wells })
+
+
+def autolist(request):
+    print('now were getting the counties for the map')
+    print(f'here is the request: {request}')
+    print(f"states requested: {request.GET.getlist('box')}")
+    states = [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+        "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+        "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
+        "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+        "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+        ]
+    given = request.GET.getlist('box')[-1].split(',')
+    newlist = list()
+    print(f'here is what was typed:{given[-1].lower().lstrip()}')
+    for s in states:
+        here = s[:len(given[-1].lstrip())].lower().lstrip()
+        print(f'match: {here}')
+        if here == given[-1].lower().strip():
+            if len(here)>1:
+                print('found a match')
+                newlist.append(s)
+    print(f'here is the new list --> {newlist}')
+    return JsonResponse({'data':newlist})
 
 def getstates_view(request):
     print('now were getting the states for the map')
@@ -350,6 +378,11 @@ def generate_geojson(request):
 
 
 
-
+    def autolist(request):
+        print('now were getting the counties for the map')
+        print(f'here is the request: {request}')
+        print(f"states requested: {request.GET.getlist('states')}")
+        states_in = request.GET.getlist('states')[0].split(',')
+        return JsonResponse()
 
 

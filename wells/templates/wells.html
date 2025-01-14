@@ -51,7 +51,7 @@
         /* Style for filter grid container */
         .filterscontainer {
             {% comment %} border: 5px solid red; {% endcomment %}
-
+            
             display: grid;
             height: 100%;
             grid-template-rows: repeat(3, 33%);
@@ -62,6 +62,7 @@
             display: grid;
             height: 100%;
             width: 100%;
+            position: relative;
             {% comment %} border: 5px solid blue; {% endcomment %}
             grid-template-rows: 50% 50%;
 
@@ -500,7 +501,22 @@
         .show {
             display: block;
         }
-
+        #autolist {
+            display: block;
+            position: relative;
+            color: black;
+            background-color: white;
+            z-index: 5000;
+            margin-top: auto;
+            padding-top:8px;
+            padding-bottom:8px;
+            border-radius: 8px;
+            border-color: black;
+        }
+        .categoryinput {
+            color: green;
+            z-index:4000;
+        }
         {% comment %} .selected-items {
             overflow: hidden;
             text-overflow: ellipsis;
@@ -569,7 +585,9 @@
                         <label for="states">Choose up to 3 states (*required):</label>
                 </div>
                 <div class="filterschild1">
-                        <input type="text" id="states" name="states" placeholder="Enter State... Ex: Pennsylvania, Ohio">
+                        {% comment %} <input type="text" id="states" name="states" placeholder="Enter State... Ex: Pennsylvania, Ohio"> {% endcomment %}
+                        <input id="autoinputbox" autocomplete="off" autofocus="off" placeholder="Enter State... Ex: Penn, Tex, Ohio" type="search" onblur="hidehelper()" required>
+                        <ul id="autolist"><ul>
                 </div>
             </div>
 
@@ -1342,6 +1360,52 @@
     // Initialize legend state
     document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
+
+    function supplylist(b) {
+        var listbox = 'statebox';
+        $.ajax({
+            url: '/wells/autolist', // Replace with your view URL
+            method: 'GET',
+            data: {
+                box: b,
+                typed: listbox
+            },
+            success: function(data) {
+                console.log(data)
+                const listitems = data.data;
+                let autohtml = '';
+                console.log('data')
+                console.log(data)
+                listitems.forEach(i=> {
+                    autohtml += '<li>' + i + '</li>';
+                })
+                document.getElementById('autolist').innerHTML = autohtml;
+            },
+            error: function(xhr, status, error) {
+                // Handle error
+                console.error(error);
+            }
+            });
+        }
+
+    let autoinput = document.getElementById('autoinputbox');
+    autoinput.addEventListener('keyup', async function(event) {
+        console.log(event.key)
+        showhelper()
+        console.log('hit a button')
+        console.log(autoinput.value)
+        let response = await supplylist(autoinput.value)
+
+    });
+    
+    function hidehelper() {
+        hideit = document.getElementById('autolist');
+        hideit.style.display = 'none';
+    }
+    function showhelper() {
+        hideit = document.getElementById('autolist');
+        hideit.style.display = 'block';
+    }
     </script>
 </body>
 </html>

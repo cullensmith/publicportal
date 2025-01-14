@@ -11,5 +11,6 @@ urlpatterns = [
     path('generate_geojson',views.generate_geojson, name="generate_geojson"),
     path('getcounties_view',views.getcounties_view, name="getcounties_view"),
     path('getstates_view',views.getstates_view, name="getstates_view"),
+    path('autolist',views.autolist, name="autolist"),
 
 ]
