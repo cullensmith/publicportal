@@ -1,11 +1,11 @@
 from django.shortcuts import render
-from .models import Wells, Counties, States
+from .models import Wells, Counties, States, CountyNames
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
 from django.db.models import Q
 import json 
-
+import ast
 
 
 
@@ -14,6 +14,29 @@ def wells(request):
     wells = Wells.objects.all()
     return render(request, 'wells.html', { 'wells': wells })
 
+def createCountyList(request):
+    filtered = list()
+
+    states_in = request.GET.getlist('states')[0].split(',')
+    [states for s in states_in]
+    states = list()
+    for s in states_in:
+        h = s.strip()
+        states.append(h.title())
+
+    filter_kwargs = dict()
+    filter_kwargs.update({'statename__in':states})
+
+    counties = CountyNames.objects.filter(**filter_kwargs)  # Query all polygons
+    
+    for i,c in enumerate(counties):
+        item = dict()
+        item['county'] = c.county
+        item['statename'] = c.statename
+        item['stusps'] = c.stusps
+        filtered.append(item)
+
+    return JsonResponse(json.dump(filtered))
 
 def autolist(request):
     print('now were getting the counties for the map')
@@ -227,7 +250,7 @@ def generate_geojson(request):
         # states.append(h.lower())
         states.append(h.title())
     states = list(set(states))
-    states.append('TX')
+    states.append('MD')
     cats = list()
     # counties = list()
     well_status_in = request.GET.getlist('well_status')[0].split(',')

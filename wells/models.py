@@ -22,6 +22,18 @@ class Counties(models.Model):
     
     def __str__(self) -> str:
         return super().__str__()
+    
+class CountyNames(models.Model):
+    county = models.CharField(max_length=50)
+    statename = models.CharField(max_length=20)
+    stusps = models.CharField(max_length=2)
+
+    class Meta:
+        managed = False
+        db_table = 'county_wstate'
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 class Wells(models.Model):
     api_num = models.CharField(max_length=50, blank=True, null=True)
