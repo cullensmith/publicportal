@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Wells15,HifldOilRef,BoxData,Cracker,TermPetro
+# from .models import Wells15,HifldOilRef,BoxData,Cracker,TermPetro
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db.models import Q

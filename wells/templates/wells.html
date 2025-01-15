@@ -58,6 +58,36 @@
             grid-template-columns: 50% 50%;
         }
 
+        /* Animations */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Fade-out transition for the loading container */
+        .fade-out {
+            opacity: 0;
+            transition: opacity 3s ease-out;
+        }
+
+        #loading-container {
+            transition: opacity 3s ease-out;
+        }
+
+        .checkmark {
+            font-size: 30px;
+            color: green;
+        }
+
         .filterschild1grid {
             display: grid;
             height: 100%;
@@ -67,7 +97,18 @@
             grid-template-rows: 50% 50%;
 
         }
-
+        #fc_cty0 {
+            position: relative;
+            z-index: 100;
+        }
+        #fc_cty1 {
+            position: relative;
+            z-index: 100;
+        }
+        #fc_wt {
+            position: relative;
+            z-index: 10;
+        }
         .filterschild1 {
             height: 100%;
             width: 97%;
@@ -334,7 +375,7 @@
         }
 
         .loading-popup {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -344,6 +385,22 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             z-index: 1000000;
         }
+
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
         .loading-popup.hidden {
             display: none;
         } 
@@ -351,6 +408,97 @@
             background: blue;
         }
 
+
+        #button-container {
+            display: none;
+            {% comment %} width: 180px; {% endcomment %}
+            padding: 20px;
+            background-color:red;
+            justify-content: left;
+            border:red;
+            color: black;
+            font-family: Arial;
+            position: relative;
+            background-color: white;
+            width: 220px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 100000;
+            border-bottom-left-radius: 10px; /* Round the top-left corner */
+            border-bottom-right-radius: 10px; /* Round the top-right corner */
+            overflow: auto;
+            max-height: 400px;
+        }
+
+        #hdropdown-content {
+            display: none;
+            width: 180px;
+            padding: 20px;
+            background-color:white;
+            justify-content: flex-start;
+            border:red;
+            color: black;
+            font-family: Arial;
+            position: relative;
+            background-color: white;
+            min-width: 100px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 100000;
+            border-bottom-left-radius: 10px; /* Round the top-left corner */
+            border-bottom-right-radius: 10px; /* Round the top-right corner */
+        }
+
+        .hdbutton {
+            appearance: ;
+            font-style: ;
+            font-variant-ligatures: ;
+            font-variant-caps: ;
+            font-variant-numeric: ;
+            font-variant-east-asian: ;
+            font-variant-alternates: ;
+            font-variant-position: ;
+            font-variant-emoji: ;
+            font-weight: ;
+            font-stretch: ;
+            font-size: ;
+            font-family: ;
+            font-optical-sizing: ;
+            font-size-adjust: ;
+            font-kerning: ;
+            font-feature-settings: ;
+            font-variation-settings: ;
+            text-rendering: auto;
+            color: black;
+            letter-spacing: normal;
+            word-spacing: normal;
+            line-height: normal;
+            text-transform: none;
+            text-indent: 0px;
+            text-shadow: none;
+            display: grid;
+            text-align: left;
+            align-items: flex-start;
+            cursor: default;
+            box-sizing: border-box;
+            background-color: white;
+            margin: 0em;
+            padding-block: 2px;
+            padding-inline: 60px;
+            border-width: 2px;
+            border-style: none;
+            border-color: buttonborder;
+            border-top-color: ;
+            border-right-color: ;
+            border-bottom-color: ;
+            border-left-color: ;
+            border-image: initial;
+            border-image-source: ;
+            border-image-slice: ;
+            border-image-width: ;
+            border-image-outset: ;
+            border-image-repeat: ;
+            width: 200px;
+        
+        }
 
 
         .leaflet-popup-content-wrapper {
@@ -501,8 +649,33 @@
         .show {
             display: block;
         }
+
         #autolist {
-            display: block;
+            opacity: 0;
+            position: relative;
+            color: black;
+            background-color: white;
+            z-index: 5000;
+            margin-top: auto;
+            padding-top:8px;
+            padding-bottom:8px;
+            border-radius: 8px;
+            border-color: black;
+        }
+        #autolist1 {
+            opacity: 0;
+            position: relative;
+            color: black;
+            background-color: white;
+            z-index: 5000;
+            margin-top: auto;
+            padding-top:8px;
+            padding-bottom:8px;
+            border-radius: 8px;
+            border-color: black;
+        }
+        #autolist2 {
+            opacity: 0;
             position: relative;
             color: black;
             background-color: white;
@@ -525,6 +698,17 @@
         /* Added CSS to give the button a basic appearance without showing selected items */
         .selected-items {
             display: none; /* Hide the selected items text */
+        }
+        .input-button-container {
+            display: flex;
+            align-items: center;
+            margin-left: 40%;
+            gap: 10px; /* Adds some space between the input and button */
+        }
+        .gobutton {
+            background-color: green;
+            color:white;
+            width: 35px;
         }
     </style>
 </head>
@@ -586,13 +770,16 @@
                 </div>
                 <div class="filterschild1">
                         {% comment %} <input type="text" id="states" name="states" placeholder="Enter State... Ex: Pennsylvania, Ohio"> {% endcomment %}
-                        <input id="autoinputbox" autocomplete="off" autofocus="off" placeholder="Enter State... Ex: Penn, Tex, Ohio" type="search" onblur="hidehelper()" required>
-                        <ul id="autolist"><ul>
+                        <input id="autoinputbox" autocomplete="off" onfocus="showhelper()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper()" required>
+                        {% comment %} <ul id="autolist"><ul> {% endcomment %}
+                        {% comment %} <div id="hdropdown-content" onblur="hidehelper1()"> {% endcomment %}
+                            {% comment %} <button class="hdbutton" id="pike" onclick="toggleselection('pike')">Pike</button> {% endcomment %}
+                        <div id="button-container"></div>
                 </div>
             </div>
 
-            <div class="filterschild1grid">
-                <div class="filterschild1">
+            <div class="filterschild1grid" id="fc_cty0">
+                <div class="filterschild1" id="fc_cty1">
                     <div id="categoryInput">
                         <label for="well_county">County:</label>
                         <select id="op_21" size=1>
@@ -609,7 +796,15 @@
                     </div>
                 </div>
                 <div class="filterschild1">
-                        <input type="text" id="well_county" name="well_county" placeholder="Enter County... Ex: Washington">
+                    <input id="countybox" autocomplete="off" onfocus="showhelper1()" placeholder="Enter County... Ex: Washington" type="text"  required>
+                    {% comment %} <ul id="autolist1"><ul> {% endcomment %}
+                    <div id="hdropdown-content" onblur="hidehelper1()">
+                        <button class="hdbutton" id="pike" onclick="toggleselection('pike')">Pike</button>
+                        <button class="hdbutton" id="wayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaane" onclick="toggleselection('wayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaane')">Wayne</button>
+                        <button class="hdbutton" id="erie" onclick="toggleselection('erie')">Erie</button>
+                        <button class="hdbutton" id="orange" onclick="toggleselection('orange')">orange</button>
+                        <button class="hdbutton" id="blue" onclick="toggleselection('blue')">blue</button>
+                    </div>  
                 </div>
             </div>
             <div class="filterschild1grid">
@@ -630,10 +825,12 @@
                     </div>
                 </div>
                 <div class="filterschild1">
-                    <input type="text" id="well_status" name="well_status" placeholder="Enter Well Status...">
+                    <input id="autoinputbox2" autocomplete="off" onfocus="showhelper2()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper2()" required>
+                    <ul id="autolist2"><ul>
+                    {% comment %} <input type="text" id="well_status" name="well_status" placeholder="Enter Well Status..."> {% endcomment %}
                 </div>
             </div>
-            <div class="filterschild1grid">
+            <div class="filterschild1grid" id="fc_wt">
                 <div class="filterschild1">
                     <div id="categoryInput">
                         <label for="well_type">Well Type:</label>
@@ -651,7 +848,8 @@
                     </div>
                 </div>
                 <div class="filterschild1">
-                    <input type="text" id="well_type" name="well_type" placeholder="Enter Well Type...">
+                    <input id="autoinputbox3" autocomplete="off" onfocus="showhelper3()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper3()" required>
+                    {% comment %} <input type="text" id="well_type" name="well_type" placeholder="Enter Well Type..."> {% endcomment %}
                 </div>
             </div>
             <div class="filterschild1grid">
@@ -690,13 +888,13 @@
 
                 </div>
                 <div class="filterschild1">
-                    <div class="dropdown">
+                    {% comment %} <div class="dropdown">
                         <button class="dropdown-toggle" id="dropdownMenuButton">Select From Dropdown... <span class="selected-items" id="selectedItems">None</span></button>
 
-                        {% comment %} <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... <span class="selected-items" id="selectedItems">None</span></button> {% endcomment %}
-                        {% comment %} <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... </button> {% endcomment %}
+                        <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... <span class="selected-items" id="selectedItems">None</span></button> 
+                        <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... </button> 
                         <div class="dropdown-menu" id="dropdownMenu">
-                            {% comment %} <label><input type="checkbox" value="initial">Select from dropdown...</label> {% endcomment %}
+                            <label><input type="checkbox" value="initial">Select from dropdown...</label> 
                             <label><input type="checkbox" value="default">All</label>
                             <label><input type="checkbox" value="Injection / Storage / Service">Injection / Storage / Service</label>
                             <label><input type="checkbox" value="Not Drilled">Not Drilled</label>
@@ -705,8 +903,8 @@
                             <label><input type="checkbox" value="Plugged">Plugged</label>
                             <label><input type="checkbox" value="Production Well">Production Well</label>
                         </div>
-                    </div>
-                    {% comment %} <select id="fta_cat" size=1>
+                    </div> {% endcomment %}
+                    <select id="fta_cat" size=1>
                         <option value="initial">Select from dropdown...</option>
                         <option value="default">All</option>
                         <option value="Injection / Storage / Service">Injection / Storage / Service</option>
@@ -716,7 +914,7 @@
                         <option value="Plugged">Plugged</option>
                         <option value="Production Well">Production Well</option>
                     </select>
-                    <input type="text" id="category" name="category" placeholder="Select FracTracker Category..."> {% endcomment %}
+                    {% comment %} <input type="text" id="category" name="category" placeholder="Select FracTracker Category...">  {% endcomment %}
                 </div>
             </div>
             <div class="filterschild1">
@@ -728,10 +926,36 @@
             </div>
         </div>  
             
-        <!-- Grid container for the table -->
-        
+
         <div class="tablecontainer">
+            <div>
+                
+                {% comment %} <label for="sort-dropdown">Sort by:</label>
+                <select id="sort-dropdown">
+                    <option value="lat">Column 1</option>
+                    <option value="api_num">Column 2</option>
+                    <option value="FracTracker Category">Column 3</option>
+                    <option value="well_name">Column 4</option>
+                    <option value="column5">Column 5</option>
+                </select> {% endcomment %}
+            
+                <div class="input-button-container">
+                    <input type="number" id="page-input" placeholder="Jump to page #" min="1">
+                    <button class="gobutton" onclick="goToPage()">Go</button>
+                </div>
+            </div>
             <table id="maintable">
+                <thead>
+                    <tr>
+                        <td id="pagination" colspan="100%">
+
+                            <!-- Pagination buttons will be added here -->
+                        </td>
+                                <!-- Grid container for the table -->
+
+                        
+                    </tr>
+                </thead>
                 <thead id="maintableheader" class="sticky-header-container">
                     <tr>
                         {% comment %} <th>TMPID</th> {% endcomment %}
@@ -756,19 +980,15 @@
                 <tbody id="maintablebody">
                     {% comment %} <tr><td></td></tr> {% endcomment %}
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <td id="pagination" colspan="100%">
-                            <!-- Pagination buttons will be added here -->
-                        </td>
-                    </tr>
-                </tfoot>
+
             </table>
         </div>  
     </div>    
     <script>
         // Initialize Leaflet map
 
+
+        
         var map = L.map('map').setView([39.8283,-98.5795], 4);
         var geojsonLayer;
         var osmUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
@@ -821,7 +1041,7 @@
 
         // Function to fetch GeoJSON data from a view
         function getStates(data) {
-            var states = document.getElementById('states').value;
+            var states = document.getElementById('autoinputbox').value;
             $.ajax({
                 url: '/wells/getstates_view', // Replace with your view URL
                 method: 'GET',
@@ -879,7 +1099,7 @@
         }
         // Function to fetch GeoJSON data from a view
         function getCounties(data) {
-            var states = document.getElementById('states').value;
+            var states = document.getElementById('autoinputbox').value;
             $.ajax({
                 url: '/wells/getcounties_view', // Replace with your view URL
                 method: 'GET',
@@ -932,7 +1152,7 @@
             });
         }
 
-        
+
 
         function onEachFeatureFn(prop, feature, layer) {
                 layer.feature.property.longitude
@@ -952,7 +1172,7 @@
                                                         feature.properties.lng + "<br><b>Latitude: </b>" + 
                                                         feature.properties.lat + wwlink);
         }
-        }).addTo(map);
+        });
 
                 // Update the displayed clusters after user pan / zoom.
         map.on('moveend', update);
@@ -1004,6 +1224,8 @@
           var markerStyle = {
                 color: getColor(feature.properties.ft_category),
                 fillColor: getColor(feature.properties.ft_category),
+                maxZoom: 20,
+                minZoom: 8,
                 radius: 3, // Radius // Fill opacity of the circle
           };
           if (!feature.properties.cluster) return L.circleMarker(latlng, markerStyle);
@@ -1027,6 +1249,7 @@
         // Function to update the map markers with the filtered data
         function updateMapMarkers(data) {
             data = JSON.parse(data);
+            
             console.log('updateMapMarkers')
             // Clear existing markers from the map
             map.eachLayer(function(layer) {
@@ -1038,11 +1261,13 @@
             index = supercluster({
                 radius: 20,
                 extent: 256,
-                maxZoom: 10
+                maxZoom: 9,
               }).load(data.features); // Expects an array of Features.
             ready = true;
 
-            map.addLayer(markers);
+
+            
+            {% comment %} map.addLayer(markers); {% endcomment %}
             update();
             // Get the bounding box of the markers
             updateTable(data.features);
@@ -1059,6 +1284,7 @@
                 },
                 success: function(data) {
                     updateMapMarkers(data);
+                    ctyct(data);
                 },
                 error: function(xhr, status, error) {
                     enableInputs();
@@ -1067,9 +1293,42 @@
                 }
             });
         }
-            
+        function ctyct(data) {
+            // Create the polygon layer and add it to the map
+            var polygonLayer = L.geoJSON(data, {
+                onEachFeature: function (feature, layer) {
+                    // For each polygon, calculate the count of points inside the polygon
+                    var pointCount = 0;
+                    var polygon = layer;
 
-        const dropdownButton = document.getElementById('dropdownMenuButton');
+                    data.forEach(function (point) {
+                        if (polygon.getBounds().contains(L.latLng(point))) {
+                            pointCount++;
+                        }
+                    });
+
+                    // Bind a label showing the point count for each polygon
+                    layer.bindPopup('Points within: ' + pointCount);
+                    layer.setStyle({
+                        color: 'blue',
+                        weight: 2,
+                        opacity: 0.7,
+                        fillColor: 'blue',
+                        fillOpacity: 0.1
+                    });
+                }
+            }).addTo(map);
+        }
+        // Show points only if zoom level is between 10 and 14
+        map.on('zoomend', function () {
+            var currentZoom = map.getZoom();
+            if (currentZoom >= 10 && currentZoom <= 20) {
+                markers.addTo(map);
+            } else {
+                markers.remove();
+            }
+        });
+        {% comment %} const dropdownButton = document.getElementById('dropdownMenuButton');
         const dropdownMenu = document.getElementById('dropdownMenu');
         const selectedItems = document.getElementById('selectedItems');
 
@@ -1090,7 +1349,7 @@
             if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
                 dropdownMenu.classList.remove('show');
             }
-        });
+        }); {% endcomment %}
 
         {% comment %} // Function to get selected values
         window.getSelectedValues = () => {
@@ -1098,23 +1357,26 @@
         }; {% endcomment %}
 
         // Function to apply category filter
-        function applyCategoryFilter(category, states) {
+        function applyCategoryFilter() {
 
+        // function applyCategoryFilter(category, states) {
+            // console.log(category)
+            // console.log(states)
             // Function to get selected values
-            var category = window.getSelectedValues = () => {
-                return selectedValues;
-            };
+            // var category = window.getSelectedValues = () => {
+            //     return selectedValues;
+            // };
             console.log('here are the lucky categories')
-            console.log(category)
+            // console.log(category)
             console.log('did we get em?')
-            {% comment %} var category = document.getElementById('fta_cat').value; {% endcomment %}
-            var states = document.getElementById('states').value;
-            var statesop = document.getElementById('states').value;
-            var county = document.getElementById('well_county').value;
+            var category = document.getElementById('fta_cat').value; 
+            var states = document.getElementById('autoinputbox').value;
+            var statesop = document.getElementById('autoinputbox').value;
+            var county = document.getElementById('countybox').value;
             var countyop = document.getElementById('op_21').value;
-            var well_type = document.getElementById('well_type').value;
+            var well_type = document.getElementById('autoinputbox2').value;
             var well_typeop = document.getElementById('op_41').value;
-            var well_status = document.getElementById('well_status').value;
+            var well_status = document.getElementById('autoinputbox3').value;
             var well_statusop = document.getElementById('op_31').value;
             var well_name = document.getElementById('well_name').value;
             var well_nameop = document.getElementById('op_51').value;
@@ -1171,104 +1433,84 @@
             
 
         }
-        
         function updateTable(features) {
             var tableBody = document.getElementById('maintablebody');
-            tableBody.innerHTML = ''; // Clear existing rows
-        
-            // Pagination variables
             var currentPage = 1;
-            var rowsPerPage = 10;
-        
+            var rowsPerPage = 50;
+
             // Function to display rows based on current page
             function displayRows(currentPage) {
                 var startIndex = (currentPage - 1) * rowsPerPage;
                 var endIndex = startIndex + rowsPerPage;
                 var pageFeatures = features.slice(startIndex, endIndex);
-        
-                // Ensure pageFeatures is an array
-                if (!Array.isArray(pageFeatures)) {
-                    console.error('pageFeatures is not an array:', pageFeatures);
-                    return;
-                }
-        
+
                 // Clear existing rows in table body
                 tableBody.innerHTML = '';
-        
+
                 // Append rows to table
                 pageFeatures.forEach(function(feature) {
                     var row = document.createElement('tr');
-        
+
                     // Loop through each property in feature to create cells
                     for (var prop in feature.properties) {
-                        if (prop == 'id' || prop == 'wellwiki' || prop == 'ftuid') {continue;} else {
-                        var cell = document.createElement('td');
-                        cell.textContent = feature.properties[prop]; // Display each property
-                        row.appendChild(cell);}
+                        if (prop == 'id' || prop == 'wellwiki' || prop == 'ftuid') { continue; } 
+                        else {
+                            var cell = document.createElement('td');
+                            cell.textContent = feature.properties[prop]; // Display each property
+                            row.appendChild(cell);
+                        }
                     }
-        
+
                     tableBody.appendChild(row);
                 });
-        
+
                 // Update pagination controls
                 updatePaginationControls(currentPage);
             }
-        
+
             // Initial display of rows
             displayRows(currentPage);
-        
+
             // Function to update pagination controls
             function updatePaginationControls(currentPage) {
                 var paginationCell = document.getElementById('pagination');
                 paginationCell.innerHTML = ''; // Clear existing pagination buttons
-        
+
                 // Calculate total pages
                 var totalPages = Math.ceil(features.length / rowsPerPage);
-        
+
                 // Show buttons for the first page, last page, two pages before and two pages after the current page
                 var buttonsToShow = [];
                 if (totalPages > 0) {
-                    // First page
                     if (currentPage > 3) {
                         buttonsToShow.push(1);
                     }
-        
-                    // Two pages before current page
+
                     if (currentPage > 2) {
                         buttonsToShow.push(currentPage - 2);
                     }
                     if (currentPage > 1) {
                         buttonsToShow.push(currentPage - 1);
                     }
-        
-                    // Current page
+
                     buttonsToShow.push(currentPage);
-        
-                    // Two pages after current page
+
                     if (currentPage < totalPages) {
                         buttonsToShow.push(currentPage + 1);
                     }
                     if (currentPage < totalPages - 1) {
                         buttonsToShow.push(currentPage + 2);
                     }
-        
-                    // Last page
+
                     if (totalPages > 1) {
                         buttonsToShow.push(totalPages);
                     }
-                } 
-        
+                }
+
                 // Add page number buttons
                 buttonsToShow.forEach(function(page) {
                     var button = document.createElement('button');
                     button.textContent = page;
-                    {% comment %} if (page === 1) {
-                        button.textContent = 'first';
-                    } else if (page === totalPages) {
-                        button.textContent = 'last';
-                    } else {
-                        button.textContent = page;
-                    } {% endcomment %}
                     button.onclick = function() {
                         currentPage = parseInt(this.textContent);
                         displayRows(currentPage);
@@ -1276,8 +1518,34 @@
                     paginationCell.appendChild(button);
                 });
             }
-        }
 
+            // Function to go to a specific page
+            window.goToPage = function() {
+                var pageNumber = document.getElementById('page-input').value;
+                if (pageNumber && pageNumber >= 1 && pageNumber <= Math.ceil(features.length / rowsPerPage)) {
+                    currentPage = parseInt(pageNumber);
+                    displayRows(currentPage);
+                } else {
+                    alert('Please enter a valid page number.');
+                }
+            };
+
+            {% comment %} // Function to sort the table by the selected column
+            document.getElementById('sort-dropdown').addEventListener('change', function() {
+                var selectedColumn = this.value;
+                console.log('itchanged')
+                features.sort(function(a, b) {
+                    // Sorting logic for text data
+                    console.log(a)
+                    console.log(a.properties[selectedColumn])
+                    if (a.properties[selectedColumn] < b.properties[selectedColumn]) return -1;
+                    if (a.properties[selectedColumn] > b.properties[selectedColumn]) return 1;
+                    return 0;
+                });
+                // After sorting, update the table
+                displayRows(currentPage);
+            }); {% endcomment %}
+        }
     // Function to download CSV of table data
     function downloadTableData() {
         console.log('starting the download')
@@ -1377,8 +1645,11 @@
                 console.log('data')
                 console.log(data)
                 listitems.forEach(i=> {
-                    autohtml += '<li>' + i + '</li>';
+                    {% comment %} autohtml += '<li>' + i + '</li>'; {% endcomment %}
+                    '<button class="hdbutton" id='+i+' onclick="toggleselection('+i+')">'+i+'</button>'
+
                 })
+
                 document.getElementById('autolist').innerHTML = autohtml;
             },
             error: function(xhr, status, error) {
@@ -1387,6 +1658,40 @@
             }
             });
         }
+
+        const colors = [
+            "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+            "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+            "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+            "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+            "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
+            "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+            "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+            ];
+
+        // Iterate through the colors array and create a button for each color
+        colors.forEach(color => {
+            const button = document.createElement('button');
+            button.className = 'hdbutton';
+            button.id = color;
+            button.innerText = color.charAt(0).toUpperCase() + color.slice(1); // Capitalize the first letter of color
+            button.onclick = () => toggleselection(color);
+            
+            // Append the button to the button-container div
+            document.getElementById('button-container').appendChild(button);
+        });
+
+        function hidehelper() {
+            hideit = document.getElementById('button-container');
+            hideit.style.display = 'none';
+        }
+        function showhelper() {
+            showit = document.getElementById('button-container');
+            showit.style.display = 'grid';
+            showit.style.opacity= 1;
+        }
+
+
 
     let autoinput = document.getElementById('autoinputbox');
     autoinput.addEventListener('keyup', async function(event) {
@@ -1405,7 +1710,107 @@
     function showhelper() {
         hideit = document.getElementById('autolist');
         hideit.style.display = 'block';
+        hideit.style.opacity= 1;
     }
+
+    function supplylist1(b) {
+        var listbox = 'statebox';
+        $.ajax({
+            url: '/wells/autolist1', // Replace with your view URL
+            method: 'GET',
+            data: {
+                box: b,
+                typed: listbox
+            },
+            success: function(data) {
+                console.log(data)
+                const listitems1 = data.data;
+                let autohtml = '';
+                console.log('data')
+                console.log(data)
+                listitems1.forEach(i=> {
+                    autohtml += '<li>' + i + '</li>';
+                })
+
+                document.getElementById('autolist1').innerHTML = autohtml;
+            },
+            error: function(xhr, status, error) {
+                // Handle error
+                console.error(error);
+            }
+            });
+        }
+
+    let autoinput1 = document.getElementById('countybox');
+    autoinput1.addEventListener('keyup', async function(event) {
+        console.log(event.key)
+        showhelper1()
+        console.log('hit a button')
+        console.log(autoinput1.value)
+        let response = await supplylist1(autoinput1.value)
+
+    });
+    function hidehelper1() {
+        hideit = document.getElementById('hdropdown-content');
+        hideit.style.display = 'none';
+    }
+    function showhelper1() {
+        showit = document.getElementById('hdropdown-content');
+        showit.style.display = 'grid';
+        showit.style.opacity= 1;
+    }
+
+    const textbox = document.getElementById('autoinputbox');
+    const buttonContainer = document.getElementById('button-container');
+
+    // Add an event listener to the textbox to show the button container on focus
+    textbox.addEventListener('focus', () => {
+        buttonContainer.style.display = 'block'; // Show the button container
+    });
+
+    window.addEventListener('click', function(event) {
+        var selectionbox = document.getElementById('button-container');
+        if (!selectionbox.contains(event.target) && event.target !== textbox) {
+            selectionbox.style.display = 'none'
+        }
+    });
+    window.addEventListener('click', function(event) {
+        var selectionbox = document.getElementById('hdropdown-content');
+        var ctybox = document.getElementById('countybox');
+        if (!selectionbox.contains(event.target) && event.target !== ctybox) {
+            selectionbox.style.display = 'none'
+        }
+    });
+
+    function toggleselection(word) {
+        var textbox = document.getElementById('autoinputbox');
+        var bid = document.getElementById(word)
+
+        if (textbox.value.includes(word)) {
+            bid = document.getElementById(word)
+            textbox.value = textbox.value.replace(word,'');
+            bid.style.backgroundColor = 'white'
+            bid.style.color = 'black'
+            } else if (textbox.value === '') {
+            textbox.value = word
+            bid.style.backgroundColor = 'darkgray'
+            bid.style.color = 'white'
+        } else {
+            textbox.value = textbox.value + ', ' + word
+            bid.style.backgroundColor = 'darkgray'
+            bid.style.color = 'white'
+
+        }
+        if (textbox.value.startsWith(', ')) {
+            textbox.value = textbox.value.replace(', ','');
+        }
+        if (textbox.value.includes(', ,')) {
+            textbox.value = textbox.value.replace(', ,',',')
+        }
+    }
+
+
+
     </script>
 </body>
 </html>
