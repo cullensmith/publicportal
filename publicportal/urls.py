@@ -24,13 +24,8 @@ from django.conf import settings
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('',views.homepage),
-    # path('about/',views.about),
-    # path('posts/', include('posts.urls')),
     path('wellsdb/', include('wellsdb.urls')),
-    # path('petrochem/', include('wellsdb.urls')),
     path('wells/', include('wells.urls')),
-    # path('allegheny/', include('allegheny.urls')),
-    # path('boxdata/', include('boxdata.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
