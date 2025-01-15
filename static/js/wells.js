@@ -103,11 +103,12 @@ function getStates(data) {
         }
     });
 }
+
 // Function to fetch GeoJSON data from a view
 function getCounties(data) {
     var states = document.getElementById('autoinputbox').value;
     $.ajax({
-        url: '/wells/getcounties_view', // Replace with your view URL
+        url: '/wells/getcounties_view', 
         method: 'GET',
         data: {
             states: states,
@@ -158,7 +159,24 @@ function getCounties(data) {
     });
 }
 
-
+function addCtyOptions(data) {
+    var states = document.getElementById('autoinputbox').value;
+    $.ajax({
+        url: '/wells/createCountyList',
+        method: 'GET',
+        data: {
+            states: states,
+        },
+        success: function(data) {
+            // create the "buttons" for each county for the dropdown
+            console.log('counties to include')
+            console.log(data)
+        },
+        error: function(xhr,status,error) {
+            console.error(error);
+        }
+    })
+};
 
 function onEachFeatureFn(prop, feature, layer) {
         layer.feature.property.longitude
@@ -706,8 +724,9 @@ autoinput.addEventListener('keyup', async function(event) {
     console.log('hit a button')
     console.log(autoinput.value)
     let response = await supplylist(autoinput.value)
-
 });
+
+
 
 function hidehelper() {
     hideit = document.getElementById('autolist');
@@ -791,7 +810,7 @@ window.addEventListener('click', function(event) {
 function toggleselection(word) {
     var textbox = document.getElementById('autoinputbox');
     var bid = document.getElementById(word)
-
+    addCtyOptions()
     if (textbox.value.includes(word)) {
         bid = document.getElementById(word)
         textbox.value = textbox.value.replace(word,'');

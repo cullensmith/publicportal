@@ -16,13 +16,10 @@ def wells(request):
 
 def createCountyList(request):
     filtered = list()
-
+    print(request)
     states_in = request.GET.getlist('states')[0].split(',')
-    [states for s in states_in]
-    states = list()
-    for s in states_in:
-        h = s.strip()
-        states.append(h.title())
+    print(f'counties needed: {states_in}')
+    states = [s for s in states_in]
 
     filter_kwargs = dict()
     filter_kwargs.update({'statename__in':states})
@@ -36,7 +33,7 @@ def createCountyList(request):
         item['stusps'] = c.stusps
         filtered.append(item)
 
-    return JsonResponse(json.dump(filtered))
+    return JsonResponse(json.dumps(filtered), safe=False)
 
 def autolist(request):
     print('now were getting the counties for the map')
@@ -243,14 +240,67 @@ def generate_geojson(request):
     print(f"states requested: {request.GET.getlist('states')}")
     states_in = request.GET.getlist('states')[0].split(',')
     states = list()
+    state_abbreviations = {
+        'Alabama': 'AL',
+        'Alaska': 'AK',
+        'Arizona': 'AZ',
+        'Arkansas': 'AR',
+        'California': 'CA',
+        'Colorado': 'CO',
+        'Connecticut': 'CT',
+        'Delaware': 'DE',
+        'Florida': 'FL',
+        'Georgia': 'GA',
+        'Hawaii': 'HI',
+        'Idaho': 'ID',
+        'Illinois': 'IL',
+        'Indiana': 'IN',
+        'Iowa': 'IA',
+        'Kansas': 'KS',
+        'Kentucky': 'KY',
+        'Louisiana': 'LA',
+        'Maine': 'ME',
+        'Maryland': 'MD',
+        'Massachusetts': 'MA',
+        'Michigan': 'MI',
+        'Minnesota': 'MN',
+        'Mississippi': 'MS',
+        'Missouri': 'MO',
+        'Montana': 'MT',
+        'Nebraska': 'NE',
+        'Nevada': 'NV',
+        'New Hampshire': 'NH',
+        'New Jersey': 'NJ',
+        'New Mexico': 'NM',
+        'New York': 'NY',
+        'North Carolina': 'NC',
+        'North Dakota': 'ND',
+        'Ohio': 'OH',
+        'Oklahoma': 'OK',
+        'Oregon': 'OR',
+        'Pennsylvania': 'PA',
+        'Rhode Island': 'RI',
+        'South Carolina': 'SC',
+        'South Dakota': 'SD',
+        'Tennessee': 'TN',
+        'Texas': 'TX',
+        'Utah': 'UT',
+        'Vermont': 'VT',
+        'Virginia': 'VA',
+        'Washington': 'WA',
+        'West Virginia': 'WV',
+        'Wisconsin': 'WI',
+        'Wyoming': 'WY'
+    }
+
     for s in states_in:
         h = s.strip()
         # states.append(h)
         # states.append(h.upper())
         # states.append(h.lower())
-        states.append(h.title())
+        states.append(state_abbreviations[h.title()])
+        # states.append(h.title())
     states = list(set(states))
-    states.append('MD')
     cats = list()
     # counties = list()
     well_status_in = request.GET.getlist('well_status')[0].split(',')

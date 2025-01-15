@@ -77,9 +77,45 @@ WSGI_APPLICATION = "publicportal.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL
-        'NAME': BASE_DIR / 'db.sqlite3',  # Use the default SQLite database file
-    }
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'single.sqlite3',  # Use the default SQLite database file        
+    },
+    'one': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'one.sqlite3',  # Use the default SQLite database file        
+    },
+    'two': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'two.sqlite3',  # Use the default SQLite database file        
+    },
+    'three': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'three.sqlite3',  # Use the default SQLite database file        
+    },
+    'four': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'four.sqlite3',  # Use the default SQLite database file        
+    },
+    'five': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'five.sqlite3',  # Use the default SQLite database file        
+    },
+    'six': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'six.sqlite3',  # Use the default SQLite database file        
+    },
+    'seven': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'seven.sqlite3',  # Use the default SQLite database file        
+    },
+    'eight': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'eight.sqlite3',  # Use the default SQLite database file        
+    },
+    'nine': {
+        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+        'NAME': BASE_DIR / 'nine.sqlite3',  # Use the default SQLite database file        
+    },
 }
 
 # Password validation
