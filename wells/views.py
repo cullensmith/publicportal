@@ -3,11 +3,9 @@ from .models import Wells, Counties, States
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
-from django.core.serializers import serialize
 from django.db.models import Q
 import json 
-import ast
-import jsonify
+
 
 
 

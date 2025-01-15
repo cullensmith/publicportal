@@ -13,5 +13,4 @@ urlpatterns = [
     path('getstates_view',views.getstates_view, name="getstates_view"),
     path('autolist',views.autolist, name="autolist"),
     path('autolist1',views.autolist1, name="autolist1"),
-
 ]

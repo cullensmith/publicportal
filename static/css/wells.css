@@ -1,0 +1,640 @@
+/* Style for grid container */
+.main-container {
+    display: grid;
+    grid-template-rows: 500px 240px 550px;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    margin-left: 14%;
+    margin-right: 2%;
+    grid-gap: 4%;
+    background-color: #ededed;
+    border: 12px solid;
+    border-color: #ededed;
+    border-radius: 20px;
+}
+.featurecontainer {
+    height: 500px;
+}
+.child {
+    z-index: 5000;
+    display: grid;
+    height: 100%;
+    grid-template-rows: 12% 88%;
+    grid-template-columns: 100%;
+}
+/* Style for filter grid container */
+.filterscontainer {
+    display: grid;
+    height: 100%;
+    grid-template-rows: repeat(3, 33%);
+    grid-template-columns: 50% 50%;
+}
+
+/* Animations */
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 2s linear infinite;
+    display: inline-block;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Fade-out transition for the loading container */
+.fade-out {
+    opacity: 0;
+    transition: opacity 3s ease-out;
+}
+
+#loading-container {
+    transition: opacity 3s ease-out;
+}
+
+.checkmark {
+    font-size: 30px;
+    color: green;
+}
+
+.filterschild1grid {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    grid-template-rows: 50% 50%;
+}
+#fc_cty0 {
+    position: relative;
+    z-index: 100;
+}
+#fc_cty1 {
+    position: relative;
+    z-index: 100;
+}
+#fc_wt {
+    position: relative;
+    z-index: 10;
+}
+.filterschild1 {
+    height: 100%;
+    width: 97%;
+}
+
+.filterschild1 label {
+    margin: auto; /* Add space between label and input */
+}
+
+.filterschild1 input{
+    width: 100%; /* Make input fields fill the available space */
+    padding: 6px; /* Add padding for better readability */
+    font-size: 15px; /* Adjust font size if needed */
+}
+.filterschild1 select {
+    width: 25%; /* Make input fields fill the available space */
+    padding: 3px; /* Add padding for better readability */
+    font-size: 15px; /* Adjust font size if needed */
+}
+
+#fta_cat {
+    width: 102%;
+    height: 90%
+}
+
+.form {
+    z-index: 500;
+    height: 100%;
+} 
+
+/* Style for map container */
+#map {
+    height: 500px;
+    width: 100%; 
+    z-index: 501;
+    border: 1px solid darkgray;
+    border-top-right-radius: 17px;
+    border-top-left-radius: 17px;
+}
+
+/* Style for table container */
+.tablecontainer {
+    max-height: 450px; 
+    max-width: 100%; 
+    overflow-y: auto; /* Add vertical scrollbar when necessary */
+    overflow-x: auto; /* Add horizontal scrollbar when necessary */
+    border-top-left-radius: 10px; /* Round the top-left corner */
+    border-top-right-radius: 10px; /* Round the top-right corner */
+
+}
+
+table {
+    width: 100%;
+    max-width: 100%;
+    background-color: white; /* Change table fill color to white */
+    border-collapse: collapse; /* Remove gaps between cells */
+
+}
+
+th, td {
+    text-align: center;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+}
+
+/* Style for table headers */
+th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    color: white;
+    background-color: #0287d4;
+    border: 1px solid #025687;
+    font-size: 13px; /* Adjust the font size as needed */
+}
+
+/* Style for table row text */
+td {
+    font-size: 12px; /* Adjust the font size as needed */
+    border: 1px solid black;
+    z-index: 5;
+    padding: 8px;
+    text-align: center;
+    font-size: 9px; /* Adjust the font size as needed */
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+}
+
+/* Style for filter button */
+.button-link3 {
+    padding: 10px 20px;
+    width: 100%;
+    background-color: #ededed; 
+    color: #0287d4;
+    border: none;
+    cursor: pointer;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Ensure buttons appear in-line */
+    margin-right: 20px; /* Add space between buttons */
+    /*border-radius: 5px; Rounded corners */
+}
+
+/* Darken the button on hover */
+.button-link3:hover {
+    width: 100%;
+    font-weight: bold;
+    background-color: lightgray; /* Darken the orange color */
+}
+
+/* Style for filter button */
+.button-link2 {
+    padding: 10px 20px;
+    background-color: white; /* Change color to orange */
+    color: #025687;
+    border: none;
+    cursor: pointer;
+    font-family: "Arial Bold", sans-serif; /* Set font family to Arial */
+    font-weight: 2000;
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Ensure buttons appear in-line */
+    margin-right: 20px; /* Add space between buttons */
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+/* Darken the button on hover */
+.button-link2:hover {
+    background-color: white; /* Darken the orange color */
+    color: #0287d4;
+    text-decoration: underline;
+
+}
+
+
+/* Style for filter button */
+.button-link {
+    padding: 13px 20px;
+    width: 100%;
+    background-color: #a3cf5f;
+    border: none;
+    cursor: pointer;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Ensure buttons appear in-line */
+    margin-right: 20px; /* Add space between buttons */
+    border-radius: 5px; /* Rounded corners */
+}
+
+/* Style for title */
+.title {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+}
+
+/* Style for navigation panel */
+#navPanel {
+    max-width: 100%;
+    background-color: white;
+    border-bottom: 3px solid darkgray; /* Add border on the right side */
+    padding-top: .5%;
+    padding-bottom: .5%;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+    z-index: 50000;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Style for navigation links */
+#navPanel a {
+    color: #025687;
+    text-decoration: none;
+    margin-right: 20px;
+    font-weight: bold;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+}
+
+/* Style for page background */
+body {
+    background-color: white; /* Very light gray */
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+    margin: 0; /* Reset default margin */
+    padding: 0; /* Reset default padding */
+}
+
+/* Add CSS for the sticky header container */
+.sticky-header-container {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: white; /* Match the table background */
+    border-bottom: 5px solid #0287d4; /* Add bottom border to match table header */
+    border-radius: 10px; /* Round the corners */
+    border: 2px solid #025687;
+}
+
+/* Style for the sidebar */
+#sidebar {
+    width: 12%;
+    height: 100%;
+    border-right: 1px solid darkgray; /* Add border on the right side */ 
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #ededed;
+    padding-top: 5.5%;
+    text-align: center;
+    z-index: 1;
+}
+
+/* Style for sidebar links */
+#sidebar a {
+    width: 100%;
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 10px; /* Adjust margin as needed */
+}
+
+/* Style for the icon container */
+.icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Style for the icon image */
+.icon {
+    width: 15px; /* Adjust as needed */
+    height: 15px; /* Adjust as needed */
+}
+
+/* Style for the popup text */
+.popup-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 10000;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px; /* Adjust as needed */
+}
+
+/* Show the popup text on hover */
+.icon-container:hover .popup-text {
+    visibility: visible;
+}
+
+.loading-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000000;
+}
+
+#splashScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease-out;
+}
+.loading-popup.hidden {
+    display: none;
+} 
+.loading-popup.nothidden {
+    background: blue;
+}
+
+
+#button-container {
+    display: none;
+    padding: 20px;
+    background-color:red;
+    justify-content: left;
+    border:red;
+    color: black;
+    font-family: Arial;
+    position: relative;
+    background-color: white;
+    width: 220px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 100000;
+    border-bottom-left-radius: 10px; /* Round the top-left corner */
+    border-bottom-right-radius: 10px; /* Round the top-right corner */
+    overflow: auto;
+    max-height: 400px;
+}
+
+#hdropdown-content {
+    display: none;
+    width: 180px;
+    padding: 20px;
+    background-color:white;
+    justify-content: flex-start;
+    border:red;
+    color: black;
+    font-family: Arial;
+    position: relative;
+    background-color: white;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 100000;
+    border-bottom-left-radius: 10px; /* Round the top-left corner */
+    border-bottom-right-radius: 10px; /* Round the top-right corner */
+}
+
+.hdbutton {
+    text-rendering: auto;
+    color: black;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: grid;
+    text-align: left;
+    align-items: flex-start;
+    cursor: default;
+    box-sizing: border-box;
+    background-color: white;
+    margin: 0em;
+    padding-block: 2px;
+    padding-inline: 60px;
+    border-width: 2px;
+    border-style: none;
+    border-color: buttonborder;
+    border-image: initial;
+    width: 200px;
+}
+
+
+.leaflet-popup-content-wrapper {
+    position: relative;
+}
+.popup-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+.popup-nav button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.popup-nav button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+.container2 {
+    padding: 20px;
+    height:20px;
+    width:99%;
+    align-items:center;
+    background:none;
+    z-index: 1000000;
+}
+.legend {
+    background: white;
+    padding: 6px 8px;
+    font: 14px Arial, sans-serif;
+    line-height: 18px;
+    color: #555;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+.legend-content {
+    display: none;
+}
+.legend-content label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.legend-content input[type="checkbox"] {
+    margin-right: 10px;
+}
+.legend-content .category1 {
+    color: '#A3CF5F'; /* Red */
+}
+.legend-content .category2 {
+    color: 'green'; /* Green */
+}
+.legend-content .category3 {
+    color: '#FFC857'; /* Blue */
+}
+.legend-content .category4 {
+    color: '#00253B'; /* Red */
+}
+.legend-content .category5 {
+    color: '#0287D4'; /* Green */
+}
+.legend-content .category3 {
+    color: red; /* Blue */
+}
+.legend-content input[type="checkbox"]:checked::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: 10px;
+}
+.legend-header {
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.legend-header span {
+    font-weight: bold;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+    width: 102%;
+    height: 81%;
+    border: 1px solid gray;
+    z-index: 5000;
+
+}
+
+.dropdown-toggle {
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    height: 95%;
+    text-overflow: ellipsis;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: 0;
+}
+
+.dropdown-menu label {
+    display: inline-table;
+    justify-content: start;
+    padding-left: 10px;
+    overflow-x: 0;
+    height: 15px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.dropdown-menu input[type="checkbox"] {
+    margin-left: 40%;
+}
+
+.dropdown-menu label:hover {
+    background-color: lightgray;
+}
+
+.show {
+    display: block;
+}
+
+#autolist {
+    opacity: 0;
+    position: relative;
+    color: black;
+    background-color: white;
+    z-index: 5000;
+    margin-top: auto;
+    padding-top:8px;
+    padding-bottom:8px;
+    border-radius: 8px;
+    border-color: black;
+}
+#autolist1 {
+    opacity: 0;
+    position: relative;
+    color: black;
+    background-color: white;
+    z-index: 5000;
+    margin-top: auto;
+    padding-top:8px;
+    padding-bottom:8px;
+    border-radius: 8px;
+    border-color: black;
+}
+#autolist2 {
+    opacity: 0;
+    position: relative;
+    color: black;
+    background-color: white;
+    z-index: 5000;
+    margin-top: auto;
+    padding-top:8px;
+    padding-bottom:8px;
+    border-radius: 8px;
+    border-color: black;
+}
+.categoryinput {
+    color: green;
+    z-index:4000;
+}
+
+/* Added CSS to give the button a basic appearance without showing selected items */
+.selected-items {
+    display: none; /* Hide the selected items text */
+}
+.input-button-container {
+    display: flex;
+    align-items: center;
+    margin-left: 40%;
+    gap: 10px; /* Adds some space between the input and button */
+}
+.gobutton {
+    background-color: green;
+    color:white;
+    width: 35px;
+}
