@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Wells, Counties, States, Wells_OH, Wells_PA, Wells_TX
+from .models import Wells, Counties, States
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
@@ -18,6 +18,32 @@ def wells(request):
 
 
 def autolist(request):
+    print('now were getting the counties for the map')
+    print(f'here is the request: {request}')
+    print(f"states requested: {request.GET.getlist('box')}")
+    states = [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+        "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+        "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
+        "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+        "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+        ]
+    given = request.GET.getlist('box')[-1].split(',')
+    newlist = list()
+    print(f'here is what was typed:{given[-1].lower().lstrip()}')
+    for s in states:
+        here = s[:len(given[-1].lstrip())].lower().lstrip()
+        print(f'match: {here}')
+        if here == given[-1].lower().strip():
+            if len(here)>1:
+                print('found a match')
+                newlist.append(s)
+    print(f'here is the new list --> {newlist}')
+    return JsonResponse({'data':newlist})
+
+def autolist1(request):
     print('now were getting the counties for the map')
     print(f'here is the request: {request}')
     print(f"states requested: {request.GET.getlist('box')}")
@@ -203,6 +229,7 @@ def generate_geojson(request):
         # states.append(h.lower())
         states.append(h.title())
     states = list(set(states))
+    states.append('TX')
     cats = list()
     # counties = list()
     well_status_in = request.GET.getlist('well_status')[0].split(',')
