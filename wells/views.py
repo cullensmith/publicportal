@@ -137,36 +137,23 @@ def getcounties_view(request):
     states = list()
     for s in states_in:
         h = s.strip()
-        # states.append(h)
-        # states.append(h.upper())
-        # states.append(h.lower())
         states.append(h.title())
     print(f"states--{len(states)}->{states}")
     filter_kwargs = dict()
-    # if len(states) == 1:
-    #     filter_kwargs.update(f'statename__iexact={states}')
-    # else:
-    # for getstate in states:
-        
+
     filter_kwargs.update({'statename__in':states})
 
     print(f'the query = {filter_kwargs}')
     polygons = Counties.objects.filter(**filter_kwargs)  # Query all polygons
     features = []
     for i,polygon in enumerate(polygons):
-        # if i > 5:
-        #     break
-        # Parse GeoJSON text from the geomjson field
         geojson_data = polygon.geomjson
-        # Add GeoJSON feature to the list
         feature = dict()
         feature['type'] = "Feature"
-        feature['properties'] = {}
+        feature['statename'] = polygon.stusps
+        feature['county'] = polygon.county
         feature['geometry'] = ast.literal_eval(geojson_data)
         features.append(feature)
-        # print('so we got here')
-        
-    # Create GeoJSON FeatureCollection
     geojson_collection = {
         "type": "FeatureCollection",
         "features": features

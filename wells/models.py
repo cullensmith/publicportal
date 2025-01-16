@@ -14,6 +14,7 @@ class States(models.Model):
 class Counties(models.Model):
     geomjson = models.CharField(max_length=255)
     statename = models.CharField(max_length=255)
+    stusps = models.CharField(max_length=10)
     county = models.CharField(max_length=255)
 
     class Meta:

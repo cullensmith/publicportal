@@ -111,6 +111,7 @@ function getStates(data) {
 
 // Function to fetch GeoJSON data from a view
 function getCounties(data) {
+    pts = data
     var states = document.getElementById('autoinputbox').value;
     $.ajax({
         url: '/wells/getcounties_view', 
@@ -119,6 +120,8 @@ function getCounties(data) {
             states: states,
         },
         success: function(data) {
+            ctyct(data,pts);
+
             console.log('GeoJSON data received:', data);
             // Convert GeoJSON to vector tiles using leaflet-geojson-vt
             map.eachLayer(function(layer) {
@@ -163,6 +166,8 @@ function getCounties(data) {
         }
     });
 }
+
+
 
 function addCtyOptions(data) {
     var states = document.getElementById('autoinputbox').value;
@@ -331,51 +336,67 @@ function updateMapMarkers(data) {
     document.getElementById('loading-popup').classList.add('hidden');
 }
 
-function getmapdata(selectedStates, selectedDataset, selectedCat) {
-    console.log('getting the data for the map') 
-    $.ajax({
-        url: '/wells/generate_geojson',
-        method: 'GET',
-        data: {
-            selectedDataset: 'Wells',
-        },
-        success: function(data) {
-            updateMapMarkers(data);
-            ctyct(data);
-        },
-        error: function(xhr, status, error) {
-            enableInputs();
-            // Handle error
-            console.error(error);
-        }
+function ctyct(data,d) {
+
+    // Initialize a tally object
+    let tally = {};
+    console.log('d')
+    console.log(d)
+    console.log('data')
+    console.log(data)
+    // Iterate through each feature to tally based on `stusps` and `county`
+    JSON.parse(d).features.forEach(feature => {
+    const { stusps, county } = feature.properties;
+    const key = `${stusps}_${county}`;
+    
+    if (!tally[key]) {
+        tally[key] = 0;
+    }
+    
+    tally[key]++;
     });
-}
-function ctyct(data) {
-    // Create the polygon layer and add it to the map
-    var polygonLayer = L.geoJSON(data, {
-        onEachFeature: function (feature, layer) {
-            // For each polygon, calculate the count of points inside the polygon
-            var pointCount = 0;
-            var polygon = layer;
 
-            data.forEach(function (point) {
-                if (polygon.getBounds().contains(L.latLng(point))) {
-                    pointCount++;
-                }
-            });
+    p = L.geoJSON(data)
+    // Add polygons to the map
+    p.eachLayer(polygonData => {
+        console.log(polygonData)
+        const { statename, county, geometry } = polygonData.feature;
 
-            // Bind a label showing the point count for each polygon
-            layer.bindPopup('Points within: ' + pointCount);
-            layer.setStyle({
-                color: 'blue',
-                weight: 2,
-                opacity: 0.7,
-                fillColor: 'blue',
-                fillOpacity: 0.1
-            });
-        }
-    }).addTo(map);
-}
+        // console.log('statename')
+        // console.log(statename)
+        // console.log(county)
+        // console.log(geometry)
+        const tallyKey = `${statename}_${county}`;
+        const count = tally[tallyKey] || 0;
+    
+    // Plot the GeoJSON layer on the map
+    const geoJsonLayer = L.geoJSON(geometry).addTo(map).bindPopup(`${county} - ${statename}: ${count} occurrences`);
+
+    // Access each layer within the GeoJSON (it could be a Polygon or MultiPolygon)
+    geoJsonLayer.eachLayer(function(layer) {
+    // Make sure the layer is a Polygon (or MultiPolygon)
+
+    // Create a custom icon using the dynamic number
+    const numberIcon = L.divIcon({
+        className: 'number-icon',
+        html: `<div style="background-color: #ff780000; color: #383838; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 900">${count}</div>`,
+        iconSize: [40, 40],
+        iconAnchor: [30, 30]
+        });
+    if (layer instanceof L.Polygon || layer instanceof L.MultiPolygon) {
+        // Get the center of the polygon (or MultiPolygon)
+        const center = layer.getCenter(); // This works for both Polygon and MultiPolygon
+
+        // Place a marker at the centroid of the polygon
+        L.marker(center, { icon: numberIcon })
+        .addTo(map)
+        .bindPopup(`${county} - ${statename}: ${count} occurrences`);
+    }
+    });
+    
+
+})};
+
 // Show points only if zoom level is between 10 and 14
 map.on('zoomend', function () {
     var currentZoom = map.getZoom();
