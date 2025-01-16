@@ -81,9 +81,8 @@
                         <label for="states">Choose up to 3 states (*required):</label>
                 </div>
                 <div class="filterschild1">
-                        <input id="autoinputbox" autocomplete="off" onfocus="showhelper()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper()" required>
-                        <div id="button-container"></div>
-                        
+                    <input id="autoinputbox" autocomplete="off" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" required>
+                    <div id="button-container"></div>
                 </div>
             </div>
 
@@ -105,15 +104,10 @@
                     </div>
                 </div>
                 <div class="filterschild1">
-                    <input id="countybox" autocomplete="off" onfocus="showhelper1()" placeholder="Enter County... Ex: Washington" type="text"  required>
-                    {% comment %} <ul id="autolist1"><ul> {% endcomment %}
-                    <div id="hdropdown-content" onblur="hidehelper1()">
-                        <button class="hdbutton" id="pike" onclick="toggleselection('pike')">Pike</button>
-                        <button class="hdbutton" id="wayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaane" onclick="toggleselection('wayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaane')">Wayne</button>
-                        <button class="hdbutton" id="erie" onclick="toggleselection('erie')">Erie</button>
-                        <button class="hdbutton" id="orange" onclick="toggleselection('orange')">orange</button>
-                        <button class="hdbutton" id="blue" onclick="toggleselection('blue')">blue</button>
-                    </div>  
+                    <input id="countybox" autocomplete="off" placeholder="Enter County... Ex: Washington" type="text"  required>
+                    <div id="ctybutton-container"></div>
+                    {% comment %} <div id="hdropdown-content"></div> {% endcomment %}
+
                 </div>
             </div>
             <div class="filterschild1grid">

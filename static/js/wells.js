@@ -1,5 +1,10 @@
 // Initialize Leaflet map
 
+const textbox = document.getElementById('autoinputbox');
+const buttonContainer = document.getElementById('button-container');
+const ctytextbox = document.getElementById('countybox');
+const ctybuttonContainer = document.getElementById('ctybutton-container');
+
 var map = L.map('map').setView([39.8283,-98.5795], 4);
 var geojsonLayer;
 var osmUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
@@ -161,6 +166,8 @@ function getCounties(data) {
 
 function addCtyOptions(data) {
     var states = document.getElementById('autoinputbox').value;
+    console.log('states targeted')
+    console.log(states)
     $.ajax({
         url: '/wells/createCountyList',
         method: 'GET',
@@ -169,14 +176,40 @@ function addCtyOptions(data) {
         },
         success: function(data) {
             // create the "buttons" for each county for the dropdown
-            console.log('counties to include')
-            console.log(data)
+            let ctyitems = JSON.parse(data);
+            console.log('here is the data')
+            console.log(ctyitems)
+            // Iterate through the colors array and create a button for each color
+            ctyitems.forEach(color => {
+                const ctybutton = document.createElement('button');
+                ctybutton.className = 'hdbutton';
+                ctybutton.id = color;
+                ctybutton.innerText = color.stusps + ': ' + color.county; // Capitalize the first letter of color
+                ctybutton.onclick = () => toggleselection(color);
+                // Append the button to the button-container div
+                ctybuttonContainer.appendChild(ctybutton);
+            });
         },
         error: function(xhr,status,error) {
             console.error(error);
         }
     })
 };
+
+let autoinput1 = document.getElementById('countybox');
+autoinput1.addEventListener('keyup', async function(event) {
+    showhelper()
+    let response = await supplylist(autoinput1.value)
+});
+function hidehelper1() {
+    hideit1 = document.getElementById('ctybutton-container');
+    hideit1.style.display = 'none';
+}
+function showhelper1() {
+    hideit1 = document.getElementById('ctybutton-container');
+    hideit1.style.display = 'block';
+    hideit1.style.opacity= 1;
+}
 
 function onEachFeatureFn(prop, feature, layer) {
         layer.feature.property.longitude
@@ -652,7 +685,6 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 // Initialize legend state
 document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
-
 function supplylist(b) {
     var listbox = 'statebox';
     $.ajax({
@@ -671,128 +703,61 @@ function supplylist(b) {
             listitems.forEach(i=> {
                 // autohtml += '<li>' + i + '</li>'; 
                 '<button class="hdbutton" id='+i+' onclick="toggleselection('+i+')">'+i+'</button>'
-
             })
-
-            document.getElementById('autolist').innerHTML = autohtml;
+            // document.getElementById('autolist').innerHTML = autohtml;
         },
         error: function(xhr, status, error) {
             // Handle error
             console.error(error);
         }
-        });
-    }
-
-    const colors = [
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
-        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
-        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
-        "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
-        "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
-        "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
-        "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-        ];
-
-    // Iterate through the colors array and create a button for each color
-    colors.forEach(color => {
-        const button = document.createElement('button');
-        button.className = 'hdbutton';
-        button.id = color;
-        button.innerText = color.charAt(0).toUpperCase() + color.slice(1); // Capitalize the first letter of color
-        button.onclick = () => toggleselection(color);
-        
-        // Append the button to the button-container div
-        document.getElementById('button-container').appendChild(button);
     });
+}
 
-    function hidehelper() {
-        hideit = document.getElementById('button-container');
-        hideit.style.display = 'none';
-    }
-    function showhelper() {
-        showit = document.getElementById('button-container');
-        showit.style.display = 'grid';
-        showit.style.opacity= 1;
-    }
+const colors = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+    "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+    "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+    "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
+    "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+    "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+    ];
 
-
+// Iterate through the colors array and create a button for each color
+colors.forEach(color => {
+    const button = document.createElement('button');
+    button.className = 'hdbutton';
+    button.id = color;
+    button.innerText = color.charAt(0).toUpperCase() + color.slice(1); // Capitalize the first letter of color
+    button.onclick = () => toggleselection(color);
+    
+    // Append the button to the button-container div
+    document.getElementById('button-container').appendChild(button);
+});
 
 let autoinput = document.getElementById('autoinputbox');
 autoinput.addEventListener('keyup', async function(event) {
-    console.log(event.key)
     showhelper()
-    console.log('hit a button')
-    console.log(autoinput.value)
     let response = await supplylist(autoinput.value)
 });
-
-
-
 function hidehelper() {
-    hideit = document.getElementById('autolist');
-    hideit.style.display = 'none';
+    buttonContainer.style.display = 'none';
 }
 function showhelper() {
-    hideit = document.getElementById('autolist');
-    hideit.style.display = 'block';
-    hideit.style.opacity= 1;
+    buttonContainer.style.display = 'block';
+    buttonContainer.style.opacity= 1;
 }
 
-function supplylist1(b) {
-    var listbox = 'statebox';
-    $.ajax({
-        url: '/wells/autolist1', // Replace with your view URL
-        method: 'GET',
-        data: {
-            box: b,
-            typed: listbox
-        },
-        success: function(data) {
-            console.log(data)
-            const listitems1 = data.data;
-            let autohtml = '';
-            console.log('data')
-            console.log(data)
-            listitems1.forEach(i=> {
-                autohtml += '<li>' + i + '</li>';
-            })
 
-            document.getElementById('autolist1').innerHTML = autohtml;
-        },
-        error: function(xhr, status, error) {
-            // Handle error
-            console.error(error);
-        }
-        });
-    }
-
-let autoinput1 = document.getElementById('countybox');
-autoinput1.addEventListener('keyup', async function(event) {
-    console.log(event.key)
-    showhelper1()
-    console.log('hit a button')
-    console.log(autoinput1.value)
-    let response = await supplylist1(autoinput1.value)
-
-});
-function hidehelper1() {
-    hideit = document.getElementById('hdropdown-content');
-    hideit.style.display = 'none';
-}
-function showhelper1() {
-    showit = document.getElementById('hdropdown-content');
-    showit.style.display = 'grid';
-    showit.style.opacity= 1;
-}
-
-const textbox = document.getElementById('autoinputbox');
-const buttonContainer = document.getElementById('button-container');
 
 // Add an event listener to the textbox to show the button container on focus
 textbox.addEventListener('focus', () => {
     buttonContainer.style.display = 'block'; // Show the button container
 });
-
+// Add an event listener to the textbox to show the button container on focus
+ctytextbox.addEventListener('focus', () => {
+    ctybuttonContainer.style.display = 'block'; // Show the button container
+});
 window.addEventListener('click', function(event) {
     var selectionbox = document.getElementById('button-container');
     if (!selectionbox.contains(event.target) && event.target !== textbox) {
@@ -800,17 +765,16 @@ window.addEventListener('click', function(event) {
     }
 });
 window.addEventListener('click', function(event) {
-    var selectionbox = document.getElementById('hdropdown-content');
     var ctybox = document.getElementById('countybox');
-    if (!selectionbox.contains(event.target) && event.target !== ctybox) {
-        selectionbox.style.display = 'none'
+    if (!ctybuttonContainer.contains(event.target) && event.target !== ctybox) {
+        ctybuttonContainer.style.display = 'none'
     }
 });
 
 function toggleselection(word) {
     var textbox = document.getElementById('autoinputbox');
     var bid = document.getElementById(word)
-    addCtyOptions()
+
     if (textbox.value.includes(word)) {
         bid = document.getElementById(word)
         textbox.value = textbox.value.replace(word,'');
@@ -838,5 +802,7 @@ function toggleselection(word) {
     if (textbox.value.includes(', ,')) {
         textbox.value = textbox.value.replace(', ,',',')
     }
+    console.log('clicky click')
+    addCtyOptions()
 }
 
