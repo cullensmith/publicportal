@@ -1,0 +1,17 @@
+
+/* Left side */
+.left {
+width: 300px;
+padding: 20px;
+height: 100%;
+display: grid;
+grid-template-rows: 16% 16% 16% 16% 16% 20%;
+border-right: 1px solid darkgray; /* Add border on the right side */ 
+background-color: #ff0000;
+}
+.filterContainer {
+    display: grid;
+}
+
+
+

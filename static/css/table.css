@@ -1,0 +1,52 @@
+  /* Container for the table once populated */
+  .bottom {
+    flex: 1;
+    background-color: lightcoral;
+    padding: 20px;
+  }
+  
+/* Style for table container */
+.tableContainer {
+    max-height: 450px; 
+    max-width: 100%; 
+    overflow-y: auto; /* Add vertical scrollbar when necessary */
+    overflow-x: auto; /* Add horizontal scrollbar when necessary */
+    border-top-left-radius: 10px; /* Round the top-left corner */
+    border-top-right-radius: 10px; /* Round the top-right corner */
+
+}
+
+table {
+    width: 100%;
+    max-width: 100%;
+    background-color: white; /* Change table fill color to white */
+    border-collapse: collapse; /* Remove gaps between cells */
+
+}
+
+th, td {
+    text-align: center;
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+}
+
+/* Style for table headers */
+th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    color: white;
+    background-color: #0287d4;
+    border: 1px solid #025687;
+    font-size: 13px; /* Adjust the font size as needed */
+}
+
+/* Style for table row text */
+td {
+    font-size: 12px; /* Adjust the font size as needed */
+    border: 1px solid black;
+    z-index: 5;
+    padding: 8px;
+    text-align: center;
+    font-size: 9px; /* Adjust the font size as needed */
+    font-family: Arial, sans-serif; /* Set font family to Arial */
+}

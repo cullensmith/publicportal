@@ -1,7 +1,28 @@
 /* Style for grid container */
-.main-container {
-    display: grid;
-    grid-template-rows: 500px 240px 550px;
+.mainContainer {
+    display: flex;
+}
+/* Style for the sidebar */
+.sidebar {
+    grid-template-rows: 16% 16% 16% 16% 16% 20%;
+    width: 300px;
+    height: 100%;
+    border-right: 1px solid darkgray; /* Add border on the right side */ 
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #ff0000;
+    padding-top: 5.5%;
+    text-align: center;
+    z-index: 1;
+}
+
+.contentContainer {
+    flex-grow: 1;
+    background-color: green;
+    flex-direction: row;
+    /* display: grid;
+    /* grid-template-rows: 500px 240px 550px;
     margin-top: 2%;
     margin-bottom: 2%;
     margin-left: 14%;
@@ -10,24 +31,19 @@
     background-color: #ededed;
     border: 12px solid;
     border-color: #ededed;
-    border-radius: 20px;
+    border-radius: 20px; */ 
 }
-.featurecontainer {
+
+.mapContainer {
     height: 500px;
 }
+
 .child {
     z-index: 5000;
     display: grid;
     height: 100%;
     grid-template-rows: 12% 88%;
     grid-template-columns: 100%;
-}
-/* Style for filter grid container */
-.filterscontainer {
-    display: grid;
-    height: 100%;
-    grid-template-rows: repeat(3, 33%);
-    grid-template-columns: 50% 50%;
 }
 
 /* Animations */
@@ -59,13 +75,22 @@
     color: green;
 }
 
-.filterschild1grid {
+
+
+
+
+
+
+
+
+.filterContainer {
     display: grid;
     height: 100%;
     width: 100%;
     position: relative;
-    grid-template-rows: 50% 50%;
+    grid-template-rows: 33% 33% 34%;
 }
+
 #fc_cty0 {
     position: relative;
     z-index: 100;
@@ -119,7 +144,7 @@
 }
 
 /* Style for table container */
-.tablecontainer {
+.tableContainer {
     max-height: 450px; 
     max-width: 100%; 
     overflow-y: auto; /* Add vertical scrollbar when necessary */
@@ -276,30 +301,7 @@ body {
     border: 2px solid #025687;
 }
 
-/* Style for the sidebar */
-#sidebar {
-    width: 12%;
-    height: 100%;
-    border-right: 1px solid darkgray; /* Add border on the right side */ 
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #ededed;
-    padding-top: 5.5%;
-    text-align: center;
-    z-index: 1;
-}
 
-/* Style for sidebar links */
-#sidebar a {
-    width: 100%;
-    display: block;
-    color: white;
-    text-decoration: none;
-    margin-bottom: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
-}
 
 .title {
     text-align: center;
@@ -637,4 +639,18 @@ body {
     background-color: green;
     color:white;
     width: 35px;
+}
+
+.button-in-textbox {
+    margin: 2px;
+    padding: 5px 10px;
+    background-color: #af4c4c;
+    color: rgb(55, 0, 255);
+    border: none;
+    cursor: pointer;
+    z-index: 5000;
+}
+
+.button-in-textbox:hover {
+    background-color: #45a049;
 }

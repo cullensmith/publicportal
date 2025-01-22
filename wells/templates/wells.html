@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FracTracker Data Portal</title>
     <!-- Include Project Specific CSS -->
-    <link rel = "stylesheet" href = "/static/css/wells.css"/>
-    
+    <link rel = "stylesheet" href = "/static/css/filtering.css"/>
+    <link rel = "stylesheet" href = "/static/css/map.css"/>
+    <link rel = "stylesheet" href = "/static/css/table.css"/>
+
     <!-- Include Leaflet CSS and JavaScript -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.rawgit.com/mapbox/supercluster/v4.0.1/demo/cluster.css" />
@@ -25,276 +29,149 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        {% comment %} style located in project css: static/css/wells.css {% endcomment %}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        font-family: Arial;
+        }
+        
+        .selectionContainer {
+            background-color: blue;
+        }
+
     </style>
 </head>
 <body>
-
-    <!-- Navigation panel -->
-    <div id="navPanel">
-        <button class="button-link2" onclick="window.open('https://www.fractracker.org', '_blank')">HOME</button>
-        <button class="button-link2" onclick="window.open('https://www.fractracker.org/about-us/', 'about')">ABOUT</button>
-        <button class="button-link2" onclick="window.open('https://www.fractracker.org/resources/oil-and-gas-101/', 'about')">FRACKING 101</button>
-        <button class="button-link2" onclick="window.open('https://www.fractracker.org/services', 'about')">SERVICES</button>
-        <button class="button-link2" onclick="window.open('https://www.fractracker.org/get-involved', 'about')">GET INVOLVED</button>
-        <button class="button-link2" onclick="window.open('https://www.fractracker.org/help', 'about')">FAQ</button>
-        <button class="button-link2" onclick="window.open('https://fractracker.networkforgood.com/', 'about')">DONATE</button>
-    </div>
-
-    <!-- Sidebar -->
-    <div id="sidebar">
-        {% comment %} <button class="button-link3" onclick="window.open('http://127.0.0.1:8000/boxdata', '_blank')">Data Portal</button> {% endcomment %}
-        <button class="button-link3" onclick="window.open('https://app.box.com/s/i7w2tm3tlp4fqmoe3pzelyjx5gbjj2lk', '_blank')">Datasets</button>
-        <button class="button-link3" onclick="window.open('https://www.fractracker.org/map', '_blank')">Maps</button>
-        <button class="button-link3" onclick="window.open('https://www.fractracker.org/resources/photos/', '_blank')">Gallery</button>
-        <button class="button-link3" onclick="window.open('https://www.fractracker.org/data/data-resources', '_blank')">Resources</button>
-        <button class="button-link3" onclick="window.open('https://www.fractracker.org/categories/by-content/', '_blank')">Articles</button>
-        <button class="button-link3" onclick="window.open('https://www.fractracker.org', '_blank')">Contribute Data</button>
-    </div>
-
-    <!-- Main content -->
-    <div class="main-container">
-        <!-- Grid container for pie chart and map -->
-        <div class="featurecontainer">
-            <div id="map">
-                <div class="legend" id="legend">
-                    <div class="legend-header">
-                        <span>Legend</span>
-                        <i class="fa fa-chevron-down" id="legend-toggle"></i>
-                    </div>
-                    <div class="legend-content">
-                        <label class="category1"><input type="checkbox" id="category1" style="color:#A3CF5F;" checked> Injection / Storage / Service</label>
-                        <label class="category1"><input type="checkbox" id="category2" style="color:green;" checked> Not Drilled</label>
-                        <label class="category1"><input type="checkbox" id="category3" style="color:#FFC857;" checked> Orphaned / Abandoned / Unverified Plug</label>
-                        <label class="category1"><input type="checkbox" id="category4" style="color:#00253B;" checked> Other / Unknown</label>
-                        <label class="category1"><input type="checkbox" id="category5" style="color:#0287D4;" checked> Plugged</label>
-                        <label class="category1"><input type="checkbox" id="category6" style="color:red;" checked> Production Well</label>
-                    </div>
-                </div>
-            </div>
-
+    <div class="left">
+        <!-- filtering tools here -->
+        <div class="filterContainer" id="filterState">
+            <label for="stateinputbox">Choose up to 3 states:</label>
+            <div class="selectionContainer" id="statePicks">*REQUIRED</div>
+            <input type="text" id="stateinputbox" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" onclick="removeButton(event)">
+            <div id="button-container"></div>
         </div>
-
-        <div class="filterscontainer">
-            <div class="filterschild1grid">
-                <div class="filterschild1">
-                        <label for="states">Choose up to 3 states (*required):</label>
-                </div>
-                <div class="filterschild1">
-                    <input id="autoinputbox" autocomplete="off" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" required>
-                    <div id="button-container"></div>
-                </div>
-            </div>
-
-            <div class="filterschild1grid" id="fc_cty0">
-                <div class="filterschild1" id="fc_cty1">
-                    <div id="categoryInput">
-                        <label for="well_county">County:</label>
-                        <select id="op_21" size=1>
-                            <option value="default">any</option>
-                            <option value="initial">is equal to</option>
-                            <option value="option2">is in the following list</option>
-                            <option value="option3">contains</option>
-                            <option value="option4">starts with</option>
-                        </select>
-                        <div class="icon-container">
-                            <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="filterschild1">
-                    <input id="countybox" autocomplete="off" placeholder="Enter County... Ex: Washington" type="text"  required>
-                    <div id="ctybutton-container"></div>
-                    {% comment %} <div id="hdropdown-content"></div> {% endcomment %}
-
-                </div>
-            </div>
-            <div class="filterschild1grid">
-                <div class="filterschild1">
-                    <div id="categoryInput">
-                        <label for="well_status">Well Status:</label>
-                        <select id="op_31" size=1>
-                            <option value="default">any</option>
-                            <option value="initial">is equal to</option>
-                            <option value="option2">is in the following list</option>
-                            <option value="option3">contains</option>
-                            <option value="option4">starts with</option>
-                        </select>
-                        <div class="icon-container">
-                            <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="filterschild1">
-                    <input id="autoinputbox2" autocomplete="off" onfocus="showhelper2()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper2()" required>
-                    <ul id="autolist2"><ul>
-                    {% comment %} <input type="text" id="well_status" name="well_status" placeholder="Enter Well Status..."> {% endcomment %}
-                </div>
-            </div>
-            <div class="filterschild1grid" id="fc_wt">
-                <div class="filterschild1">
-                    <div id="categoryInput">
-                        <label for="well_type">Well Type:</label>
-                        <select id="op_41" size=1>
-                            <option value="default">any</option>
-                            <option value="initial">is equal to</option>
-                            <option value="option2">is in the following list</option>
-                            <option value="option3">contains</option>
-                            <option value="option4">starts with</option>
-                        </select>
-                        <div class="icon-container">
-                            <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="filterschild1">
-                    <input id="autoinputbox3" autocomplete="off" onfocus="showhelper3()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper3()" required>
-                    {% comment %} <input type="text" id="well_type" name="well_type" placeholder="Enter Well Type..."> {% endcomment %}
-                </div>
-            </div>
-            <div class="filterschild1grid">
-                <div class="filterschild1">
-                    <!-- Add input box for category -->
-                    <div id="categoryInput">
-                        <label for="well_name">Well Name:</label>
-                        <select id="op_51" size=1>
-                            <option value="default">any</option>
-                            <option value="initial">is equal to</option>
-                            <option value="option2">is in the following list</option>
-                            <option value="option3">contains</option>
-                            <option value="option4">starts with</option>
-                        </select>
-                        <div class="icon-container">
-                            <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text"><b>FILTERING TIPS</b><br><br><b><u>any:</b></u> Will override entered input and return all records<br><br><b><u>is equal to:</b></u> While not case sensitive the spelling and spacing need to match exactly<br><br><b><u>is in the following list:</b></u> Provide a list of values separated by a comma. This is not case sensitive.<br><br><b><u>contains:</b></u> Returns any records that include the character string you've entered.<br><br><b><u>starts with:</b></u> Enter the first few characters to filter by.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="filterschild1">
-                    <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
-                </div>
-            </div>
-
-            <div class="filterschild1grid">
-                <div class="filterschild1">
-                    <!-- Add input box for category -->
-                    <div id="categoryInput">
-                        <label for="category">FracTracker Category:</label>
-                        <div class="icon-container">
-                            <img src="../media/info-icon.png" alt=" " class="icon">
-                            <span class="popup-text">These categories are FracTracker's attempt to normalize well status and type across the national dataset.</span>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="filterschild1">
-                    {% comment %} <div class="dropdown">
-                        <button class="dropdown-toggle" id="dropdownMenuButton">Select From Dropdown... <span class="selected-items" id="selectedItems">None</span></button>
-
-                        <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... <span class="selected-items" id="selectedItems">None</span></button> 
-                        <button class="dropdown-toggle" id="dropdownMenuButton">Select from dropdown... </button> 
-                        <div class="dropdown-menu" id="dropdownMenu">
-                            <label><input type="checkbox" value="initial">Select from dropdown...</label> 
-                            <label><input type="checkbox" value="default">All</label>
-                            <label><input type="checkbox" value="Injection / Storage / Service">Injection / Storage / Service</label>
-                            <label><input type="checkbox" value="Not Drilled">Not Drilled</label>
-                            <label><input type="checkbox" value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</label>
-                            <label><input type="checkbox" value="Other / Unknown">Other / Unknown</label>
-                            <label><input type="checkbox" value="Plugged">Plugged</label>
-                            <label><input type="checkbox" value="Production Well">Production Well</label>
-                        </div>
-                    </div> {% endcomment %}
-                    <select id="fta_cat" size=1>
-                        <option value="initial">Select from dropdown...</option>
-                        <option value="default">All</option>
-                        <option value="Injection / Storage / Service">Injection / Storage / Service</option>
-                        <option value="Not Drilled">Not Drilled</option>
-                        <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
-                        <option value="Other / Unknown">Other / Unknown</option>
-                        <option value="Plugged">Plugged</option>
-                        <option value="Production Well">Production Well</option>
-                    </select>
-                    {% comment %} <input type="text" id="category" name="category" placeholder="Select FracTracker Category...">  {% endcomment %}
-                </div>
-            </div>
+        <div class="filterContainer" id="fc_cty0">
+            <label for="well_county">County:</label>
+            <div class="selectionContainer" id="countyPicks"></div>
+            <input id="countybox" autocomplete="off" placeholder="Enter County... Ex: Washington" type="text"  required>
+            <div id="ctybutton-container"></div>
+        </div>
+        <div class="filterContainer">
             <div class="filterschild1">
-                <button onclick="applyCategoryFilter()">Apply Filter</button>
-                <button onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
+                <label for="well_status">Well Status:</label>
+                <input id="autoinputbox2" autocomplete="off" onfocus="showhelper2()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper2()" required>
+                <ul id="autolist2"><ul>
             </div>
-            <div id="loading-popup" class="loading-popup hidden">
-                Retrieving the Records<span id="loading-dots"></span>
+        </div>
+        <div class="filterContainer" id="fc_wt">
+            <div class="filterschild1">
+                <label for="well_type">Well Type:</label>
+                <input id="autoinputbox3" autocomplete="off" onfocus="showhelper3()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper3()" required>
             </div>
-        </div>  
-            
-
-        <div class="tablecontainer">
-            <div>
-                
-                {% comment %} <label for="sort-dropdown">Sort by:</label>
-                <select id="sort-dropdown">
-                    <option value="lat">Column 1</option>
-                    <option value="api_num">Column 2</option>
-                    <option value="FracTracker Category">Column 3</option>
-                    <option value="well_name">Column 4</option>
-                    <option value="column5">Column 5</option>
-                </select> {% endcomment %}
-            
-                <div class="input-button-container">
-                    <input type="number" id="page-input" placeholder="Jump to page #" min="1">
-                    <button class="gobutton" onclick="goToPage()">Go</button>
+        </div>
+        <div class="filterContainer">
+            <label for="well_name">Well Name:</label>
+            <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
+        </div>
+        <div class="filterContainer">
+            <div class="filterschild1">
+                <label for="category">FracTracker Category:</label>
+                <select id="fta_cat" size=1>
+                    <option value="initial">Select from dropdown...</option>
+                    <option value="default">All</option>
+                    <option value="Injection / Storage / Service">Injection / Storage / Service</option>
+                    <option value="Not Drilled">Not Drilled</option>
+                    <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
+                    <option value="Other / Unknown">Other / Unknown</option>
+                    <option value="Plugged">Plugged</option>
+                    <option value="Production Well">Production Well</option>
+                </select>
+            </div>
+        </div>
+    </div>
+      <div class="right">
+        <!-- Top content of the right side -->
+        <div id="map">
+            <div class="legend" id="legend">
+                <div class="legend-header" id="legend-toggle">
+                    <span>Legend</span>
+                </div>
+                <div class="legend-content">
+                    <label class="category1"><input type="checkbox" id="category1" style="color:#A3CF5F;" checked> Injection / Storage / Service</label>
+                    <label class="category1"><input type="checkbox" id="category2" style="color:green;" checked> Not Drilled</label>
+                    <label class="category1"><input type="checkbox" id="category3" style="color:#FFC857;" checked> Orphaned / Abandoned / Unverified Plug</label>
+                    <label class="category1"><input type="checkbox" id="category4" style="color:#00253B;" checked> Other / Unknown</label>
+                    <label class="category1"><input type="checkbox" id="category5" style="color:#0287D4;" checked> Plugged</label>
+                    <label class="category1"><input type="checkbox" id="category6" style="color:red;" checked> Production Well</label>
                 </div>
             </div>
-            <table id="maintable">
-                <thead>
-                    <tr>
-                        <td id="pagination" colspan="100%">
+        </div>
+        <div class="bottom">
+        <!-- Bottom content of the right side -->
 
+            <div class="tablecontainer">
+                <div>
+                    
+                    {% comment %} <label for="sort-dropdown">Sort by:</label>
+                    <select id="sort-dropdown">
+                        <option value="lat">Column 1</option>
+                        <option value="api_num">Column 2</option>
+                        <option value="FracTracker Category">Column 3</option>
+                        <option value="well_name">Column 4</option>
+                        <option value="column5">Column 5</option>
+                    </select> {% endcomment %}
+                
+                    <div class="input-button-container">
+                        <input type="number" id="page-input" placeholder="Jump to page #" min="1">
+                        <button class="gobutton" onclick="goToPage()">Go</button>
+                    </div>
+                </div>
+                <!-- Grid container for the table -->
+                <table id="maintable">
+                    <thead>
+                        <tr>
+                            <td id="pagination" colspan="100%">
                             <!-- Pagination buttons will be added here -->
-                        </td>
-                                <!-- Grid container for the table -->
-
-                        
-                    </tr>
-                </thead>
-                <thead id="maintableheader" class="sticky-header-container">
-                    <tr>
-                        {% comment %} <th>TMPID</th> {% endcomment %}
-                        <th>API Number</th>
-                        <th>Other ID</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>State</th>
-                        <th>County</th>
-                        <th>Municipality</th>
-                        <th>Well Name</th>
-                        <th>Operator</th>
-                        <th>Spud Date</th>
-                        <th>Plug Date</th>
-                        <th>Well Type</th>
-                        <th>Well Status</th>
-                        <th>Well Configuration</th>
-                        <th>FracTracker Category</th>
-                        {% comment %} <th>UID</th> {% endcomment %}
-                    </tr>
-                </thead>
-                <tbody id="maintablebody">
-                    {% comment %} <tr><td></td></tr> {% endcomment %}
-                </tbody>
-
-            </table>
-        </div>  
-    </div>   
+                            </td>
+                        </tr>
+                    </thead>
+                    <thead id="maintableheader" class="sticky-header-container">
+                        <tr>
+                            {% comment %} <th>TMPID</th> {% endcomment %}
+                            <th>API Number</th>
+                            <th>Other ID</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>State</th>
+                            <th>County</th>
+                            <th>Municipality</th>
+                            <th>Well Name</th>
+                            <th>Operator</th>
+                            <th>Spud Date</th>
+                            <th>Plug Date</th>
+                            <th>Well Type</th>
+                            <th>Well Status</th>
+                            <th>Well Configuration</th>
+                            <th>FracTracker Category</th>
+                            {% comment %} <th>UID</th> {% endcomment %}
+                        </tr>
+                    </thead>
+                    <tbody id="maintablebody">
+                        {% comment %} <tr><td></td></tr> {% endcomment %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
-    
-    
-    <script>
-                 
-        
-    </script>
 </body>
 </html>
