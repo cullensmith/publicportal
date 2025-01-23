@@ -52,13 +52,14 @@
             <label for="stateinputbox">Choose up to 3 states:</label>
             <div class="selectionContainer" id="statePicks">*REQUIRED</div>
             {% comment %} <input type="text" id="stateinputbox" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" onclick="removeButton(event)"> {% endcomment %}
-            <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button>
+            {% comment %} <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button> {% endcomment %}
+            <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States...</button>
             <div class="button-container" id="state-container"></div>
         </div>
-        <div class="filterContainer" id="fc_cty0">
-            <label for="well_county">County:</label>
+        <div class="filterContainer" id="ctyFilterContainer">
+            {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
             <div class="selectionContainer" id="countyPicks"></div>
-            <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button>
+            <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties in those states...</button>
             <div class="button-container" id="county-container"></div>
         </div>
         <div class="filterContainer">

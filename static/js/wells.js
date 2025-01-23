@@ -1,9 +1,9 @@
 // Initialize Leaflet map
 
 // const textbox = document.getElementById('stateinputbox');
-const buttonContainer = document.getElementById('button-container');
-const ctytextbox = document.getElementById('countybox');
-const ctybuttonContainer = document.getElementById('ctybutton-container');
+// const buttonContainer = document.getElementById('state-container');
+const ctytextbox = document.getElementById('countyPicks');
+const ctybuttonContainer = document.getElementById('county-container');
 
 var map = L.map('map').setView([39.8283,-98.5795], 4);
 var geojsonLayer;
@@ -121,11 +121,9 @@ function getCounties(data) {
         },
         success: function(data) {
             ctyct(data,pts);
-
             console.log('GeoJSON data received:', data);
             // Convert GeoJSON to vector tiles using leaflet-geojson-vt
             map.eachLayer(function(layer) {
-
                 try {
                     if (layer._leaflet_id == countyLayer) {
                         map.removeLayer(layer);
@@ -169,10 +167,9 @@ function getCounties(data) {
 
 
 
-function addCtyOptions(data) {
-    var states = document.getElementById('statePicks').value;
-    console.log('states targeted')
-    console.log(states)
+function addCtyOptions(states) {
+    // var states = document.getElementById('statePicks').value;
+
     $.ajax({
         url: '/wells/createCountyList',
         method: 'GET',
@@ -182,15 +179,15 @@ function addCtyOptions(data) {
         success: function(data) {
             // create the "buttons" for each county for the dropdown
             let ctyitems = JSON.parse(data);
-            console.log('here is the data')
-            console.log(ctyitems)
+
             // Iterate through the statesarray array and create a button for each color
-            ctyitems.forEach(color => {
+            ctyitems.forEach(ctyitem => {
                 const ctybutton = document.createElement('button');
-                ctybutton.className = 'hdbutton';
-                ctybutton.id = color;
-                ctybutton.innerText = color.stusps + ': ' + color.county; // Capitalize the first letter of color
-                ctybutton.onclick = () => toggleselection(color);
+                ctybutton.className = 'filterbutton';
+                ctybutton.id = ctyitem.stusps + ': ' + ctyitem.county+'btn';
+                // console.log(ctyitem.county)
+                ctybutton.innerText = ctyitem.stusps + ': ' + ctyitem.county; // Capitalize the first letter of color
+                ctybutton.onclick = () => toggleselection('county',ctyitem.stusps + ': ' + ctyitem.county);
                 // Append the button to the button-container div
                 ctybuttonContainer.appendChild(ctybutton);
             });
@@ -201,20 +198,6 @@ function addCtyOptions(data) {
     })
 };
 
-let autoinput1 = document.getElementById('countybox');
-autoinput1.addEventListener('keyup', async function(event) {
-    showhelper()
-    let response = await supplylist(autoinput1.value)
-});
-function hidehelper1() {
-    hideit1 = document.getElementById('ctybutton-container');
-    hideit1.style.display = 'none';
-}
-function showhelper1() {
-    hideit1 = document.getElementById('ctybutton-container');
-    hideit1.style.display = 'block';
-    hideit1.style.opacity= 1;
-}
 
 function onEachFeatureFn(prop, feature, layer) {
         layer.feature.property.longitude
@@ -411,7 +394,7 @@ function applyCategoryFilter() {
     var category = document.getElementById('fta_cat').value; 
     var states = document.getElementById('statePicks').value;
     var statesop = document.getElementById('statePicks').value;
-    var county = document.getElementById('countybox').value;
+    var county = document.getElementById('countyPick').value;
     var countyop = document.getElementById('op_21').value;
     var well_type = document.getElementById('autoinputbox2').value;
     var well_typeop = document.getElementById('op_41').value;
@@ -663,38 +646,38 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 // Initialize legend state
 document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
-function supplylist(b) {
-    var listbox = 'statebox';
-    $.ajax({
-        url: '/wells/autolist', // Replace with your view URL
-        method: 'GET',
-        data: {
-            box: b,
-            typed: listbox
-        },
-        success: function(data) {
-            console.log(data)
-            const listitems = data.data;
-            console.log(listitems)
-            // Iterate through the statesarray array and create a button for each st
-            document.getElementById('button-container').innerHTML = '';
+// function supplylist(b) {
+//     var listbox = 'statebox';
+//     $.ajax({
+//         url: '/wells/autolist', // Replace with your view URL
+//         method: 'GET',
+//         data: {
+//             box: b,
+//             typed: listbox
+//         },
+//         success: function(data) {
+//             console.log(data)
+//             const listitems = data.data;
+//             console.log(listitems)
+//             // Iterate through the statesarray array and create a button for each st
+//             document.getElementById('button-container').innerHTML = '';
 
-            listitems.forEach(st => {
-                const button = document.createElement('button');
-                button.className = 'hdbutton';
-                button.id = st;
-                button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
-                button.onclick = () => toggleselection(st);
-                // Append the button to the button-container div
-                document.getElementById('state-container').appendChild(button);
-            });
-        },
-        error: function(xhr, status, error) {
-            // Handle error
-            console.error(error);
-        }
-    });
-}
+//             listitems.forEach(st => {
+//                 const button = document.createElement('button');
+//                 button.className = 'hdbutton';
+//                 button.id = st;
+//                 button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
+//                 button.onclick = () => toggleselection(st);
+//                 // Append the button to the button-container div
+//                 document.getElementById('state-container').appendChild(button);
+//             });
+//         },
+//         error: function(xhr, status, error) {
+//             // Handle error
+//             console.error(error);
+//         }
+//     });
+// }
 
 const statesarray = [
     "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
@@ -706,24 +689,47 @@ const statesarray = [
     "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
     ];
 
-function openstatelist() {
-    if (document.getElementById('state-container').style.display === 'block') {
-        document.getElementById('state-container').style.display = 'none'
-    } else {
-        document.getElementById('state-container').style.display = 'block'
-    }
-};
 // Iterate through the statesarray array and create a button for each st
 statesarray.forEach(st => {
-    const button = document.createElement('button');
-    button.className = 'filterbutton';
-    button.id = st;
-    button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
-    button.onclick = () => toggleselection(st);
-    
+    const sbutton = document.createElement('button');
+    sbutton.className = 'filterbutton';
+    sbutton.id = st+'btn';
+    sbutton.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
+    sbutton.onclick = () => toggleselection('state',st);
     // Append the button to the button-container div
-    document.getElementById('state-container').appendChild(button);
+    document.getElementById('state-container').appendChild(sbutton);
 });
+
+
+function getButtonValues() {
+    // Select all buttons inside the container
+    const buttonchk = document.getElementById('statePicks').querySelectorAll('*');
+    starray = ''
+    // Loop through the buttons and log their values
+    buttonchk.forEach(b => {
+      console.log(b.id);
+      starray+=b.id.slice(6)+','
+    });
+    return starray
+  }
+
+function openlist(bo) {
+    // console.log(bo)
+    statelist = getButtonValues()
+    // console.log(document.getElementById(bo+'-container').value)
+    if (bo==="county" && statelist != null) [
+        console.log(statelist),
+        addCtyOptions(statelist)
+        // console.log('doing counties')
+    ]
+    if (document.getElementById(bo+'-container').style.display === 'block') {
+        document.getElementById(bo+'-container').style.display = 'none';
+    } else {
+        document.getElementById(bo+'-container').style.display = 'block';
+    }
+};
+
+
 
 // let stateinput = document.getElementById('stateinputbox');
 // stateinput.addEventListener('keyup', async function(event) {
@@ -746,57 +752,63 @@ statesarray.forEach(st => {
 //     buttonContainer.style.display = 'block'; // Show the button container
 // });
 // Add an event listener to the textbox to show the button container on focus
-ctytextbox.addEventListener('focus', () => {
-    ctybuttonContainer.style.display = 'block'; // Show the button container
-});
+// ctytextbox.addEventListener('focus', () => {
+//     ctybuttonContainer.style.display = 'block'; // Show the button container
+// });
 // window.addEventListener('click', function(event) {
 //     var selectionbox = document.getElementById('button-container');
 //     if (!selectionbox.contains(event.target) && event.target !== document.getElementById('statePicks')) {
 //         selectionbox.style.display = 'none'
 //     }
 // });
-window.addEventListener('click', function(event) {
-    var ctybox = document.getElementById('countybox');
-    if (!ctybuttonContainer.contains(event.target) && event.target !== ctybox) {
-        ctybuttonContainer.style.display = 'none'
-    }
-});
+// window.addEventListener('click', function(event) {
+//     var ctybox = document.getElementById('countybox');
+//     if (!ctybuttonContainer.contains(event.target) && event.target !== ctybox) {
+//         ctybuttonContainer.style.display = 'none'
+//     }
+// });
 
-function toggleselection(thestate) {
+function toggleselection(c,v) {
     var statetextbox = document.getElementById('statePicks');
     var earray = statetextbox.querySelectorAll("*");
     var ecount = earray.length;
-    if (document.getElementById('input-'+thestate) != null) {
-        document.getElementById('input-'+thestate).remove()
-    } else if (ecount>=3) {
+    if (document.getElementById('input-'+v) != null) {
+        if (c==='state') {
+            document.getElementById(v+'btn').style.backgroundColor = 'white'
+        } else if (c==='county') {
+            document.getElementById(v+'btn').style.backgroundColor = 'white'
+        }
+        document.getElementById('input-'+v).remove()
+    } else if (ecount>=3 && c ==='state') {
         alert('at max');
     } else {
-        
+        if (c === 'state') {
+            document.getElementById(v+'btn').style.backgroundColor = '#b2ddf4';
+        } else if (c === 'county') {
+            console.log(v)
+            document.getElementById(v+'btn').style.backgroundColor = '#b2ddf4';
+        }
         var buttonState = document.createElement('button-state');
-        // console.log('clicked it')
-        // console.log(thestate)
         buttonState.classList.add('selbutton');
-        // buttonState.textContent = "Button " + thestate;
-
         buttonState.onclick = function() {
             buttonState.remove();
             if (statetextbox === '') {
                 statetextbox.innerHTML = '*REQUIRED'
             }
         };
-
-        // statetextbox.appendChild(buttonState);
-
-        // var newButton = document.createElement("button");
-        buttonState.textContent = thestate;
-        buttonState.id = "input-" + thestate;
+        buttonState.textContent = v;
+        buttonState.id = "input-" + v;
         buttonState.style.fontWeight = 'bold';
 
         // Append the new button to the input box (which is now an input field)
         if (statetextbox.innerHTML==='*REQUIRED') {
             statetextbox.innerHTML=''
         } 
-        statetextbox.appendChild(buttonState);
+        if (c === 'state') {
+            statetextbox.appendChild(buttonState);
+        } else if (c === 'county') {
+            ctytextbox.appendChild(buttonState);
+        }
     }
 }
 function removeButton(event) {

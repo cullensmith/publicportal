@@ -17,7 +17,8 @@ def wells(request):
 def createCountyList(request):
     filtered = list()
     states_in = request.GET.getlist('states')[0].split(',')
-    states = [s.strip() for s in states_in]
+    states = [s.strip().replace('input-','') for s in states_in]
+    print(f'states: {states}')
     cl = CountyNames.objects.filter(statename__in=states)  # Query all polygons
     for c in cl:
         item = dict()
