@@ -42,9 +42,6 @@
         font-family: Arial;
         }
         
-        .selectionContainer {
-            background-color: blue;
-        }
 
     </style>
 </head>
@@ -54,14 +51,15 @@
         <div class="filterContainer" id="filterState">
             <label for="stateinputbox">Choose up to 3 states:</label>
             <div class="selectionContainer" id="statePicks">*REQUIRED</div>
-            <input type="text" id="stateinputbox" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" onclick="removeButton(event)">
-            <div id="button-container"></div>
+            {% comment %} <input type="text" id="stateinputbox" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" onclick="removeButton(event)"> {% endcomment %}
+            <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button>
+            <div class="button-container" id="state-container"></div>
         </div>
         <div class="filterContainer" id="fc_cty0">
             <label for="well_county">County:</label>
             <div class="selectionContainer" id="countyPicks"></div>
-            <input id="countybox" autocomplete="off" placeholder="Enter County... Ex: Washington" type="text"  required>
-            <div id="ctybutton-container"></div>
+            <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button>
+            <div class="button-container" id="county-container"></div>
         </div>
         <div class="filterContainer">
             <div class="filterschild1">

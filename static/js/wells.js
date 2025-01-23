@@ -1,6 +1,6 @@
 // Initialize Leaflet map
 
-const textbox = document.getElementById('stateinputbox');
+// const textbox = document.getElementById('stateinputbox');
 const buttonContainer = document.getElementById('button-container');
 const ctytextbox = document.getElementById('countybox');
 const ctybuttonContainer = document.getElementById('ctybutton-container');
@@ -52,7 +52,7 @@ var a = document.getElementById('search-container');
 
 // Function to fetch GeoJSON data from a view
 function getStates(data) {
-    var states = document.getElementById('stateinputbox').value;
+    var states = document.getElementById('statePicks').value;
     $.ajax({
         url: '/wells/getstates_view', // Replace with your view URL
         method: 'GET',
@@ -112,7 +112,7 @@ function getStates(data) {
 // Function to fetch GeoJSON data from a view
 function getCounties(data) {
     pts = data
-    var states = document.getElementById('stateinputbox').value;
+    var states = document.getElementById('statePicks').value;
     $.ajax({
         url: '/wells/getcounties_view', 
         method: 'GET',
@@ -170,7 +170,7 @@ function getCounties(data) {
 
 
 function addCtyOptions(data) {
-    var states = document.getElementById('stateinputbox').value;
+    var states = document.getElementById('statePicks').value;
     console.log('states targeted')
     console.log(states)
     $.ajax({
@@ -409,8 +409,8 @@ function applyCategoryFilter() {
     // console.log(category)
     console.log('did we get em?')
     var category = document.getElementById('fta_cat').value; 
-    var states = document.getElementById('stateinputbox').value;
-    var statesop = document.getElementById('stateinputbox').value;
+    var states = document.getElementById('statePicks').value;
+    var statesop = document.getElementById('statePicks').value;
     var county = document.getElementById('countybox').value;
     var countyop = document.getElementById('op_21').value;
     var well_type = document.getElementById('autoinputbox2').value;
@@ -686,7 +686,7 @@ function supplylist(b) {
                 button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
                 button.onclick = () => toggleselection(st);
                 // Append the button to the button-container div
-                document.getElementById('button-container').appendChild(button);
+                document.getElementById('state-container').appendChild(button);
             });
         },
         error: function(xhr, status, error) {
@@ -696,58 +696,65 @@ function supplylist(b) {
     });
 }
 
-// const statesarray = [
-//     "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
-//     "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
-//     "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
-//     "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
-//     "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
-//     "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
-//     "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-//     ];
+const statesarray = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
+    "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
+    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
+    "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
+    "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
+    "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
+    "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+    ];
 
-// // Iterate through the statesarray array and create a button for each st
-// statesarray.forEach(st => {
-//     const button = document.createElement('button');
-//     button.className = 'hdbutton';
-//     button.id = st;
-//     button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
-//     button.onclick = () => toggleselection(st);
+function openstatelist() {
+    if (document.getElementById('state-container').style.display === 'block') {
+        document.getElementById('state-container').style.display = 'none'
+    } else {
+        document.getElementById('state-container').style.display = 'block'
+    }
+};
+// Iterate through the statesarray array and create a button for each st
+statesarray.forEach(st => {
+    const button = document.createElement('button');
+    button.className = 'filterbutton';
+    button.id = st;
+    button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
+    button.onclick = () => toggleselection(st);
     
-//     // Append the button to the button-container div
-//     document.getElementById('button-container').appendChild(button);
-// });
-
-let stateinput = document.getElementById('stateinputbox');
-stateinput.addEventListener('keyup', async function(event) {
-    console.log(stateinput.value)
-    showhelper()
-    let response = await supplylist(stateinput.value)
+    // Append the button to the button-container div
+    document.getElementById('state-container').appendChild(button);
 });
-function hidehelper() {
-    buttonContainer.style.display = 'none';
-}
-function showhelper() {
-    buttonContainer.style.display = 'block';
-    buttonContainer.style.opacity= 1;
-}
+
+// let stateinput = document.getElementById('stateinputbox');
+// stateinput.addEventListener('keyup', async function(event) {
+//     console.log(stateinput.value)
+//     showhelper()
+//     let response = await supplylist(stateinput.value)
+// });
+// function hidehelper() {
+//     buttonContainer.style.display = 'none';
+// }
+// function showhelper() {
+//     buttonContainer.style.display = 'block';
+//     buttonContainer.style.opacity= 1;
+// }
 
 
 
 // Add an event listener to the textbox to show the button container on focus
-textbox.addEventListener('focus', () => {
-    buttonContainer.style.display = 'block'; // Show the button container
-});
+// textbox.addEventListener('focus', () => {
+//     buttonContainer.style.display = 'block'; // Show the button container
+// });
 // Add an event listener to the textbox to show the button container on focus
 ctytextbox.addEventListener('focus', () => {
     ctybuttonContainer.style.display = 'block'; // Show the button container
 });
-window.addEventListener('click', function(event) {
-    var selectionbox = document.getElementById('button-container');
-    if (!selectionbox.contains(event.target) && event.target !== textbox) {
-        selectionbox.style.display = 'none'
-    }
-});
+// window.addEventListener('click', function(event) {
+//     var selectionbox = document.getElementById('button-container');
+//     if (!selectionbox.contains(event.target) && event.target !== document.getElementById('statePicks')) {
+//         selectionbox.style.display = 'none'
+//     }
+// });
 window.addEventListener('click', function(event) {
     var ctybox = document.getElementById('countybox');
     if (!ctybuttonContainer.contains(event.target) && event.target !== ctybox) {
@@ -756,25 +763,41 @@ window.addEventListener('click', function(event) {
 });
 
 function toggleselection(thestate) {
-    var statetextbox = document.getElementById('stateinputbox');
-    var buttonState = document.createElement('button-state');
-    // console.log('clicked it')
-    // console.log(thestate)
-    // buttonState.classList.add('button-in-textbox');
-    // buttonState.textContent = "Button " + thestate;
+    var statetextbox = document.getElementById('statePicks');
+    var earray = statetextbox.querySelectorAll("*");
+    var ecount = earray.length;
+    if (document.getElementById('input-'+thestate) != null) {
+        document.getElementById('input-'+thestate).remove()
+    } else if (ecount>=3) {
+        alert('at max');
+    } else {
+        
+        var buttonState = document.createElement('button-state');
+        // console.log('clicked it')
+        // console.log(thestate)
+        buttonState.classList.add('selbutton');
+        // buttonState.textContent = "Button " + thestate;
 
-    // buttonState.onclick = function() {
-    //     buttonState.remove();
-    // };
+        buttonState.onclick = function() {
+            buttonState.remove();
+            if (statetextbox === '') {
+                statetextbox.innerHTML = '*REQUIRED'
+            }
+        };
 
-    // statetextbox.appendChild(buttonState);
+        // statetextbox.appendChild(buttonState);
 
-    // var newButton = document.createElement("button");
-    buttonState.textContent = thestate;
-    buttonState.id = "input-" + thestate;
+        // var newButton = document.createElement("button");
+        buttonState.textContent = thestate;
+        buttonState.id = "input-" + thestate;
+        buttonState.style.fontWeight = 'bold';
 
-    // Append the new button to the input box (which is now an input field)
-    statetextbox.parentNode.appendChild(buttonState);
+        // Append the new button to the input box (which is now an input field)
+        if (statetextbox.innerHTML==='*REQUIRED') {
+            statetextbox.innerHTML=''
+        } 
+        statetextbox.appendChild(buttonState);
+    }
 }
 function removeButton(event) {
     // Check if the clicked element is a button
