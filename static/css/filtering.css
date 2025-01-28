@@ -18,10 +18,18 @@ background-color: #c9c9c9;
     display: grid;
     grid-template-rows: 75% 25%;
 }
-
+#statusContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+#typeContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
 .selectionContainer {
     background-color: rgb(216, 216, 216);
-    display:flex;
+    color:rgb(104, 104, 104);
+    /* display:flex; */
     max-height: 400px;
     padding: 5px;
     border-radius: 5px;
@@ -74,6 +82,34 @@ background-color: #c9c9c9;
 }
 .filterbutton:hover {
     background-color: rgb(179, 179, 179);
+}
+.highlightbutton {
+    width: 100%;
+    text-rendering: auto;
+    color: black;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none; 
+    text-indent: 30px;
+    text-shadow: none; 
+    display: grid;
+    text-align: left;
+    align-items: flex-start; 
+    cursor: default;
+    box-sizing: border-box; 
+    background-color: #b2ddf4;
+    margin: 0em;
+    padding-block: 2px; 
+    padding-inline: 2px; 
+    border-width: 2px; 
+    border-style: none;
+    border-color: buttonborder; 
+    border-image: initial; 
+    /* width: 200px;  */
+}
+.highlightbutton:hover {
+    background-color: rgb(255, 0, 0);
 }
 .dropdownbutton {
     background-color: #0287d4;

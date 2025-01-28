@@ -50,7 +50,7 @@
         <!-- filtering tools here -->
         <div class="filterContainer" id="filterState">
             <label for="stateinputbox">Choose up to 3 states:</label>
-            <div class="selectionContainer" id="statePicks">*REQUIRED</div>
+            <div class="selectionContainer" id="statePicks">**REQUIRED**</div>
             {% comment %} <input type="text" id="stateinputbox" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" onclick="removeButton(event)"> {% endcomment %}
             {% comment %} <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button> {% endcomment %}
             <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States...</button>
@@ -58,27 +58,24 @@
         </div>
         <div class="filterContainer" id="ctyFilterContainer">
             {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
-            <div class="selectionContainer" id="countyPicks"></div>
+            <div class="selectionContainer" id="countyPicks">Not necessary, but to filter down your request you can choose specific counties for each state by clicking the corresponding button below.</div>
             <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties in those states...</button>
             <div class="button-container" id="county-container"></div>
         </div>
-        <div class="filterContainer">
-            <div class="filterschild1">
-                <label for="well_status">Well Status:</label>
-                <input id="autoinputbox2" autocomplete="off" onfocus="showhelper2()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper2()" required>
-                <ul id="autolist2"><ul>
-            </div>
+        <div class="filterContainer" id="statusContainer">
+            <div class="selectionContainer" id="statusPicks"></div>
+            <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status (State Specific)</button>
+            <div class="button-container" id="status-container"></div>
         </div>
-        <div class="filterContainer" id="fc_wt">
-            <div class="filterschild1">
-                <label for="well_type">Well Type:</label>
-                <input id="autoinputbox3" autocomplete="off" onfocus="showhelper3()" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" type="text" onblur="hidehelper3()" required>
-            </div>
+        <div class="filterContainer" id="typeContainer">
+            <div class="selectionContainer" id="typePicks"></div>
+            <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Well Type (State Specific)</button>
+            <div class="button-container" id="type-container"></div>
         </div>
-        <div class="filterContainer">
+        {% comment %} <div class="filterContainer">
             <label for="well_name">Well Name:</label>
             <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
-        </div>
+        </div> {% endcomment %}
         <div class="filterContainer">
             <div class="filterschild1">
                 <label for="category">FracTracker Category:</label>
@@ -93,6 +90,12 @@
                     <option value="Production Well">Production Well</option>
                 </select>
             </div>
+        </div>
+        <div >
+            <button onclick="applyCategoryFilter()">Apply Filter</button>
+        </div>
+        <div id="loading-popup" class="loading-popup hidden">
+            Retrieving the Records<span id="loading-dots"></span>
         </div>
     </div>
       <div class="right">
@@ -126,10 +129,13 @@
                         <option value="well_name">Column 4</option>
                         <option value="column5">Column 5</option>
                     </select> {% endcomment %}
-                
-                    <div class="input-button-container">
-                        <input type="number" id="page-input" placeholder="Jump to page #" min="1">
-                        <button class="gobutton" onclick="goToPage()">Go</button>
+                    <div>
+                        <button onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
+
+                        {% comment %} <div class="input-button-container"> {% endcomment %}
+                            <input type="number" id="page-input" placeholder="Jump to page #" min="1">
+                            <button class="gobutton" onclick="goToPage()">Go</button>
+                        {% comment %} </div> {% endcomment %}
                     </div>
                 </div>
                 <!-- Grid container for the table -->

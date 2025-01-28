@@ -35,6 +35,28 @@ class CountyNames(models.Model):
     
     def __str__(self) -> str:
         return super().__str__()
+    
+class stStatus(models.Model):
+    well_status = models.CharField(max_length=50)
+    stusps = models.CharField(max_length=2)
+
+    class Meta:
+        managed = False
+        db_table = 'wellstatus'
+    
+    def __str__(self) -> str:
+        return super().__str__()
+    
+class stType(models.Model):
+    well_type = models.CharField(max_length=50)
+    stusps = models.CharField(max_length=2)
+
+    class Meta:
+        managed = False
+        db_table = 'welltype'
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 class Wells(models.Model):
     api_num = models.CharField(max_length=50, blank=True, null=True)

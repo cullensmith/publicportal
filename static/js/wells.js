@@ -1,9 +1,15 @@
 // Initialize Leaflet map
 
-// const textbox = document.getElementById('stateinputbox');
 // const buttonContainer = document.getElementById('state-container');
+const statetextbox = document.getElementById('statePicks');
 const ctytextbox = document.getElementById('countyPicks');
 const ctybuttonContainer = document.getElementById('county-container');
+const statustextbox = document.getElementById('statusPicks');
+const statusbuttonContainer = document.getElementById('status-container');
+const typetextbox = document.getElementById('typePicks');
+const typebuttonContainer = document.getElementById('type-container');
+const cattextbox = document.getElementById('catPicks');
+const catbuttonContainer = document.getElementById('cat-container');
 
 var map = L.map('map').setView([39.8283,-98.5795], 4);
 var geojsonLayer;
@@ -52,12 +58,12 @@ var a = document.getElementById('search-container');
 
 // Function to fetch GeoJSON data from a view
 function getStates(data) {
-    var states = document.getElementById('statePicks').value;
+    // var states = document.getElementById('statePicks').value;
     $.ajax({
         url: '/wells/getstates_view', // Replace with your view URL
         method: 'GET',
         data: {
-            states: states,
+            states: data,
         },
         success: function(data) {
             map.eachLayer(function(layer) {
@@ -110,7 +116,7 @@ function getStates(data) {
 }
 
 // Function to fetch GeoJSON data from a view
-function getCounties(data) {
+function getCounties(s,c,d) {
     pts = data
     var states = document.getElementById('statePicks').value;
     $.ajax({
@@ -179,17 +185,104 @@ function addCtyOptions(states) {
         success: function(data) {
             // create the "buttons" for each county for the dropdown
             let ctyitems = JSON.parse(data);
-
+            highlight = ctytextbox.innerHTML
+            ctybuttonContainer.innerHTML = ''
+            console.log('what is in the html?')
+            console.log(highlight)
             // Iterate through the statesarray array and create a button for each color
             ctyitems.forEach(ctyitem => {
                 const ctybutton = document.createElement('button');
-                ctybutton.className = 'filterbutton';
                 ctybutton.id = ctyitem.stusps + ': ' + ctyitem.county+'btn';
+                console.log(ctybutton.id)
+                if (highlight.includes(ctybutton.id.slice(0,-3))) {
+                    console.log('found something to highlight')
+                    ctybutton.className = 'highlightbutton';
+                } else {
+                    ctybutton.className = 'filterbutton';
+                }
                 // console.log(ctyitem.county)
                 ctybutton.innerText = ctyitem.stusps + ': ' + ctyitem.county; // Capitalize the first letter of color
                 ctybutton.onclick = () => toggleselection('county',ctyitem.stusps + ': ' + ctyitem.county);
                 // Append the button to the button-container div
                 ctybuttonContainer.appendChild(ctybutton);
+            });
+        },
+        error: function(xhr,status,error) {
+            console.error(error);
+        }
+    })
+};
+
+
+
+function addStatus(states) {
+    // var states = document.getElementById('statePicks').value;
+    $.ajax({
+        url: '/wells/createStatusList',
+        method: 'GET',
+        data: {
+            states: states,
+        },
+        success: function(data) {
+            // create the "buttons" for each county for the dropdown
+            let statusitems = JSON.parse(data);
+            console.log(statustextbox.innerHTML)
+            highlight = statustextbox.innerHTML
+            statusbuttonContainer.innerHTML = ''
+            // Iterate through the statesarray array and create a button for each color
+            statusitems.forEach(item => {
+                const statusbutton = document.createElement('button');
+                statusbutton.className = 'filterbutton';
+                statusbutton.id = item.stusps + ': ' + item.well_status+'btn';
+                // console.log(ctyitem.county)
+                if (highlight.includes(statusbutton.id.slice(0,-3))) {
+                    console.log('found something to highlight')
+                    statusbutton.className = 'highlightbutton';
+                } else {
+                    statusbutton.className = 'filterbutton';
+                }
+                statusbutton.innerText = item.stusps + ': ' + item.well_status; // Capitalize the first letter of color
+                statusbutton.onclick = () => toggleselection('status',item.stusps + ': ' + item.well_status);
+                // Append the button to the button-container div
+                statusbuttonContainer.appendChild(statusbutton);
+            });
+        },
+        error: function(xhr,status,error) {
+            console.error(error);
+        }
+    })
+};
+
+function addType(states) {
+    // var states = document.getElementById('statePicks').value;
+    $.ajax({
+        url: '/wells/createTypeList',
+        method: 'GET',
+        data: {
+            states: states,
+        },
+        success: function(data) {
+            // create the "buttons" for each county for the dropdown
+            let typeitems = JSON.parse(data);
+            console.log(typetextbox.innerHTML)
+            highlight = typetextbox.innerHTML
+            typebuttonContainer.innerHTML = ''
+            // Iterate through the statesarray array and create a button for each color
+            typeitems.forEach(item => {
+                const typebutton = document.createElement('button');
+                typebutton.className = 'filterbutton';
+                typebutton.id = item.stusps + ': ' + item.well_type+'btn';
+                // console.log(ctyitem.county)
+                if (highlight.includes(typebutton.id.slice(0,-3))) {
+                    console.log('found something to highlight')
+                    typebutton.className = 'highlightbutton';
+                } else {
+                    typebutton.className = 'filterbutton';
+                }
+                typebutton.innerText = item.stusps + ': ' + item.well_type; // Capitalize the first letter of color
+                typebutton.onclick = () => toggleselection('type',item.stusps + ': ' + item.well_type);
+                // Append the button to the button-container div
+                typebuttonContainer.appendChild(typebutton);
             });
         },
         error: function(xhr,status,error) {
@@ -222,6 +315,7 @@ var markers = L.geoJSON(null, {
         // Update the displayed clusters after user pan / zoom.
 map.on('moveend', update);
 
+var ready;
 function update() {
     if (!ready) return;
     var bounds = map.getBounds();
@@ -230,7 +324,6 @@ function update() {
     var clusters = index.getClusters(bbox, zoom);
     markers.clearLayers();
     markers.addData(clusters);
-
 }
 
 // Zoom to expand the cluster clicked by user.
@@ -243,7 +336,6 @@ markers.on('click', function(e) {
     map.flyTo(center, expansionZoom);
     }
 });
-
 
 
 function getColor(stype) {
@@ -390,25 +482,33 @@ function applyCategoryFilter() {
     // };
     console.log('here are the lucky categories')
     // console.log(category)
-    console.log('did we get em?')
     var category = document.getElementById('fta_cat').value; 
-    var states = document.getElementById('statePicks').value;
-    var statesop = document.getElementById('statePicks').value;
-    var county = document.getElementById('countyPick').value;
-    var countyop = document.getElementById('op_21').value;
-    var well_type = document.getElementById('autoinputbox2').value;
-    var well_typeop = document.getElementById('op_41').value;
-    var well_status = document.getElementById('autoinputbox3').value;
-    var well_statusop = document.getElementById('op_31').value;
-    var well_name = document.getElementById('well_name').value;
-    var well_nameop = document.getElementById('op_51').value;
-    // Perform AJAX call to fetch filtered data based on 'category'
-    console.log('sending the request');
-    document.getElementById('loading-popup').classList.remove('hidden');
+    // var states = document.getElementById('statePicks').value;
+    // var states = document.getElementById('statePicks').querySelectorAll('*');
+    var states = getSelValues('statePicks')
+    console.log('fetching')
+    console.log('states')
+    console.log(document.getElementById('statePicks'))
+    console.log(states)
+    //var statesop = document.getElementById('statePicks').value;
+    // var county = document.getElementById('countyPicks').value;
+    var counties = getSelValues('countyPicks')
+    console.log('fetching')
+    console.log('counties')
+    console.log(document.getElementById('countyPicks'))
+    console.log(counties)
+    //var countyop = document.getElementById('op_21').value;
+    var well_status = document.getElementById('statusPicks').value;
+    //var well_statusop = document.getElementById('op_31').value;
+    var well_type = document.getElementById('typePicks').value;
+    //var well_typeop = document.getElementById('op_41').value;
+    // var well_name = document.getElementById('well_name').value;
+    // var well_nameop = document.getElementById('op_51').value;
 
-
+    // open up the loading window
     document.getElementById('loading-popup').classList.remove('hidden');
-    // Start adding periods to the text
+    // Start adding periods to the loading popup text
+    // update this with something better such as spinny thing
     let dots = '';
     let dotCount = 0;
     dotInterval = setInterval(() => {
@@ -422,39 +522,37 @@ function applyCategoryFilter() {
         document.getElementById('loading-dots').textContent = thetext;
     }, 1000); // Update text every 500ms
 
+
     $.ajax({
         url: '/wells/generate_geojson',
         method: 'GET',
         data: {
             states: states,
-            statesop: statesop,
-            county: county,
-            countyop: countyop,
+            //statesop: statesop,
+            county: counties,
+            //countyop: countyop,
             well_type: well_type,
-            well_typeop: well_typeop,
+            //well_typeop: well_typeop,
             well_status: well_status,
-            well_statusop: well_statusop,
-            well_name: well_name,
-            well_nameop: well_nameop,
+            //well_statusop: well_statusop,
+            // well_name: well_name,
+            // well_nameop: well_nameop,
             category: category,
-
         },
         success: function(data) {
             filteredData = data
-            console.log('had success')
+            console.log('had success') // replace with action item
             updateMapMarkers(data);
-            console.log('should be done');
-            getCounties(data);
-            getStates(data);
+            getCounties(states, counties, data);
+            getStates(states);
         },
         error: function(xhr, status, error) {
-            console.error(error);
+            console.error(error); // make sure to alter user to the error
             document.getElementById('loading-popup').classList.add('hidden');
         }
     });
-    
-
 }
+
 function updateTable(features) {
     var tableBody = document.getElementById('maintablebody');
     var currentPage = 1;
@@ -646,39 +744,6 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 // Initialize legend state
 document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
-// function supplylist(b) {
-//     var listbox = 'statebox';
-//     $.ajax({
-//         url: '/wells/autolist', // Replace with your view URL
-//         method: 'GET',
-//         data: {
-//             box: b,
-//             typed: listbox
-//         },
-//         success: function(data) {
-//             console.log(data)
-//             const listitems = data.data;
-//             console.log(listitems)
-//             // Iterate through the statesarray array and create a button for each st
-//             document.getElementById('button-container').innerHTML = '';
-
-//             listitems.forEach(st => {
-//                 const button = document.createElement('button');
-//                 button.className = 'hdbutton';
-//                 button.id = st;
-//                 button.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
-//                 button.onclick = () => toggleselection(st);
-//                 // Append the button to the button-container div
-//                 document.getElementById('state-container').appendChild(button);
-//             });
-//         },
-//         error: function(xhr, status, error) {
-//             // Handle error
-//             console.error(error);
-//         }
-//     });
-// }
-
 const statesarray = [
     "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
     "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
@@ -713,141 +778,216 @@ function getButtonValues() {
     return starray
   }
 
+  function getSelValues(s) {
+    // Select all buttons inside the container
+    const buttonchk = document.getElementById(s).querySelectorAll('*');
+    starray = ''
+    // Loop through the buttons and log their values
+    buttonchk.forEach(b => {
+      console.log(b.id);
+      starray+=b.id.slice(6)+','
+    });
+    return starray
+  }
+
+
 function openlist(bo) {
-    // console.log(bo)
+    console.log(bo)
     statelist = getButtonValues()
     // console.log(document.getElementById(bo+'-container').value)
-    if (bo==="county" && statelist != null) [
+    if (bo==="county" && statelist != null) {
         console.log(statelist),
         addCtyOptions(statelist)
-        // console.log('doing counties')
-    ]
-    if (document.getElementById(bo+'-container').style.display === 'block') {
-        document.getElementById(bo+'-container').style.display = 'none';
-    } else {
-        document.getElementById(bo+'-container').style.display = 'block';
+    } else if (bo === "wellstatus" && statelist != null) {
+        addStatus(statelist)
+    } else if (bo === "welltype" && statelist != null) {
+        addType(statelist)
     }
+    
 };
 
+stcontainer = document.getElementById('state-container')
+stbutton = document.getElementById('statebutton')
+
+// Show dropdown when button is clicked
+stbutton.addEventListener('click', () => {
+    if (stcontainer.style.display === 'none' || stcontainer.style.display === '' ) {
+        stcontainer.style.display = 'block';
+    } else if (stcontainer.style.display = 'block') {
+        stcontainer.style.display = 'none';
+    }
+});
+
+// Close dropdown if cursor leaves the button or the dropdown container
+stcontainer.addEventListener('mouseleave', () => {
+    stcontainer.style.display = 'none';
+});
+
+// Prevent dropdown from closing if cursor is inside the dropdown content
+stcontainer.addEventListener('mouseenter', () => {
+    stcontainer.style.display = 'block';
+});
+
+// Keep dropdown open if the cursor is inside the button or dropdown
+stbutton.addEventListener('mouseleave', () => {
+    stcontainer.style.display = 'none';
+});
 
 
-// let stateinput = document.getElementById('stateinputbox');
-// stateinput.addEventListener('keyup', async function(event) {
-//     console.log(stateinput.value)
-//     showhelper()
-//     let response = await supplylist(stateinput.value)
-// });
-// function hidehelper() {
-//     buttonContainer.style.display = 'none';
-// }
-// function showhelper() {
-//     buttonContainer.style.display = 'block';
-//     buttonContainer.style.opacity= 1;
-// }
+ctycontainer = document.getElementById('county-container')
+ctybutton = document.getElementById('countybutton')
+
+// Show dropdown when button is clicked
+ctybutton.addEventListener('click', () => {
+    if (ctycontainer.style.display === 'none' || ctycontainer.style.display === '' ) {
+        if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '**REQUIRED**') {
+            ctycontainer.style.display = 'block';
+        } else {
+            ctycontainer.style.display = 'none';
+        }
+    } else if (ctycontainer.style.display = 'block') {
+        ctycontainer.style.display = 'none';
+    }
+});
+
+// Close dropdown if cursor leaves the button or the dropdown container
+ctycontainer.addEventListener('mouseleave', () => {
+    ctycontainer.style.display = 'none';
+});
+
+// Prevent dropdown from closing if cursor is inside the dropdown content
+ctycontainer.addEventListener('mouseenter', () => {
+    ctycontainer.style.display = 'block';
+});
+
+// Keep dropdown open if the cursor is inside the button or dropdown
+ctybutton.addEventListener('mouseleave', () => {
+    ctycontainer.style.display = 'none';
+});
 
 
+statuscontainer = document.getElementById('status-container')
+statusbutton = document.getElementById('statusbutton')
 
-// Add an event listener to the textbox to show the button container on focus
-// textbox.addEventListener('focus', () => {
-//     buttonContainer.style.display = 'block'; // Show the button container
-// });
-// Add an event listener to the textbox to show the button container on focus
-// ctytextbox.addEventListener('focus', () => {
-//     ctybuttonContainer.style.display = 'block'; // Show the button container
-// });
-// window.addEventListener('click', function(event) {
-//     var selectionbox = document.getElementById('button-container');
-//     if (!selectionbox.contains(event.target) && event.target !== document.getElementById('statePicks')) {
-//         selectionbox.style.display = 'none'
-//     }
-// });
-// window.addEventListener('click', function(event) {
-//     var ctybox = document.getElementById('countybox');
-//     if (!ctybuttonContainer.contains(event.target) && event.target !== ctybox) {
-//         ctybuttonContainer.style.display = 'none'
-//     }
-// });
+// Show dropdown when button is clicked
+statusbutton.addEventListener('click', () => {
+    if (statuscontainer.style.display === 'none' || statuscontainer.style.display === '' ) {
+        if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '**REQUIRED**') {
+            statuscontainer.style.display = 'block';
+        } else {
+            statuscontainer.style.display = 'none';
+        }
+    } else if (statuscontainer.style.display = 'block') {
+        statuscontainer.style.display = 'none';
+    }
+});
+
+// Close dropdown if cursor leaves the button or the dropdown container
+statuscontainer.addEventListener('mouseleave', () => {
+    statuscontainer.style.display = 'none';
+});
+
+// Prevent dropdown from closing if cursor is inside the dropdown content
+statuscontainer.addEventListener('mouseenter', () => {
+    statuscontainer.style.display = 'block';
+});
+
+// Keep dropdown open if the cursor is inside the button or dropdown
+statusbutton.addEventListener('mouseleave', () => {
+    statuscontainer.style.display = 'none';
+});
+
+typecontainer = document.getElementById('type-container')
+typebutton = document.getElementById('typebutton')
+
+// Show dropdown when button is clicked
+typebutton.addEventListener('click', () => {
+    if (typecontainer.style.display === 'none' || typecontainer.style.display === '' ) {
+        if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '**REQUIRED**') {
+            typecontainer.style.display = 'block';
+        } else {
+            typecontainer.style.display = 'none';
+        }
+    } else if (typecontainer.style.display = 'block') {
+        typecontainer.style.display = 'none';
+    }
+});
+
+// Close dropdown if cursor leaves the button or the dropdown container
+typecontainer.addEventListener('mouseleave', () => {
+    typecontainer.style.display = 'none';
+});
+
+// Prevent dropdown from closing if cursor is inside the dropdown content
+typecontainer.addEventListener('mouseenter', () => {
+    typecontainer.style.display = 'block';
+});
+
+// Keep dropdown open if the cursor is inside the button or dropdown
+typebutton.addEventListener('mouseleave', () => {
+    typecontainer.style.display = 'none';
+});
 
 function toggleselection(c,v) {
-    var statetextbox = document.getElementById('statePicks');
     var earray = statetextbox.querySelectorAll("*");
     var ecount = earray.length;
+
     if (document.getElementById('input-'+v) != null) {
         if (c==='state') {
-            document.getElementById(v+'btn').style.backgroundColor = 'white'
+            document.getElementById(v+'btn').classList = 'filterbutton'
         } else if (c==='county') {
-            document.getElementById(v+'btn').style.backgroundColor = 'white'
+            document.getElementById(v+'btn').classList = 'filterbutton'
+        } else if (c==='status') {
+            document.getElementById(v+'btn').classList = 'filterbutton'
+        } else if (c==='type') {
+            document.getElementById(v+'btn').classList = 'filterbutton'
         }
         document.getElementById('input-'+v).remove()
     } else if (ecount>=3 && c ==='state') {
         alert('at max');
     } else {
         if (c === 'state') {
-            document.getElementById(v+'btn').style.backgroundColor = '#b2ddf4';
+            document.getElementById(v+'btn').classList = 'highlightbutton'
+
         } else if (c === 'county') {
-            console.log(v)
-            document.getElementById(v+'btn').style.backgroundColor = '#b2ddf4';
-        }
+            document.getElementById(v+'btn').classList = 'highlightbutton'
+        } else if (c === 'status') {
+            document.getElementById(v+'btn').classList = 'highlightbutton'
+        } else if (c === 'type') {
+            document.getElementById(v+'btn').classList = 'highlightbutton'
+        } 
         var buttonState = document.createElement('button-state');
         buttonState.classList.add('selbutton');
         buttonState.onclick = function() {
+            console.log('buttonstate id:');
+            console.log(buttonState.id.slice(6));
+            document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
             buttonState.remove();
+            console.log('statetextbox');
+            console.log(statetextbox)
             if (statetextbox === '') {
-                statetextbox.innerHTML = '*REQUIRED'
-            }
+                statetextbox.innerHTML = '**REQUIRED**'
+            };
         };
         buttonState.textContent = v;
         buttonState.id = "input-" + v;
         buttonState.style.fontWeight = 'bold';
 
         // Append the new button to the input box (which is now an input field)
-        if (statetextbox.innerHTML==='*REQUIRED') {
+        if (statetextbox.innerHTML==='**REQUIRED**') {
             statetextbox.innerHTML=''
         } 
         if (c === 'state') {
             statetextbox.appendChild(buttonState);
         } else if (c === 'county') {
+            if (ctytextbox.innerHTML === 'Not necessary, but to filter down your request you can choose specific counties for each state by clicking the corresponding button below.'){
+                ctytextbox.innerHTML = ''
+            }
             ctytextbox.appendChild(buttonState);
+        } else if (c === 'status') {
+            statustextbox.appendChild(buttonState);
+        } else if (c === 'type') {
+            typetextbox.appendChild(buttonState);
         }
     }
 }
-function removeButton(event) {
-    // Check if the clicked element is a button
-    if (event.target.tagName === "BUTTON") {
-        event.target.remove(); // Remove the button from the input box
-    }
-}
-
-// function toggleselection(word) {
-//     var textbox = document.getElementById('stateinputbox');
-//     var bid = document.getElementById(word)
-
-//     if (textbox.value.includes(word)) {
-//         bid = document.getElementById(word)
-//         textbox.value = textbox.value.replace(word,'');
-//         bid.style.backgroundColor = 'white'
-//         bid.style.color = 'black'
-//     } else if (textbox.value === '') {
-//         textbox.value = word
-//         bid.style.backgroundColor = 'darkgray'
-//         bid.style.color = 'white'
-//     } else {
-//         textbox.value = textbox.value + ', ' + word
-//         bid.style.backgroundColor = 'darkgray'
-//         bid.style.color = 'white'
-//     }
-//     if (textbox.value.startsWith(', ')) {
-//         textbox.value = textbox.value.replace(', ','');
-//     }
-//     if (textbox.value.endsWith(',')) {
-//         textbox.value = textbox.value.slice(0,-1);
-//     }
-//     if (textbox.value.endsWith(', ')) {
-//         textbox.value = textbox.value.slice(0,-2);
-//     }
-//     if (textbox.value.includes(', ,')) {
-//         textbox.value = textbox.value.replace(', ,',',')
-//     }
-//     addCtyOptions()
-// }
-

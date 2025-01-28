@@ -14,4 +14,6 @@ urlpatterns = [
     path('autolist',views.autolist, name="autolist"),
     path('autolist1',views.autolist1, name="autolist1"),
     path('createCountyList',views.createCountyList, name="createCountyList"),
+    path('createStatusList',views.createStatusList, name="createStatusList"),
+    path('createTypeList',views.createTypeList, name="createTypeList"),
 ]
