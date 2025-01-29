@@ -11,6 +11,42 @@ const typebuttonContainer = document.getElementById('type-container');
 const cattextbox = document.getElementById('catPicks');
 const catbuttonContainer = document.getElementById('cat-container');
 
+
+const divider = document.getElementById('dividerContainer');
+const mapC = document.getElementById('map');
+const bottomContainer = document.getElementById('bottomContainer');
+let isDragging = false;
+
+// Set the initial height of the top container to be 50%
+mapC.style.height = '50%';
+bottomContainer.style.height = '50%';
+
+divider.addEventListener('mousedown', (e) => {
+  isDragging = true;
+  document.body.style.cursor = 'ns-resize';
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+
+  const containerRect = document.getElementById('container').getBoundingClientRect();
+  const offsetY = e.clientY - containerRect.top;
+
+  const totalHeight = containerRect.height;
+  const mapHeightPercentage = (offsetY / totalHeight) * 100;
+
+  if (mapHeightPercentage >= 10 && mapHeightPercentage <= 90) {
+    mapC.style.height = `${mapHeightPercentage}%`;
+    bottomContainer.style.height = `${100 - mapHeightPercentage}%`;
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+  document.body.style.cursor = 'default';
+});
+
+
 var map = L.map('map').setView([39.8283,-98.5795], 4);
 var geojsonLayer;
 var osmUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',

@@ -1,8 +1,11 @@
   /* Container for the table once populated */
   .bottom {
-    flex: 1;
+    flex-grow: 1;
     background-color: lightcoral;
     padding: 20px;
+    /* max-height: 50%; */
+    overflow-y: auto;
+    opacity: .50;
   }
   
 /* Style for table container */

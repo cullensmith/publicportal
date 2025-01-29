@@ -36,11 +36,32 @@
         }
         
         html, body {
-        height: 100%;
-        width: 100%;
-        display: flex;
-        font-family: Arial;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            font-family: Arial;
         }
+
+        /* Right side */
+        .right {
+          /* flex-grow: 1; */
+          /* height: 100%; */
+          width: 100%;
+          {% comment %} display: flex;
+          flex-direction: column; {% endcomment %}
+        }
+        #container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+        #dividerContainer {
+            cursor: ns-resize;
+            background-color: black;
+            height: 5px;
+            width: 100%;
+            user-select: none;
+          }
         
 
     </style>
@@ -58,7 +79,7 @@
         </div>
         <div class="filterContainer" id="ctyFilterContainer">
             {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
-            <div class="selectionContainer" id="countyPicks">Not necessary, but to filter down your request you can choose specific counties for each state by clicking the corresponding button below.</div>
+            <div class="selectionContainer" id="countyPicks">Not necessary, but you can limit your results to those within a specific county for each state by clicking the corresponding button below.</div>
             <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties in those states...</button>
             <div class="button-container" id="county-container"></div>
         </div>
@@ -98,7 +119,7 @@
             Retrieving the Records<span id="loading-dots"></span>
         </div>
     </div>
-      <div class="right">
+      <div class="right" id="container">
         <!-- Top content of the right side -->
         <div id="map">
             <div class="legend" id="legend">
@@ -115,7 +136,8 @@
                 </div>
             </div>
         </div>
-        <div class="bottom">
+        <div class="divider" id="dividerContainer"></div>
+        <div class="bottom" id="bottomContainer">
         <!-- Bottom content of the right side -->
 
             <div class="tablecontainer">
