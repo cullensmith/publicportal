@@ -38,6 +38,9 @@ document.addEventListener('mousemove', (e) => {
   if (mapHeightPercentage >= 10 && mapHeightPercentage <= 90) {
     mapC.style.height = `${mapHeightPercentage}%`;
     bottomContainer.style.height = `${100 - mapHeightPercentage}%`;
+
+    // resizes the map so that it covers the new container size
+    map.invalidateSize();
   }
 });
 
