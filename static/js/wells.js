@@ -155,9 +155,9 @@ function getStates(data) {
 }
 
 // Function to fetch GeoJSON data from a view
-function getCounties(s,c,d) {
+function getCounties(s,c,data) {
     pts = data
-    var states = document.getElementById('statePicks').value;
+    var states = getSelValues('statePicks')
     $.ajax({
         url: '/wells/getcounties_view', 
         method: 'GET',
@@ -511,38 +511,11 @@ map.on('zoomend', function () {
 
 // Function to apply category filter
 function applyCategoryFilter() {
-
-// function applyCategoryFilter(category, states) {
-    // console.log(category)
-    // console.log(states)
-    // Function to get selected values
-    // var category = window.getSelectedValues = () => {
-    //     return selectedValues;
-    // };
-    console.log('here are the lucky categories')
-    // console.log(category)
     var category = document.getElementById('fta_cat').value; 
-    // var states = document.getElementById('statePicks').value;
-    // var states = document.getElementById('statePicks').querySelectorAll('*');
     var states = getSelValues('statePicks')
-    console.log('fetching')
-    console.log('states')
-    console.log(document.getElementById('statePicks'))
-    console.log(states)
-    //var statesop = document.getElementById('statePicks').value;
-    // var county = document.getElementById('countyPicks').value;
     var counties = getSelValues('countyPicks')
-    console.log('fetching')
-    console.log('counties')
-    console.log(document.getElementById('countyPicks'))
-    console.log(counties)
-    //var countyop = document.getElementById('op_21').value;
-    var well_status = document.getElementById('statusPicks').value;
-    //var well_statusop = document.getElementById('op_31').value;
-    var well_type = document.getElementById('typePicks').value;
-    //var well_typeop = document.getElementById('op_41').value;
-    // var well_name = document.getElementById('well_name').value;
-    // var well_nameop = document.getElementById('op_51').value;
+    var well_status = getSelValues('statusPicks');
+    var well_type = getSelValues('typePicks');
 
     // open up the loading window
     document.getElementById('loading-popup').classList.remove('hidden');
@@ -1019,7 +992,8 @@ function toggleselection(c,v) {
         if (c === 'state') {
             statetextbox.appendChild(buttonState);
         } else if (c === 'county') {
-            if (ctytextbox.innerHTML === 'Not necessary, but to filter down your request you can choose specific counties for each state by clicking the corresponding button below.'){
+            console.log(ctytextbox.innerHTML.slice(5))
+            if (ctytextbox.innerHTML.slice(0,5) === 'Not n'){
                 ctytextbox.innerHTML = ''
             }
             ctytextbox.appendChild(buttonState);

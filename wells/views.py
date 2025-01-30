@@ -16,6 +16,8 @@ def wells(request):
 
 def createCountyList(request):
     filtered = list()
+    print(request.GET.getlist('states')) #[0].split(',')
+    print('states_in request ^')
     states_in = request.GET.getlist('states')[0].split(',')
     states = [s.strip().replace('input-','') for s in states_in]
     print(f'states_county: {states}')
@@ -116,57 +118,6 @@ def statenameMap(s):
     return statedict[s]
 
 
-def autolist(request):
-    print('now were getting the counties for the map')
-    print(f'here is the request: {request}')
-    print(f"states requested: {request.GET.getlist('box')}")
-    states = [
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
-        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
-        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
-        "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
-        "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
-        "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
-        "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-        ]
-    given = request.GET.getlist('box')[-1].split(',')
-    newlist = list()
-    print(f'here is what was typed:{given[-1].lower().lstrip()}')
-    for s in states:
-        here = s[:len(given[-1].lstrip())].lower().lstrip()
-        print(f'match: {here}')
-        if here == given[-1].lower().strip():
-            if len(here)>1:
-                print('found a match')
-                newlist.append(s)
-    print(f'here is the new list --> {newlist}')
-    return JsonResponse({'data':newlist})
-
-def autolist1(request):
-    print('now were getting the counties for the map')
-    print(f'here is the request: {request}')
-    print(f"states requested: {request.GET.getlist('box')}")
-    states = [
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
-        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
-        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
-        "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
-        "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
-        "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
-        "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
-        ]
-    given = request.GET.getlist('box')[-1].split(',')
-    newlist = list()
-    print(f'here is what was typed:{given[-1].lower().lstrip()}')
-    for s in states:
-        here = s[:len(given[-1].lstrip())].lower().lstrip()
-        print(f'match: {here}')
-        if here == given[-1].lower().strip():
-            if len(here)>1:
-                print('found a match')
-                newlist.append(s)
-    print(f'here is the new list --> {newlist}')
-    return JsonResponse({'data':newlist})
 
 def getstates_view(request):
     print('now were getting the states for the map')
@@ -220,6 +171,8 @@ def getcounties_view(request):
     print('now were getting the counties for the map')
     print(f'here is the request: {request}')
     print(f"states requested: {request.GET.getlist('states')}")
+    print(request.GET.getlist('states')) #[0].split(',')
+    print('states_in request ^^')
     states_in = request.GET.getlist('states')[0].split(',')
     print(f'states in = {states_in}')
     states = list()
@@ -380,38 +333,24 @@ def generate_geojson(request):
     # for s in states:
     #     mapToDB()
 
-    cats = list()
     well_status = list()
     if len(request.GET.getlist('well_status'))>0:
         well_status_in = request.GET.getlist('well_status')[0].split(',')
-        
         for s in well_status_in:
-            h = s.strip()
-            well_status.append(h)
-            well_status.append(h.upper())
-            well_status.append(h.lower())
-            well_status.append(h.title())
+            if s:
+                h = s[4:].strip()
+                well_status.append(h)
     well_status = list(set(well_status))
+
     well_type = list()
     if len(request.GET.getlist('well_type'))>0:
         well_type_in = request.GET.getlist('well_type')[0].split(',')
-        
         for s in well_type_in:
-            h = s.strip()
-            well_type.append(h)
-            well_type.append(h.upper())
-            well_type.append(h.lower())
-            well_type.append(h.title())
+            if s:
+                h = s[4:].strip()
+                well_type.append(h)
     well_type = list(set(well_type))
-    # well_name_in = request.GET.getlist('well_name')[0].split(',')
-    # well_name = list()
-    # for s in well_name_in:
-    #     h = s.strip()
-    #     well_name.append(h)
-    #     well_name.append(h.upper())
-    #     well_name.append(h.lower())
-    #     well_name.append(h.title())
-    # well_name = list(set(well_name))
+
     category = request.GET.getlist('category')
     fcats = list()
     catsplit = category[0].split(',')
@@ -446,8 +385,8 @@ def generate_geojson(request):
     #                  'category':['category','',fcats]
     #                 }
     filterop_dict = {'states':['stusps','',states], 
-                    #  'well_status':['well_status','',well_status],
-                    #  'well_type':['well_type','',well_type],
+                     'well_status':['well_status','',well_status],
+                     'well_type':['well_type','',well_type],
                     #  'well_name':['well_name','',well_name],
                      'county':['county','',county],
                     #  'category':['category','',fcats]
@@ -455,8 +394,8 @@ def generate_geojson(request):
     
     filter_dict = { 
                    'county':county, 
-                #    'well_status':well_status, 
-                #    'well_type':well_type, 
+                   'well_status':well_status, 
+                   'well_type':well_type, 
                 #    'well_name':well_name, 
                    }
 
