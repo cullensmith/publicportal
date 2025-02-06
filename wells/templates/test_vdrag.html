@@ -1,86 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resizable Split View</title>
-  <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    #container {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #map {
-      flex-grow: 1;
-      background-color: lightblue;
-      overflow: hidden;
-    }
-
-    #divider {
-      cursor: ns-resize;
-      background-color: #333;
-      height: 5px;
-      width: 100%;
-      user-select: none;
-    }
-
-    #bottomContainer {
-      flex-grow: 1;
-      background-color: lightgreen;
-      overflow: hidden;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map with Draggable Flexbox</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body, html {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            opacity: .5;
+        }
+        #flexbox {
+            position: absolute;
+            bottom: 0;
+            width: 90%;
+            height: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: black;
+            overflow: hidden;
+            border-top: 5px solid red;
+            cursor: grab;
+        }
+        #drag-bar {
+            height: 30px;
+            background-color: red;
+            cursor: grab;
+        }
+    </style>
 </head>
 <body>
 
-  <div id="container">
     <div id="map"></div>
-    <div id="divider"></div>
-    <div id="bottomContainer"></div>
-  </div>
+    <div id="flexbox">
+        <div id="drag-bar"></div>
+        <div style="height: calc(100% - 30px);">
+            <!-- Flexbox content goes here -->
+            <p style="color: white; text-align: center; padding-top: 50px;">Content inside Flexbox</p>
+        </div>
+    </div>
 
-  <script>
-    const divider = document.getElementById('divider');
-    const map = document.getElementById('map');
-    const bottomContainer = document.getElementById('bottomContainer');
-    let isDragging = false;
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([51.505, -0.09], 13); // Initial coordinates and zoom level
 
-    // Set the initial height of the top container to be 50%
-    map.style.height = '50%';
-    bottomContainer.style.height = '50%';
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    divider.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      document.body.style.cursor = 'ns-resize';
-    });
+        const flexbox = document.getElementById('flexbox');
+        const dragBar = document.getElementById('drag-bar');
 
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
+        let isDragging = false;
+        let startY;
 
-      const containerRect = document.getElementById('container').getBoundingClientRect();
-      const offsetY = e.clientY - containerRect.top;
+        // Event listener to make the flexbox draggable
+        dragBar.addEventListener('mousedown', function (e) {
+            isDragging = true;
+            startY = e.clientY;
+            dragBar.style.cursor = 'grabbing';
+        });
 
-      const totalHeight = containerRect.height;
-      const mapHeightPercentage = (offsetY / totalHeight) * 100;
+        document.addEventListener('mousemove', function (e) {
+            if (isDragging) {
+                const deltaY = e.clientY - startY;
+                const flexboxRect = flexbox.getBoundingClientRect();
+                const newTop = flexboxRect.top + deltaY;
 
-      if (mapHeightPercentage >= 10 && mapHeightPercentage <= 90) {
-        map.style.height = `${mapHeightPercentage}%`;
-        bottomContainer.style.height = `${100 - mapHeightPercentage}%`;
-      }
-    });
+                if (newTop >= window.innerHeight / 2 && newTop <= window.innerHeight) {
+                    flexbox.style.top = newTop + 'px';
+                    startY = e.clientY;
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-      document.body.style.cursor = 'default';
-    });
-  </script>
+                    // Adjust map center to keep it in the uncovered area
+                    const uncoveredHeight = window.innerHeight - flexbox.offsetTop;
+                    const mapCenterLatLng = map.getCenter();
+                    const mapBounds = map.getBounds();
+                    const mapHeight = map.getSize().y;
 
+                    // Calculate the center of the uncovered area and adjust map center
+                    const uncoveredCenterY = (uncoveredHeight / 2) - (mapHeight / 2);
+                    map.setView(mapCenterLatLng, map.getZoom(), {
+                        animate: true
+                    });
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', function () {
+            isDragging = false;
+            dragBar.style.cursor = 'grab';
+        });
+    </script>
 </body>
 </html>

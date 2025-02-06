@@ -1,6 +1,7 @@
   /* Container for the table once populated */
   .bottom {
     flex-grow: 1;
+    height: 25%;
     background-color: lightcoral;
     padding: 20px;
     overflow-y: auto;

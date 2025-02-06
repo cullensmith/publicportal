@@ -1,6 +1,4 @@
-// Initialize Leaflet map
-
-// const buttonContainer = document.getElementById('state-container');
+// Create constants for the filter items
 const statetextbox = document.getElementById('statePicks');
 const ctytextbox = document.getElementById('countyPicks');
 const ctybuttonContainer = document.getElementById('county-container');
@@ -12,14 +10,13 @@ const cattextbox = document.getElementById('catPicks');
 const catbuttonContainer = document.getElementById('cat-container');
 
 
+// Main portion centered around the map container
+// Initialize Leaflet map
 const divider = document.getElementById('dividerContainer');
 const mapC = document.getElementById('map');
 const bottomContainer = document.getElementById('bottomContainer');
 let isDragging = false;
 
-// Set the initial height of the top container to be 50%
-mapC.style.height = '50%';
-bottomContainer.style.height = '50%';
 
 divider.addEventListener('mousedown', (e) => {
   isDragging = true;
@@ -111,11 +108,11 @@ function getStates(data) {
                     if (layer._leaflet_id == stateLayer) {
                         map.removeLayer(layer);
                     } else {
-                        // console.log('layer id did not match') 
+                        // console.log('state layer id did not match') 
                     }
                     }
                     catch(err) {
-                        // console.log('no such layer exists'); 
+                        // console.log('no such state layer exists'); 
                     }
                     
             }); 
@@ -166,7 +163,7 @@ function getCounties(s,c,data) {
         },
         success: function(data) {
             ctyct(data,pts);
-            console.log('GeoJSON data received:', data);
+            // console.log('GeoJSON data received:', data);
             // Convert GeoJSON to vector tiles using leaflet-geojson-vt
             map.eachLayer(function(layer) {
                 try {
@@ -177,7 +174,7 @@ function getCounties(s,c,data) {
                     }
                     }
                     catch(err) {
-                        console.log('no such layer exists');
+                        console.log('no such county layer exists');
                     }
                     
             }); 
@@ -186,7 +183,7 @@ function getCounties(s,c,data) {
                 fillColor:"#FFFFFF",
                 color: "#000",
                 weight: 1,
-                opacity: 1,
+                opacity: .5,
                 fillOpacity: 0.00001,
                 };
             
@@ -226,15 +223,15 @@ function addCtyOptions(states) {
             let ctyitems = JSON.parse(data);
             highlight = ctytextbox.innerHTML
             ctybuttonContainer.innerHTML = ''
-            console.log('what is in the html?')
-            console.log(highlight)
+            // console.log('what is in the html?')
+            // console.log(highlight)
             // Iterate through the statesarray array and create a button for each color
             ctyitems.forEach(ctyitem => {
                 const ctybutton = document.createElement('button');
                 ctybutton.id = ctyitem.stusps + ': ' + ctyitem.county+'btn';
-                console.log(ctybutton.id)
+                // console.log(ctybutton.id)
                 if (highlight.includes(ctybutton.id.slice(0,-3))) {
-                    console.log('found something to highlight')
+                    // console.log('found something to highlight')
                     ctybutton.className = 'highlightbutton';
                 } else {
                     ctybutton.className = 'filterbutton';
@@ -265,7 +262,7 @@ function addStatus(states) {
         success: function(data) {
             // create the "buttons" for each county for the dropdown
             let statusitems = JSON.parse(data);
-            console.log(statustextbox.innerHTML)
+            // console.log(statustextbox.innerHTML)
             highlight = statustextbox.innerHTML
             statusbuttonContainer.innerHTML = ''
             // Iterate through the statesarray array and create a button for each color
@@ -275,7 +272,7 @@ function addStatus(states) {
                 statusbutton.id = item.stusps + ': ' + item.well_status+'btn';
                 // console.log(ctyitem.county)
                 if (highlight.includes(statusbutton.id.slice(0,-3))) {
-                    console.log('found something to highlight')
+                    // console.log('found something to highlight')
                     statusbutton.className = 'highlightbutton';
                 } else {
                     statusbutton.className = 'filterbutton';
@@ -303,7 +300,7 @@ function addType(states) {
         success: function(data) {
             // create the "buttons" for each county for the dropdown
             let typeitems = JSON.parse(data);
-            console.log(typetextbox.innerHTML)
+            // console.log(typetextbox.innerHTML)
             highlight = typetextbox.innerHTML
             typebuttonContainer.innerHTML = ''
             // Iterate through the statesarray array and create a button for each color
@@ -313,7 +310,7 @@ function addType(states) {
                 typebutton.id = item.stusps + ': ' + item.well_type+'btn';
                 // console.log(ctyitem.county)
                 if (highlight.includes(typebutton.id.slice(0,-3))) {
-                    console.log('found something to highlight')
+                    // console.log('found something to highlight')
                     typebutton.className = 'highlightbutton';
                 } else {
                     typebutton.className = 'filterbutton';
@@ -448,60 +445,124 @@ function updateMapMarkers(data) {
     document.getElementById('loading-popup').classList.add('hidden');
 }
 
-function ctyct(data,d) {
+var geoJsonCtyLayer;
+var geoJsonCtyLayerid;
+var ctytally;
+var ctytallyid;
+let ctyids = [];
+var layerNames;
+var numicon;
+// Create a GeoJSON layer to store all polygons with count > 0
+
+var ctytallyLayer;
+function ctyct(data, d) {
     // Initialize a tally object
     let tally = {};
-    console.log('d')
-    console.log(d)
-    console.log('data')
-    console.log(data)
-    // Iterate through each feature to tally based on `stusps` and `county`
-    JSON.parse(d).features.forEach(feature => {
-    const { stusps, county } = feature.properties;
-    const key = `${stusps}_${county}`;
-    if (!tally[key]) {
-        tally[key] = 0;
+    // console.log('init array')
+    // console.log(ctyids)
+    // map.eachLayer(function(layer) {
+    //     try {
+    //         if (ctyids.includes(layer._leaflet_id)) {
+    //             map.removeLayer(layer);
+    //         } else {
+    //             console.log("couldn't find the count layer by id")
+    //         }
+    //         }
+    //         catch(err) {
+    //             console.log('no such count layer exists');
+    //         }
+            
+    // }); 
+    // ctyids = [];
+    if (ctytallyLayer) {
+        map.removeLayer(ctytallyLayer);
+        console.log('tried to remove it')
+    } else {
+        console.log('no such luck')
     }
-    tally[key]++;
+
+    // Parse the data and tally occurrences
+    JSON.parse(d).features.forEach(feature => {
+        const { stusps, county } = feature.properties;
+        const key = `${stusps}_${county}`;
+        if (!tally[key]) {
+            tally[key] = 0;
+        }
+        tally[key]++;
     });
-    p = L.geoJSON(data)
-    // Add polygons to the map
-    p.eachLayer(polygonData => {
-        console.log(polygonData)
-        const { statename, county, geometry } = polygonData.feature;
+
+
+
+
+    // Loop through each feature and check the tally count
+    console.log(data)
+    var filteredCtyCtGeoJSON = {
+        "type": "FeatureCollection",
+        "features": []
+    };
+    // Create a FeatureCollection for marker points
+    var markerFeatures = {
+        "type": "FeatureCollection",
+        "features": []
+    };
+    data.features.forEach(feature => {
+        const statename = feature.statename;
+        const county = feature.county;
+        const geometry = feature.geometry;
+        // const { statename, county, geometry } = feature.properties;
         const tallyKey = `${statename}_${county}`;
         const count = tally[tallyKey] || 0;
-    
-    // Plot the GeoJSON layer on the map
-    const geoJsonLayer = L.geoJSON(geometry).addTo(map).bindPopup(`${county} - ${statename}: ${count} occurrences`);
 
-    // Access each layer within the GeoJSON (it could be a Polygon or MultiPolygon)
-    geoJsonLayer.eachLayer(function(layer) {
-    // Make sure the layer is a Polygon (or MultiPolygon)
+        // Only include polygons with count > 0
+        if (count > 0) {
+            filteredCtyCtGeoJSON.features.push(feature);
 
-    // Create a custom icon using the dynamic number
-    const numberIcon = L.divIcon({
-        className: 'number-icon',
-        html: `<div style="background-color: #ff780000; color: #383838; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 900">${count}</div>`,
-        iconSize: [40, 40],
-        iconAnchor: [30, 30]
-        });
-    if (layer instanceof L.Polygon || layer instanceof L.MultiPolygon) {
-        // Get the center of the polygon (or MultiPolygon)
-        const center = layer.getCenter(); // This works for both Polygon and MultiPolygon
+            // Create a point marker feature for the count (centroid of the polygon)
+            const polygonLayer = L.geoJSON(feature);
+            const center = polygonLayer.getBounds().getCenter(); // Get the center of the polygon
 
-        // Place a marker at the centroid of the polygon
-        L.marker(center, { icon: numberIcon })
-        .addTo(map)
-        .bindPopup(`${county} - ${statename}: ${count} occurrences`);
-    }
+            // Create marker feature for GeoJSON
+            markerFeatures.features.push({
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [center.lng, center.lat]
+                },
+                "properties": {
+                    "county": county,
+                    "statename": statename,
+                    "count": count
+                }
+            });
+        }
     });
-})};
+    // Create a GeoJSON layer for the filtered data
+    ctytallyLayer = L.geoJSON(filteredCtyCtGeoJSON).addTo(map);
+
+    // Store the layer in the layerNames object
+    // layerNames.ctytallyLayer = ctytallyLayer;
+
+
+    // Create GeoJSON layer for markers
+    markerIconCollection = L.geoJSON(markerFeatures, {
+        pointToLayer: function(feature, latlng) {
+            // Create custom marker icons
+            const numberIcon = L.divIcon({
+                className: 'number-icon',
+                html: `<div>${feature.properties.count}</div>`,
+                iconSize: [40, 40],
+                iconAnchor: [14, 8]
+            });
+
+            return L.marker(latlng, { icon: numberIcon });
+        }
+    }).addTo(map);
+}
 
 // Show points only if zoom level is between 10 and 14
 map.on('zoomend', function () {
     var currentZoom = map.getZoom();
-    if (currentZoom >= 10 && currentZoom <= 20) {
+    if (currentZoom >= 11 && currentZoom <= 20) {
         markers.addTo(map);
     } else {
         markers.remove();
@@ -553,7 +614,7 @@ function applyCategoryFilter() {
         },
         success: function(data) {
             filteredData = data
-            console.log('had success') // replace with action item
+            console.log('had success retrieving the records') // replace with action item
             updateMapMarkers(data);
             getCounties(states, counties, data);
             getStates(states);
@@ -689,7 +750,7 @@ function downloadTableData() {
     
     // Parse filtered data
     var data = JSON.parse(filteredData);
-    console.log(data)
+    // console.log(data)
     // Function to properly encode special characters for CSV
     function encodeForCSV(str) {
         // If the string contains comma, double quote, or newline characters,
@@ -698,8 +759,8 @@ function downloadTableData() {
             return '"' + str.replace(/"/g, '""').replace('#','') + '"';
         } else if (/#/.test(str)) {
             // If the string contains #, wrap it in double quotes to ensure it's treated as a regular character
-            console.log(str);
-            console.log(str.replace('#',''));
+            // console.log(str);
+            // console.log(str.replace('#',''));
             return str.replace('#','');
         }
         return str;
@@ -715,15 +776,15 @@ function downloadTableData() {
     var headers = Object.keys(data.features[0].properties);
     csvContent += headers.join(',') + '\n';
 
-    console.log(headers)
+    // console.log(headers)
     
     // Convert each data item to CSV format
     data.features.forEach(function(dataItem) {
-        console.log(dataItem)
+        // console.log(dataItem)
         var row = headers.map(function(header) {
             return encodeForCSV(dataItem.properties[header]);
         }).join(",");
-        console.log(row);
+        // console.log(row);
         csvContent += row + "\n";
     });
 
@@ -784,7 +845,7 @@ function getButtonValues() {
     starray = ''
     // Loop through the buttons and log their values
     buttonchk.forEach(b => {
-      console.log(b.id);
+    //   console.log(b.id);
       starray+=b.id.slice(6)+','
     });
     return starray
@@ -796,7 +857,7 @@ function getButtonValues() {
     starray = ''
     // Loop through the buttons and log their values
     buttonchk.forEach(b => {
-      console.log(b.id);
+    //   console.log(b.id);
       starray+=b.id.slice(6)+','
     });
     return starray
@@ -804,11 +865,11 @@ function getButtonValues() {
 
 
 function openlist(bo) {
-    console.log(bo)
+    // console.log(bo)
     statelist = getButtonValues()
     // console.log(document.getElementById(bo+'-container').value)
     if (bo==="county" && statelist != null) {
-        console.log(statelist),
+        // console.log(statelist),
         addCtyOptions(statelist)
     } else if (bo === "wellstatus" && statelist != null) {
         addStatus(statelist)
@@ -971,12 +1032,12 @@ function toggleselection(c,v) {
         var buttonState = document.createElement('button-state');
         buttonState.classList.add('selbutton');
         buttonState.onclick = function() {
-            console.log('buttonstate id:');
-            console.log(buttonState.id.slice(6));
+            // console.log('buttonstate id:');
+            // console.log(buttonState.id.slice(6));
             document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
             buttonState.remove();
-            console.log('statetextbox');
-            console.log(statetextbox)
+            // console.log('statetextbox');
+            // console.log(statetextbox)
             if (statetextbox === '') {
                 statetextbox.innerHTML = '**REQUIRED**'
             };
@@ -992,7 +1053,7 @@ function toggleselection(c,v) {
         if (c === 'state') {
             statetextbox.appendChild(buttonState);
         } else if (c === 'county') {
-            console.log(ctytextbox.innerHTML.slice(5))
+            // console.log(ctytextbox.innerHTML.slice(5))
             if (ctytextbox.innerHTML.slice(0,5) === 'Not n'){
                 ctytextbox.innerHTML = ''
             }
@@ -1004,3 +1065,19 @@ function toggleselection(c,v) {
         }
     }
 }
+
+
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('countycount').addEventListener('change', function() {
+    if (this.checked) {
+        ctytallyLayer.addTo(map);
+        markerIconCollection.addTo(map)
+    } else {
+        map.removeLayer(ctytallyLayer);
+        map.removeLayer(markerIconCollection)
+
+    }
+});
+
+
