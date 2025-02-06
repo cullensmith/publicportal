@@ -58,11 +58,14 @@
         #dividerContainer {
             cursor: ns-resize;
             background-color: black;
-            height: 5px;
+            height: 40px;
             width: 100%;
             user-select: none;
           }
-        
+        #loading-popupid {
+            display: none
+        }
+
 
     </style>
 </head>
@@ -115,7 +118,7 @@
         <div >
             <button onclick="applyCategoryFilter()">Apply Filter</button>
         </div>
-        <div id="loading-popup" class="loading-popup hidden">
+        <div id="loading-popupid" class="loading-popup hidden">
             Retrieving the Records<span id="loading-dots"></span>
         </div>
     </div>
@@ -137,30 +140,31 @@
                 </div>
             </div>
         </div>
-        <div class="divider" id="dividerContainer"></div>
+        <div class="divider" id="dividerContainer">
+            <div>
+                {% comment %} <label for="sort-dropdown">Sort by:</label>
+                <select id="sort-dropdown">
+                    <option value="lat">Column 1</option>
+                    <option value="api_num">Column 2</option>
+                    <option value="FracTracker Category">Column 3</option>
+                    <option value="well_name">Column 4</option>
+                    <option value="column5">Column 5</option>
+                </select> {% endcomment %}
+                <div>
+                    <button onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
+
+                    {% comment %} <div class="input-button-container"> {% endcomment %}
+                        <input type="number" id="page-input" placeholder="Jump to page #" min="1">
+                        <button class="gobutton" onclick="goToPage()">Go</button>
+                    {% comment %} </div> {% endcomment %}
+                </div>
+            </div>
+        </div>
         <div class="bottom" id="bottomContainer">
         <!-- Bottom content of the right side -->
 
             <div class="tablecontainer">
-                <div>
-                    
-                    {% comment %} <label for="sort-dropdown">Sort by:</label>
-                    <select id="sort-dropdown">
-                        <option value="lat">Column 1</option>
-                        <option value="api_num">Column 2</option>
-                        <option value="FracTracker Category">Column 3</option>
-                        <option value="well_name">Column 4</option>
-                        <option value="column5">Column 5</option>
-                    </select> {% endcomment %}
-                    <div>
-                        <button onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
 
-                        {% comment %} <div class="input-button-container"> {% endcomment %}
-                            <input type="number" id="page-input" placeholder="Jump to page #" min="1">
-                            <button class="gobutton" onclick="goToPage()">Go</button>
-                        {% comment %} </div> {% endcomment %}
-                    </div>
-                </div>
                 <!-- Grid container for the table -->
                 <table id="maintable">
                     <thead>

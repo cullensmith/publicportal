@@ -442,7 +442,7 @@ function updateMapMarkers(data) {
     update();
     // Get the bounding box of the markers
     updateTable(data.features);
-    document.getElementById('loading-popup').classList.add('hidden');
+    document.getElementById('loading-popupid').classList.add('hidden');
 }
 
 var geoJsonCtyLayer;
@@ -458,27 +458,14 @@ var ctytallyLayer;
 function ctyct(data, d) {
     // Initialize a tally object
     let tally = {};
-    // console.log('init array')
-    // console.log(ctyids)
-    // map.eachLayer(function(layer) {
-    //     try {
-    //         if (ctyids.includes(layer._leaflet_id)) {
-    //             map.removeLayer(layer);
-    //         } else {
-    //             console.log("couldn't find the count layer by id")
-    //         }
-    //         }
-    //         catch(err) {
-    //             console.log('no such count layer exists');
-    //         }
-            
-    // }); 
-    // ctyids = [];
+    let minCount = Infinity;
+    let maxCount = -Infinity;
+
     if (ctytallyLayer) {
         map.removeLayer(ctytallyLayer);
-        console.log('tried to remove it')
+        console.log('tried to remove it');
     } else {
-        console.log('no such luck')
+        console.log('no such luck');
     }
 
     // Parse the data and tally occurrences
@@ -491,37 +478,33 @@ function ctyct(data, d) {
         tally[key]++;
     });
 
-
-
-
     // Loop through each feature and check the tally count
-    console.log(data)
     var filteredCtyCtGeoJSON = {
         "type": "FeatureCollection",
         "features": []
     };
-    // Create a FeatureCollection for marker points
     var markerFeatures = {
         "type": "FeatureCollection",
         "features": []
     };
+
     data.features.forEach(feature => {
         const statename = feature.statename;
         const county = feature.county;
         const geometry = feature.geometry;
-        // const { statename, county, geometry } = feature.properties;
         const tallyKey = `${statename}_${county}`;
         const count = tally[tallyKey] || 0;
 
-        // Only include polygons with count > 0
+        // Track the min and max counts to later adjust opacity proportionally
+        if (count < minCount) minCount = count;
+        if (count > maxCount) maxCount = count;
+
         if (count > 0) {
             filteredCtyCtGeoJSON.features.push(feature);
 
-            // Create a point marker feature for the count (centroid of the polygon)
             const polygonLayer = L.geoJSON(feature);
-            const center = polygonLayer.getBounds().getCenter(); // Get the center of the polygon
+            const center = polygonLayer.getBounds().getCenter(); 
 
-            // Create marker feature for GeoJSON
             markerFeatures.features.push({
                 "type": "Feature",
                 "geometry": {
@@ -537,18 +520,26 @@ function ctyct(data, d) {
         }
     });
 
-    // Create a GeoJSON layer for the filtered data
+    // Function to calculate opacity based on count
+    function calculateOpacity(count) {
+        const normalized = (count - minCount) / (maxCount - minCount);
+        return 0.1 + normalized * 0.8;  // Opacity will range from 0.1 to 0.9
+    }
+
     // Create a GeoJSON layer for the filtered polygons
     ctytallyLayer = L.geoJSON(filteredCtyCtGeoJSON, {
-        style: function() {
+        style: function(feature) {
+            const county = feature.county;
+            const statename = feature.statename;
+            const count = tally[`${statename}_${county}`] || 0;
+            const opacity = calculateOpacity(count); // Calculate opacity based on count
+
             return {
-                // fillColor: '#A9DFFF',        // Set fill color to red
-                // color: '#A9DFFF',
-                fillColor: '#025687',        // Set fill color to red
+                fillColor: '#025687',        
                 color: '#025687',
-                weight: 2,               // Border thickness
-                opacity: 1,              // Border opacity
-                fillOpacity: 0.3         // Fill opacity
+                weight: 2,              
+                opacity: 1,             
+                fillOpacity: opacity // Set fill opacity based on count
             };
         },
         onEachFeature: function(feature, layer) {
@@ -556,49 +547,72 @@ function ctyct(data, d) {
             const statename = feature.statename;
             const count = tally[`${statename}_${county}`] || 0;
             layer.bindPopup(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`);
+            // Add hover functionality to show county name in a tooltip
+            layer.on({
+                mouseover: function(e) {
+                    var layer = e.target;
+                    layer.bindTooltip(`<strong>County:</strong> ${county}`, {
+                        permanent: false,
+                        direction: 'top',
+                        opacity: 0.8
+                    }).openTooltip();
+                },
+                mouseout: function(e) {
+                    e.target.closeTooltip();
+                }
+            });
         }
     }).addTo(map);
 
-    // Store the layer in the layerNames object
-    // layerNames.ctytallyLayer = ctytallyLayer;
-
-
-    // Create GeoJSON layer for markers
+    // Create GeoJSON layer for markers (with zoom level control)
     markerIconCollection = L.geoJSON(markerFeatures, {
         pointToLayer: function(feature, latlng) {
             const numberIcon = L.divIcon({
                 className: 'number-icon',
                 html: `<div><strong>${feature.properties.count}</strong></div>`,
                 iconSize: [55, 30],
-                iconAnchor: [30, 20],  // Adjusting anchor to center the icon correctly
+                iconAnchor: [30, 20], 
             });
-            
-            // Style the divIcon with CSS
+
             const iconStyle = `
                 .number-icon {
-                    background-color: #00253B;  /* Red background */
+                    background-color: #00253B;  
                     color: #A9DFFF;
                     opacity: .8;
-                    border-radius: 25%;     /* Make it circular */
-                    border: 2px solid white;  /* White border */
-                    /* width: 60px;             Width of the circle */
-                    /* height: 40px;            Height of the circle */
+                    border-radius: 25%;     
+                    border: 2px solid white;  
                     display: flex;
-                    justify-content: center;  /* Center text horizontally */
-                    align-items: center;      /* Center text vertically */
-                    font-size: 14px;          /* Font size */
-                    font-weight: bold;        /* Text boldness */
+                    justify-content: center;  
+                    align-items: center;      
+                    font-size: 14px;          
+                    font-weight: bold;        
                 }
             `;
-            
             const styleElement = document.createElement('style');
             styleElement.innerHTML = iconStyle;
             document.head.appendChild(styleElement);
-            
+
             return L.marker(latlng, { icon: numberIcon });
         }
     }).addTo(map);
+
+    // Set zoom level visibility for the markers
+    markerIconCollection.eachLayer(function(layer) {
+        layer.options.minZoom = 8;  // Minimum zoom level to show marker
+        layer.options.maxZoom = 14; // Maximum zoom level to show marker
+    });
 }
+
+
+// Show points only if zoom level is between 10 and 14
+map.on('zoomend', function () {
+    var currentZoom = map.getZoom();
+    if (currentZoom >= 8 && currentZoom <= 20) {
+        markerIconCollection.addTo(map);
+    } else {
+        markerIconCollection.remove();
+    }
+});
 
 // Show points only if zoom level is between 10 and 14
 map.on('zoomend', function () {
@@ -620,7 +634,7 @@ function applyCategoryFilter() {
     var well_type = getSelValues('typePicks');
 
     // open up the loading window
-    document.getElementById('loading-popup').classList.remove('hidden');
+    document.getElementById('loading-popupid').style.display = 'block';
     // Start adding periods to the loading popup text
     // update this with something better such as spinny thing
     let dots = '';
@@ -662,7 +676,7 @@ function applyCategoryFilter() {
         },
         error: function(xhr, status, error) {
             console.error(error); // make sure to alter user to the error
-            document.getElementById('loading-popup').classList.add('hidden');
+            document.getElementById('loading-popupid').style.display = 'none';
         }
     });
 }
@@ -796,13 +810,9 @@ function downloadTableData() {
     function encodeForCSV(str) {
         // If the string contains comma, double quote, or newline characters,
         // wrap it in double quotes and escape any double quotes within the string
-        if (/[,"\n]/.test(str)) {
-            return '"' + str.replace(/"/g, '""').replace('#','') + '"';
-        } else if (/#/.test(str)) {
-            // If the string contains #, wrap it in double quotes to ensure it's treated as a regular character
-            // console.log(str);
-            // console.log(str.replace('#',''));
-            return str.replace('#','');
+        if (/[,"\n#]/.test(str)) {
+            return '"' + str.replace(/"/g, '""').replace(/#/g, '') + '"';
+            
         }
         return str;
     }
@@ -859,13 +869,56 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
 const statesarray = [
-    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", 
-    "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", 
-    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", 
-    "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", 
-    "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", 
-    "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", 
-    "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+    "Alabama", 
+    // "Alaska", 
+    "Arizona", 
+    "Arkansas", 
+    "California", 
+    "Colorado", 
+    // "Connecticut", 
+    // "Delaware", 
+    "Florida", 
+    // "Georgia", 
+    // "Hawaii", 
+    "Idaho", 
+    "Illinois", 
+    "Indiana", 
+    "Iowa", 
+    "Kansas", 
+    "Kentucky", 
+    "Louisiana", 
+    // "Maine", 
+    "Maryland", 
+    // "Massachusetts", 
+    "Michigan", 
+    // "Minnesota", 
+    "Mississippi", 
+    "Missouri", 
+    "Montana", 
+    "Nebraska", 
+    "Nevada", 
+    // "New Hampshire", 
+    // "New Jersey", 
+    "New Mexico", 
+    "New York", 
+    // "North Carolina", 
+    "North Dakota", 
+    "Ohio", 
+    "Oklahoma", 
+    "Oregon", 
+    "Pennsylvania", 
+    // "Rhode Island", 
+    // "South Carolina", 
+    "South Dakota", 
+    "Tennessee", 
+    "Texas", 
+    "Utah", 
+    // "Vermont", 
+    "Virginia", 
+    "Washington", 
+    "West Virginia",
+    // "Wisconsin", 
+    "Wyoming"
     ];
 
 // Iterate through the statesarray array and create a button for each st
