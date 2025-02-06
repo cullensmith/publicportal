@@ -536,8 +536,28 @@ function ctyct(data, d) {
             });
         }
     });
+
     // Create a GeoJSON layer for the filtered data
-    ctytallyLayer = L.geoJSON(filteredCtyCtGeoJSON).addTo(map);
+    // Create a GeoJSON layer for the filtered polygons
+    ctytallyLayer = L.geoJSON(filteredCtyCtGeoJSON, {
+        style: function() {
+            return {
+                // fillColor: '#A9DFFF',        // Set fill color to red
+                // color: '#A9DFFF',
+                fillColor: '#025687',        // Set fill color to red
+                color: '#025687',
+                weight: 2,               // Border thickness
+                opacity: 1,              // Border opacity
+                fillOpacity: 0.3         // Fill opacity
+            };
+        },
+        onEachFeature: function(feature, layer) {
+            const county = feature.county;
+            const statename = feature.statename;
+            const count = tally[`${statename}_${county}`] || 0;
+            layer.bindPopup(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`);
+        }
+    }).addTo(map);
 
     // Store the layer in the layerNames object
     // layerNames.ctytallyLayer = ctytallyLayer;
@@ -546,14 +566,35 @@ function ctyct(data, d) {
     // Create GeoJSON layer for markers
     markerIconCollection = L.geoJSON(markerFeatures, {
         pointToLayer: function(feature, latlng) {
-            // Create custom marker icons
             const numberIcon = L.divIcon({
                 className: 'number-icon',
-                html: `<div>${feature.properties.count}</div>`,
-                iconSize: [40, 40],
-                iconAnchor: [14, 8]
+                html: `<div><strong>${feature.properties.count}</strong></div>`,
+                iconSize: [55, 30],
+                iconAnchor: [30, 20],  // Adjusting anchor to center the icon correctly
             });
-
+            
+            // Style the divIcon with CSS
+            const iconStyle = `
+                .number-icon {
+                    background-color: #00253B;  /* Red background */
+                    color: #A9DFFF;
+                    opacity: .8;
+                    border-radius: 25%;     /* Make it circular */
+                    border: 2px solid white;  /* White border */
+                    /* width: 60px;             Width of the circle */
+                    /* height: 40px;            Height of the circle */
+                    display: flex;
+                    justify-content: center;  /* Center text horizontally */
+                    align-items: center;      /* Center text vertically */
+                    font-size: 14px;          /* Font size */
+                    font-weight: bold;        /* Text boldness */
+                }
+            `;
+            
+            const styleElement = document.createElement('style');
+            styleElement.innerHTML = iconStyle;
+            document.head.appendChild(styleElement);
+            
             return L.marker(latlng, { icon: numberIcon });
         }
     }).addTo(map);
