@@ -79,10 +79,14 @@ DATABASES = {
         'NAME': 'fractracker',
         'USER': 'test_og',
         'PASSWORD': 'ecy&0#{gl?~b&2Zx',
-        'HOST': '127.0.0.1',  # Public IP of your Google Cloud PostgreSQL instance
+        'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
         'PORT': '5432',  # Default PostgreSQL port
         'OPTIONS': {
-            'options': '-c search_path=public,wells'
+            'options': '-c search_path=public,wells',
+            'sslmode': 'verify-ca',
+            'sslrootcert': '/home/fractrackerwells/publicportal/project_wells/static/tmp/server-ca.pem',
+            'sslcert': '/home/fractrackerwells/publicportal/project_wells/static/tmp/client-cert.pem',
+            'sslkey': '/home/fractrackerwells/publicportal/project_wells/static/tmp/client-key.pem'
         }
     }
 }
