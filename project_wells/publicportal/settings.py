@@ -79,7 +79,7 @@ DATABASES = {
         'NAME': 'fractracker',
         'USER': 'test_og',
         'PASSWORD': 'ecy&0#{gl?~b&2Zx',
-        'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
+        'HOST': '127.0.0.1',  # Public IP of your Google Cloud PostgreSQL instance
         'PORT': '5432',  # Default PostgreSQL port
         'OPTIONS': {
             'options': '-c search_path=public,wells'
