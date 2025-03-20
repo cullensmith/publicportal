@@ -894,8 +894,11 @@ function downloadTableData(filteredData) {
         return;
     }
     
+    // console.log(filteredData)
     // Parse filtered data
-    var data = JSON.parse(filteredData);
+    // var data = JSON.parse(filteredData);
+
+    var data = filteredData
     // console.log(data)
     // Function to properly encode special characters for CSV
     function encodeForCSV(str) {

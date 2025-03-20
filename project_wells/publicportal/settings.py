@@ -73,25 +73,25 @@ WSGI_APPLICATION = "publicportal.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'fractracker',
-#         'USER': 'admin',
-#         'PASSWORD': '8k!5nwS+7jBa@MSe',
-#         'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
-#         'PORT': '5432',  # Default PostgreSQL port
-#         'OPTIONS': {
-#             'options': '-c search_path=public,wells'
-#         }
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
-        'NAME': BASE_DIR / 'databases/single.sqlite3',  # Use the default SQLite database file        
-    },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'fractracker',
+        'USER': 'test_og',
+        'PASSWORD': 'ecy&0#{gl?~b&2Zx',
+        'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
+        'PORT': '5432',  # Default PostgreSQL port
+        'OPTIONS': {
+            'options': '-c search_path=public,wells'
+        }
+    }
+}
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
+#         'NAME': BASE_DIR / 'databases/singleversion.sqlite3',  # Use the default SQLite database file        
+#     },
 #     'one': {
 #         'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
 #         'NAME': BASE_DIR / 'one.sqlite3',  # Use the default SQLite database file        
@@ -128,7 +128,7 @@ DATABASES = {
 #         'ENGINE': 'django.db.backends.sqlite3',  # Use SQLite instead of PostgreSQL     
 #         'NAME': BASE_DIR / 'nine.sqlite3',  # Use the default SQLite database file        
 #     },
-}
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
