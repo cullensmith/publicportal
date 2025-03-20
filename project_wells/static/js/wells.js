@@ -621,7 +621,9 @@ map.on('zoomend', function () {
     if (currentZoom >= 8 && currentZoom <= 20) {
         markerIconCollection.addTo(map);
     } else {
+        if (markerIconCollection) {
         markerIconCollection.remove();
+        }
     }
 });
 
@@ -893,7 +895,7 @@ function downloadTableData(filteredData) {
         console.error("Filtered data is not available.");
         return;
     }
-    
+
     // console.log(filteredData)
     // Parse filtered data
     // var data = JSON.parse(filteredData);
