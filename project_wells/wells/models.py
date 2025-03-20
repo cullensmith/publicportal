@@ -13,7 +13,7 @@ class States(models.Model):
     statename = models.CharField(max_length=255)
     class Meta:
         managed = False
-        db_table = 'tmp"."states_json'
+        db_table = 'states_json'
     
     def __str__(self) -> str:
         return super().__str__()
@@ -26,7 +26,7 @@ class Counties(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tmp"."counties_json'
+        db_table = 'counties_json'
     
     def __str__(self) -> str:
         return super().__str__()
@@ -49,7 +49,7 @@ class stStatus(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tmp"."wellstatus'
+        db_table = 'wellstatus'
     
     def __str__(self) -> str:
         return super().__str__()
@@ -60,7 +60,7 @@ class stType(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tmp"."welltype'
+        db_table = 'welltype'
     
     def __str__(self) -> str:
         return super().__str__()
@@ -86,8 +86,8 @@ class Wells(models.Model):
     id = models.IntegerField(primary_key=True)
 
     class Meta:
-        managed = False
-        db_table = 'wells"."wells'
+        managed = True
+        db_table = 'wells'
     
     def __str__(self) -> str:
         return super().__str__()

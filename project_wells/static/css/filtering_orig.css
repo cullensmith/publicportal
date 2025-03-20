@@ -1,78 +1,14 @@
 
 /* Left side panel*/
 .left {
-    width: 300px;
-    padding: 20px;
-    height: 100%;
-    display: grid;
-    grid-template-rows: 16% 16% 16% 16% 16% 20%;
-    border-right: 1px solid darkgray; /* Add border on the right side */ 
-    background-color: #c9c9c9;
-    }
-
-/* Style the content inside the sidebar */
-#sidebar-content {
-    margin-top: -20px;
-    padding: 20px;
+width: 300px;
+padding: 20px;
+height: 100%;
+display: grid;
+grid-template-rows: 16% 16% 16% 16% 16% 20%;
+border-right: 1px solid darkgray; /* Add border on the right side */ 
+background-color: #c9c9c9;
 }
-
-.filter {
-    margin-bottom: 10px;
-}
-
-.filter h4 {
-    cursor: pointer;
-    margin-bottom: 5px;
-    color: #fff;
-    position: relative;
-
-}
-
-.filter h4::after {
-    content: var(--after-content, "");
-    float: right;
-    position: absolute;
-    right: 0;
-}
-
-.filter.show h4::after {
-    content: var(--after-content, "-");
-}
-
-.filter.hide h4::after {
-    content: var(--after-content, "+");
-}
-
-.filter-content {
-    display: none;
-}
-
-.filter-content.show {
-    display: block;
-    font-size: 12px;
-    background-color: #3b3c38;
-    overflow-y: auto;
-    max-height: 200px;
-}
-
-
-/* Style smaller checkboxes */
-.filter input[type="checkbox"] {
-    transform: scale(0.75);
-    margin-right: 5px;
-}
-
-/* Button style */
-.filter-content button {
-    margin-top:5px;
-    width: 49%;
-    font-size: 12px;
-}
-
-
-/* ========================*/
-/* ========================*/
-/*
 
 .filterContainer {
     display: grid;
@@ -93,6 +29,7 @@
 .selectionContainer {
     background-color: rgb(216, 216, 216);
     color:rgb(104, 104, 104);
+    /* display:flex; */
     max-height: 400px;
     padding: 5px;
     border-radius: 5px;
@@ -140,6 +77,7 @@
     border-style: none;
     border-color: buttonborder; 
     border-image: initial; 
+    /* width: 200px;  */
 }
 .filterbutton:hover {
     background-color: rgb(179, 179, 179);
@@ -167,6 +105,7 @@
     border-style: none;
     border-color: buttonborder; 
     border-image: initial; 
+    /* width: 200px;  */
 }
 .highlightbutton:hover {
     background-color: rgb(255, 0, 0);
@@ -186,4 +125,3 @@
     background-color: red;
     color: white;
 }
-*/

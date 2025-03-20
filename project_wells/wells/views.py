@@ -353,37 +353,31 @@ def generate_geojson(request):
 
     category = request.GET.getlist('category')
     fcats = list()
-    catsplit = category[0].split(',')
-    print(f'here is catsplit -->{catsplit}')
-    if 'default' in catsplit or 'initial' in catsplit:
+    try:
+        catsplit = category[0].split(',')
+        print(f'here is catsplit -->{catsplit}')
+        if 'default' in catsplit or 'initial' in catsplit:
+            fcats.append('default')
+        elif catsplit == ['']:
+            fcats.append('default')
+        else:
+            for c in category[0].split(','):
+                fcats.append(c)
+    except:
         fcats.append('default')
-    elif catsplit == ['']:
-        fcats.append('default')
-    else:
-        for c in category[0].split(','):
-            fcats.append(c)
     # stateop = request.GET.getlist('statesop')
-    county_in = request.GET.getlist('county')[0].split(',')
-    county = list()
-    for s in county_in:
-        if len(s) > 0:
-            h = s.strip()
-            h = s.replace('County','').replace('COUNTY','').replace('county','').strip()
-            h = s[4:].strip()
-            county.append(h.title())
-    county = list(set(county))
-    # ctyop = request.GET.getlist('countyop')
-    # wtop = request.GET.getlist('well_typeop')
-    # wsop = request.GET.getlist('well_statusop')
-    # wnop = request.GET.getlist('well_nameop')
-
-    # filterop_dict = {'states':['stusps',stateop,states], 
-    #                  'well_status':['well_status',wsop,well_status],
-    #                  'well_type':['well_type',wtop,well_type],
-    #                  'well_name':['well_name',wnop,well_name],
-    #                  'county':['county',ctyop,county],
-    #                  'category':['category','',fcats]
-    #                 }
+    try:
+        county_in = request.GET.getlist('county')[0].split(',')
+        county = list()
+        for s in county_in:
+            if len(s) > 0:
+                h = s.strip()
+                h = s.replace('County','').replace('COUNTY','').replace('county','').strip()
+                h = s[4:].strip()
+                county.append(h.title())
+        county = list(set(county))
+    except:
+        county = list()
     filterop_dict = {'states':['stusps','',states], 
                      'well_status':['well_status','',well_status],
                      'well_type':['well_type','',well_type],

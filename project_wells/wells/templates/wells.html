@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset=utf-8 />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FracTracker Data Portal</title>
+    <title>FracTracker Wells Portal</title>
     <!-- Include Project Specific CSS -->
-    <link rel = "stylesheet" href = "/static/css/filtering.css"/>
+
+    {% comment %} <link rel = "stylesheet" href = "/static/css/filtering.css"/> {% endcomment %}
+    
     <link rel = "stylesheet" href = "/static/css/map.css"/>
     <link rel = "stylesheet" href = "/static/css/table.css"/>
 
     <!-- Include Leaflet CSS and JavaScript -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /> {% endcomment %}
+    <link rel = "stylesheet" href = "/static/css/leaflet.css"/>
+
     <link rel="stylesheet" href="https://cdn.rawgit.com/mapbox/supercluster/v4.0.1/demo/cluster.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/supercluster@4.0.1/dist/supercluster.js"></script>
@@ -36,19 +40,32 @@
         }
         
         html, body {
-            height: 100%;
-            width: 100%;
-            display: flex;
             font-family: Arial;
         }
 
+        /* Header styling */
+        header {
+            height: 100px;
+            width: 100%;
+            background-color: #0287D4;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        /* Main content styling */
+        .main-content {
+            display: flex;
+            height: calc(100vh - 100px); /* Subtract header height */
+        }
         /* Right side */
         .right {
           /* flex-grow: 1; */
           /* height: 100%; */
           width: 100%;
-          {% comment %} display: flex;
-          flex-direction: column; {% endcomment %}
+
         }
         #container {
           height: 100%;
@@ -57,153 +74,520 @@
         }
         #dividerContainer {
             cursor: ns-resize;
-            background-color: black;
+            background-color: #00253B;;
             height: 40px;
             width: 100%;
             user-select: none;
+            border-top-right-radius:12px;
+            border-top-left-radius:12px;
           }
         #loading-popupid {
             display: none
         }
 
 
+                
+        /* Left side panel*/
+        .left { /* Style the sidebar */
+                width: 275px;
+                min-width: 190px;
+                {% comment %} height: 81vh; {% endcomment %}
+                float: left; /* Float sidebar to the left */
+                font-family: Arial;
+                color: #00253B;
+                background-color: #2f9cdb;
+                overflow: auto;
+                padding: 10px;
+                border: solid;
+                border-width: 10px;
+                border-color: #0287D4;
+        }
+
+
+
+
+        /* Style the content inside the sidebar */
+        #sidebar-content {
+            {% comment %} margin-top: -20px; {% endcomment %}
+            {% comment %} padding: 10px; {% endcomment %}
+        }
+
+        .filter {
+            {% comment %} margin-bottom: 10px; {% endcomment %}
+            padding: 8px;
+            font-family: acumin-pro-extra-condensed,sans-serif;
+        }
+        .filter h4:hover {
+            background-color: #027bcf;
+        }
+        .filter h4 {
+            cursor: pointer;
+            {% comment %} margin-bottom: 5px; {% endcomment %}
+            color: #00253B;
+            position: relative;
+            padding: 12px;
+        }
+
+        .filter h4::after {
+            content: var(--after-content, "");
+            float: right;
+            position: absolute;
+            right: 12px;
+        }
+
+        .filter.show h4::after {
+            content: var(--after-content, "-");
+        }
+
+        .filter.hide h4::after {
+            content: var(--after-content, "\25BC");
+        }
+
+        .filter.show {
+            {% comment %} border: solid {% endcomment %}
+        }
+
+        .filter.hide {
+            border: none
+        }
+        .filter-content {
+            display: none;
+            padding: 10px;
+            color: #00253B;
+            text-align: center;
+        }
+        .fh4.show {
+            background-color: #027bcf;
+        }
+        .fh4.hide {
+            background-color: #0287D4;
+        }
+        .filter-content.show {
+            display: block;
+            font-size: 12px;
+            background-color: #2f9cdb;
+            overflow-y: auto;
+            max-height: 800px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+
+        /* Style smaller checkboxes */
+        .filter input[type="checkbox"] {
+            transform: scale(0.75);
+            margin-right: 5px;
+        }
+
+        /* Button style */
+        .filter-content button {
+            margin-top:5px;
+            {% comment %} width: 49%; {% endcomment %}
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .selectionContainer {
+            background-color: rgb(216, 216, 216);
+            color:rgb(104, 104, 104);
+            max-height: 33vh;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom:2px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-rows: max-content;
+        }
+        .button-container {
+            display: none;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            justify-content: left;
+            color: #00253B;
+            position: relative;
+            background-color: white;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px; 
+            overflow: auto;
+            max-height: 33vh;
+            min-height: 220px;
+        
+        }
+        .filterbutton {
+            width: 100%;
+            text-rendering: auto;
+            color: black;
+            letter-spacing: normal;
+            word-spacing: normal;
+            line-height: normal;
+            text-transform: none; 
+            {% comment %} text-indent: 10px; {% endcomment %}
+            text-shadow: none; 
+            display: grid;
+            text-align: center;
+            align-items: flex-start; 
+            cursor: default;
+            box-sizing: border-box; 
+            background-color: white;
+            margin: 0em;
+            padding-block: 2px; 
+            padding-inline: 2px; 
+            border-width: 2px; 
+            border-style: none;
+            border-color: buttonborder; 
+            border-image: initial; 
+        }
+        .filterbutton:hover {
+            background-color: rgb(179, 179, 179);
+            cursor: pointer;
+        }
+        .highlightbutton {
+            width: 100%;
+            text-rendering: auto;
+            color: black;
+            letter-spacing: normal;
+            word-spacing: normal;
+            line-height: normal;
+            text-transform: none; 
+            {% comment %} text-indent: 30px; {% endcomment %}
+            text-shadow: none; 
+            display: grid;
+            text-align: center;
+            align-items: flex-start; 
+            cursor: default;
+            box-sizing: border-box; 
+            background-color: #b2ddf4;
+            margin: 0em;
+            padding-block: 2px; 
+            padding-inline: 2px; 
+            border-width: 2px; 
+            border-style: none;
+            border-color: buttonborder; 
+            border-image: initial; 
+        }
+        .highlightbutton:hover {
+            background-color: rgb(255, 0, 0);
+            color: white;
+        }
+        .dropdownbutton {
+            background-color: #00253B;
+            color: white;
+            {% comment %} border-radius: 5px; {% endcomment %}
+            width: 100%;
+            border-color: #00253B;
+            padding: 2px;
+        }
+        .selbutton {
+            background-color: #ffffff;
+            border-radius: 3px;
+            padding: 5px;
+            margin: 2px;
+            color: #025687;
+        }
+        .selbutton:hover {
+            {% comment %} background-color: red; {% endcomment %}
+            {% comment %} color: white; {% endcomment %}
+            cursor: pointer;
+        }
+        .divbtns {
+            background-color:white;
+            color:#00253B;
+            border:none;
+            padding: 4px;
+            border-radius: 6px;
+        }
+        .divbtns:hover {
+            cursor: pointer;
+        }
+
+        .pagebtn {
+            background-color:white;
+            color:#00253B;
+            border:none;
+            padding: 4px;
+            border-radius: 6px;
+        }
+        .pagebtn:hover {
+            cursor: pointer;
+            background-color: #d4dadc;
+        }
+
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+        }
+        .alert.hide {
+            display: none,
+        }
+        .alert.show {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+        }
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .closebtn:hover {
+            color: black;
+        }
+
+        .arrow {
+            border: solid black;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 3px;
+        }
+        .up {
+            transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+        }
+        
+        .down {
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+        #dlbutton {
+            display: none;
+            width: 100%;
+        } 
+
+        {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
 <body>
-    <div class="left">
-        <!-- filtering tools here -->
-        <div class="filterContainer" id="filterState">
-            <label for="stateinputbox">Choose up to 3 states:</label>
-            <div class="selectionContainer" id="statePicks">**REQUIRED**</div>
-            {% comment %} <input type="text" id="stateinputbox" placeholder="Enter State... Ex: Colorado, Ohio, Pennsylvania" onclick="removeButton(event)"> {% endcomment %}
-            {% comment %} <button class="dropdownbutton" id="statebutton" onclick="openstatelist()">Available States...</button> {% endcomment %}
-            <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States...</button>
-            <div class="button-container" id="state-container"></div>
-        </div>
-        <div class="filterContainer" id="ctyFilterContainer">
-            {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
-            <div class="selectionContainer" id="countyPicks">Not necessary, but you can limit your results to those within a specific county for each state by clicking the corresponding button below.</div>
-            <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties in those states...</button>
-            <div class="button-container" id="county-container"></div>
-        </div>
-        <div class="filterContainer" id="statusContainer">
-            <div class="selectionContainer" id="statusPicks"></div>
-            <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status (State Specific)</button>
-            <div class="button-container" id="status-container"></div>
-        </div>
-        <div class="filterContainer" id="typeContainer">
-            <div class="selectionContainer" id="typePicks"></div>
-            <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Well Type (State Specific)</button>
-            <div class="button-container" id="type-container"></div>
-        </div>
-        {% comment %} <div class="filterContainer">
-            <label for="well_name">Well Name:</label>
-            <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
-        </div> {% endcomment %}
-        <div class="filterContainer">
-            <div class="filterschild1">
-                <label for="category">FracTracker Category:</label>
-                <select id="fta_cat" size=1>
-                    <option value="initial">Select from dropdown...</option>
-                    <option value="default">All</option>
-                    <option value="Injection / Storage / Service">Injection / Storage / Service</option>
-                    <option value="Not Drilled">Not Drilled</option>
-                    <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
-                    <option value="Other / Unknown">Other / Unknown</option>
-                    <option value="Plugged">Plugged</option>
-                    <option value="Production Well">Production Well</option>
-                </select>
-            </div>
-        </div>
-        <div >
-            <button onclick="applyCategoryFilter()">Apply Filter</button>
-        </div>
-        <div id="loading-popupid" class="loading-popup hidden">
-            Retrieving the Records<span id="loading-dots"></span>
-        </div>
-    </div>
-      <div class="right" id="container">
-        <!-- Top content of the right side -->
-        <div id="map">
-            <div class="legend" id="legend">
-                <div class="legend-header" id="legend-toggle">
-                    <span>Legend</span>
-                </div>
-                <div class="legend-content">
-                    <label class="category1"><input type="checkbox" id="countycount" style="color:#A3CF5F;" checked> County Counts</label>
-                    <label class="category1"><input type="checkbox" id="category1" style="color:#A3CF5F;" checked> Injection / Storage / Service</label>
-                    <label class="category1"><input type="checkbox" id="category2" style="color:green;" checked> Not Drilled</label>
-                    <label class="category1"><input type="checkbox" id="category3" style="color:#FFC857;" checked> Orphaned / Abandoned / Unverified Plug</label>
-                    <label class="category1"><input type="checkbox" id="category4" style="color:#00253B;" checked> Other / Unknown</label>
-                    <label class="category1"><input type="checkbox" id="category5" style="color:#0287D4;" checked> Plugged</label>
-                    <label class="category1"><input type="checkbox" id="category6" style="color:red;" checked> Production Well</label>
+
+    <header>
+        <h1>National Oil & Gas Well Portal</h1>
+    </header>
+
+    <div class="main-content">
+        
+        <div class="left" >
+            <!-- filtering tools here -->
+            <div class="filter toggle-states show">
+                <h4 class="fh4 show" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
+                <div class="filter-content states-content show" id="filterState">
+                    <label for="stateinputbox" style="display:block;padding-bottom: 5px">Choose up to 3:</label>
+                    <div class="selectionContainer" id="statePicks">**REQUIRED**</div>
+                    <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States<br></button>
+                    <div class="button-container" id="state-container"></div>
                 </div>
             </div>
+            <div class="filter toggle-counties hide">
+                <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">COUNTY</h4>
+                <div class="filter-content counties-content hide" id="ctyFilterContainer">
+                    {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
+                    <div class="selectionContainer" id="countyPicks">Not necessary, but you can limit your results to those within a specific county for each state by clicking the corresponding button below.</div>
+                    <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties by State</button>
+                    <div class="button-container" id="county-container"></div>
+                </div>
+            </div>
+            <div class="filter toggle-wellstatus hide">
+                <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
+                <div class="filter-content wellstatus-content" id="statusContainer">
+                    <div class="selectionContainer" id="statusPicks">These vary from state to state, take a look at the reference below.</div>
+                    <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status</button>
+                    <div class="button-container" id="status-container"></div>
+                </div>
+            </div>
+            <div class="filter toggle-welltype hide">
+                <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
+                <div class="filter-content welltype-content" id="typeContainer">
+                    <div class="selectionContainer" id="typePicks">These vary from state to state, take a look at the reference below.</div>
+                    <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Types Available</button>
+                    <div class="button-container" id="type-container"></div>
+                </div>
+            </div>
+            {% comment %} <div class="filter-content">
+                <label for="well_name">Well Name:</label>
+                <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
+            </div> {% endcomment %}
+
+            <div class="filter toggle-ftacat hide">
+                <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
+                <div class="filter-content ftacat-content" id="ftacatContainer">
+                    <div class="selectionContainer" id="ftacatPicks">Our attempt to normalize the varying classifications across the country. </div>
+                    <button class="dropdownbutton" id="ftacatbutton" onclick="openlist('welltype')">General Classification</button>
+                    <div class="button-container" id="ftacat-container"></div>
+                </div>
+            </div>
+            {% comment %} <div class="filter-content">
+                <div class="filterschild1">
+                    <h4 onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
+                    <select id="fta_cat" size=1>
+                        <option value="initial">Select from dropdown...</option>
+                        <option value="default">All</option>
+                        <option value="Injection / Storage / Service">Injection / Storage / Service</option>
+                        <option value="Not Drilled">Not Drilled</option>
+                        <option value="Orphaned / Abandoned / Unverified Plug">Orphaned / Abandoned / Unverified Plug</option>
+                        <option value="Other / Unknown">Other / Unknown</option>
+                        <option value="Plugged">Plugged</option>
+                        <option value="Production Well">Production Well</option>
+                    </select>
+                </div>
+            </div> {% endcomment %}
+            <div >
+                <button style="padding: 5px" class="dropdownbutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+            </div>
+
+            <div id="loading-popupid" class="loading-popup hidden">
+                Retrieving the Records<span id="loading-dots"></span>
+            </div>
+            <div class="dlbtn hide">
+                <button class="divbtns"  id="dlbutton" style="margin-top:4px" onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
+            </div>
+
         </div>
-        <div class="divider" id="dividerContainer">
-            <div>
-                {% comment %} <label for="sort-dropdown">Sort by:</label>
-                <select id="sort-dropdown">
-                    <option value="lat">Column 1</option>
-                    <option value="api_num">Column 2</option>
-                    <option value="FracTracker Category">Column 3</option>
-                    <option value="well_name">Column 4</option>
-                    <option value="column5">Column 5</option>
-                </select> {% endcomment %}
+        <div class="right" id="container">
+            <!-- Top content of the right side -->
+            <div id="map">
+                <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png">
+
+                <div class="legend" id="legend" >
+                    <div class="legend-header" id="legend-toggle">
+                        <span>Legend</span>
+                    </div>
+                    <div class="legend-content">
+                        <p>Well Locations</p>
+                        <label class="category1"><input type="checkbox" id="category1" unchecked> Injection / Storage / Service</label>
+                        <label class="category1"><input type="checkbox" id="category2" unchecked> Not Drilled</label>
+                        <label class="category1"><input type="checkbox" id="category3" unchecked> Orphaned / Abandoned / Unverified Plug</label>
+                        <label class="category1"><input type="checkbox" id="category4" unchecked> Other / Unknown</label>
+                        <label class="category1"><input type="checkbox" id="category5" unchecked> Plugged</label>
+                        <label class="category1"><input type="checkbox" id="category6"  unchecked> Production Well</label>
+                        <p>County Layers</p>
+                        <label class="category1"><input type="checkbox" id="countylayer"  unchecked> County Borders</label>
+                        <label class="category1"><input type="checkbox" id="countycount"  unchecked> County Counts</label>
+                        <label class="category1"><input type="checkbox" id="countychoropleth"  unchecked> County Choropleth</label>
+                    </div>
+                </div>
+            </div>
+            <div class="divider" id="dividerContainer" style="z-index: 1000;margin-top:-12px">
                 <div>
-                    <button onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button>
+                    {% comment %} <label for="sort-dropdown">Sort by:</label>
+                    <select id="sort-dropdown">
+                        <option value="lat">Column 1</option>
+                        <option value="api_num">Column 2</option>
+                        <option value="FracTracker Category">Column 3</option>
+                        <option value="well_name">Column 4</option>
+                        <option value="column5">Column 5</option>
+                    </select> {% endcomment %}
+                    <div style="padding:9px">
+                        <input style="width:120px;text-align: right;" type="number" id="page-input" placeholder="Jump to page #" min="1">
+                        <button class="divbtns" onclick="goToPage()">Go</button>
+                        <span id="pagination" style="margin-left:2px">
+                        </span>
+                        {% comment %} <button class="divbtns" style="position:absolute;right:6px" onclick="downloadTableData(filteredData)">Download Table Data (CSV)</button> {% endcomment %}
+                        {% comment %} <div class="input-button-container"> {% endcomment %}
 
-                    {% comment %} <div class="input-button-container"> {% endcomment %}
-                        <input type="number" id="page-input" placeholder="Jump to page #" min="1">
-                        <button class="gobutton" onclick="goToPage()">Go</button>
-                    {% comment %} </div> {% endcomment %}
+                        {% comment %} </div> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+            <div class="bottom" id="bottomContainer">
+            <!-- Bottom content of the right side -->
+                <div>
+                    <div id="pagination">
+                    </div>
+                </div>
+                <div class="tablecontainer">
+
+                    <!-- Grid container for the table -->
+                    <table id="maintable">
+                        {% comment %} <thead>
+                            <tr>
+                                <td id="pagination" colspan="100%">
+                                <!-- Pagination buttons will be added here -->
+                                </td>
+                                <td>
+                                    <button> btn </button>
+                                </td>
+                            </tr>
+                        </thead> {% endcomment %}
+                        <thead id="maintableheader" class="sticky-header-container">
+                            <tr>
+                                {% comment %} <th>TMPID</th> {% endcomment %}
+                                <th>API Number</th>
+                                <th>Other ID</th>
+                                <th>Latitude</th>
+                                <th>Longitude</th>
+                                <th>State</th>
+                                <th>County</th>
+                                <th>Municipality</th>
+                                <th>Well Name</th>
+                                <th>Operator</th>
+                                <th>Spud Date</th>
+                                <th>Plug Date</th>
+                                <th>Well Type</th>
+                                <th>Well Status</th>
+                                <th>Well Configuration</th>
+                                <th>FracTracker Category</th>
+                                {% comment %} <th>UID</th> {% endcomment %}
+                            </tr>
+                        </thead>
+                        <tbody id="maintablebody">
+                            {% comment %} <tr><td></td></tr> {% endcomment %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        <div class="bottom" id="bottomContainer">
-        <!-- Bottom content of the right side -->
-
-            <div class="tablecontainer">
-
-                <!-- Grid container for the table -->
-                <table id="maintable">
-                    <thead>
-                        <tr>
-                            <td id="pagination" colspan="100%">
-                            <!-- Pagination buttons will be added here -->
-                            </td>
-                        </tr>
-                    </thead>
-                    <thead id="maintableheader" class="sticky-header-container">
-                        <tr>
-                            {% comment %} <th>TMPID</th> {% endcomment %}
-                            <th>API Number</th>
-                            <th>Other ID</th>
-                            <th>Latitude</th>
-                            <th>Longitude</th>
-                            <th>State</th>
-                            <th>County</th>
-                            <th>Municipality</th>
-                            <th>Well Name</th>
-                            <th>Operator</th>
-                            <th>Spud Date</th>
-                            <th>Plug Date</th>
-                            <th>Well Type</th>
-                            <th>Well Status</th>
-                            <th>Well Configuration</th>
-                            <th>FracTracker Category</th>
-                            {% comment %} <th>UID</th> {% endcomment %}
-                        </tr>
-                    </thead>
-                    <tbody id="maintablebody">
-                        {% comment %} <tr><td></td></tr> {% endcomment %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
     </div>
-
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
+    <script>
+
+        // Function to toggle filter visibility
+        function toggleFilter(filterName) {
+            let list = ['states','counties','wellstatus','welltype','ftacat']
+
+
+            list.forEach(element => {
+                var filterContent = document.querySelector('.' + element + '-content');
+                var filterBox = document.querySelector('.toggle-' + element);
+                var filterIcon = document.querySelector('.filter.toggle-' + element + ' h4');
+                var filterH4 = document.getElementById(element + 'h4')
+
+                if (element === filterName) {
+                    if (filterContent.classList.contains('show')) {
+                        filterContent.classList.remove('show');
+                        filterContent.classList.add('hide');
+                        filterBox.style.border = 'none';
+                        filterContent.classList.remove('show');
+                        filterContent.classList.add('hide');
+                        filterH4.classList.remove('show');
+                        filterH4.classList.add('hide');
+                        filterIcon.style.setProperty('--after-content', '"\\25BC"');
+                    } else {
+                    filterContent.classList.add('show');
+                    filterContent.classList.remove('hide');
+                    {% comment %} filterBox.style.border = 'solid'; {% endcomment %}
+                    filterH4.classList.add('show');
+                    filterH4.classList.remove('hide');
+                    filterIcon.style.setProperty('--after-content', '"-"');
+                    }
+                } else {
+                    filterContent.classList.remove('show');
+                    filterContent.classList.add('hide');
+                    filterH4.classList.remove('show');
+                    filterH4.classList.add('hide');
+                    filterBox.style.border = 'none';
+                    filterIcon.style.setProperty('--after-content', '"\\25BC"');
+                }
+            })
+
+
+        }
+    </script>
 </body>
 </html>

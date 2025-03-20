@@ -236,6 +236,7 @@ function addCtyOptions(states) {
                 } else {
                     ctybutton.className = 'filterbutton';
                 }
+                
                 // console.log(ctyitem.county)
                 ctybutton.innerText = ctyitem.stusps + ': ' + ctyitem.county; // Capitalize the first letter of color
                 ctybutton.onclick = () => toggleselection('county',ctyitem.stusps + ': ' + ctyitem.county);
@@ -331,47 +332,48 @@ function addType(states) {
 function onEachFeatureFn(prop, feature, layer) {
         layer.feature.property.longitude
     }
-// Empty Layer Group that will receive the clusters data on the fly.
-var markers = L.geoJSON(null, {
-    pointToLayer: createClusterIcon,
-    onEachFeature: function (feature, layer) {
-        const wwlink = '<br><b>WellWiki Page: </b><a href='+feature.properties.wellwiki+' target="_blank">'+feature.properties.wellwiki+'</a>';
-        layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
-                                                feature.properties.ft_category + "<br><b>State: </b>" + 
-                                                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
-                                                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
-                                                feature.properties.well_status + "<br><b>Well Name: </b>" + 
-                                                feature.properties.well_name + "<br><b>Operator: </b>" + 
-                                                feature.properties.operator + "<br><b>Longitude:</b> " + 
-                                                feature.properties.lng + "<br><b>Latitude: </b>" + 
-                                                feature.properties.lat + wwlink);
-}
-});
+// // Empty Layer Group that will receive the clusters data on the fly.
+// var markers = L.geoJSON(null, {
+//     pointToLayer: createClusterIcon,
+//     onEachFeature: function (feature, layer) {
+//         const wwlink = '<br><b>WellWiki Page: </b><a href='+feature.properties.wellwiki+' target="_blank">'+feature.properties.wellwiki+'</a>';
+//         layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+//                                                 feature.properties.ft_category + "<br><b>State: </b>" + 
+//                                                 feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+//                                                 feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+//                                                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
+//                                                 feature.properties.well_name + "<br><b>Operator: </b>" + 
+//                                                 feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                                                 feature.properties.lng + "<br><b>Latitude: </b>" 
+//                                                 // feature.properties.lat + wwlink
+//                                                 );
+// }
+// });
 
         // Update the displayed clusters after user pan / zoom.
-map.on('moveend', update);
+// map.on('moveend', update);
 
-var ready;
-function update() {
-    if (!ready) return;
-    var bounds = map.getBounds();
-    var bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
-    var zoom = map.getZoom();
-    var clusters = index.getClusters(bbox, zoom);
-    markers.clearLayers();
-    markers.addData(clusters);
-}
+// var ready;
+// function update() {
+//     if (!ready) return;
+//     var bounds = map.getBounds();
+//     var bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+//     var zoom = map.getZoom();
+//     var clusters = index.getClusters(bbox, zoom);
+//     markers.clearLayers();
+//     markers.addData(clusters);
+// }
 
-// Zoom to expand the cluster clicked by user.
-markers.on('click', function(e) {
-    var clusterId = e.layer.feature.properties.cluster_id;
-    var center = e.latlng;
-    var expansionZoom;
-    if (clusterId) {
-    expansionZoom = index.getClusterExpansionZoom(clusterId);
-    map.flyTo(center, expansionZoom);
-    }
-});
+// // Zoom to expand the cluster clicked by user.
+// markers.on('click', function(e) {
+//     var clusterId = e.layer.feature.properties.cluster_id;
+//     var center = e.latlng;
+//     var expansionZoom;
+//     if (clusterId) {
+//     expansionZoom = index.getClusterExpansionZoom(clusterId);
+//     map.flyTo(center, expansionZoom);
+//     }
+// });
 
 
 function getColor(stype) {
@@ -393,57 +395,57 @@ function getColor(stype) {
     }
     }
 
-function createClusterIcon(feature, latlng) {
-    var markerStyle = {
-        color: getColor(feature.properties.ft_category),
-        fillColor: getColor(feature.properties.ft_category),
-        maxZoom: 20,
-        minZoom: 8,
-        radius: 3, // Radius // Fill opacity of the circle
-    };
-    if (!feature.properties.cluster) return L.circleMarker(latlng, markerStyle);
-    var count = feature.properties.point_count;
-    var size =
-    count < 100 ? 'small' :
-    count < 1000 ? 'medium' : 'large';
-    var icon = L.divIcon({
-    html: '<div><span>' + feature.properties.point_count_abbreviated + '</span></div>',
-    className: 'marker-cluster marker-cluster-' + size,
-    iconSize: L.point(25)
-    });
+// function createClusterIcon(feature, latlng) {
+//     var markerStyle = {
+//         color: getColor(feature.properties.ft_category),
+//         fillColor: getColor(feature.properties.ft_category),
+//         maxZoom: 20,
+//         minZoom: 8,
+//         radius: 1, // Radius // Fill opacity of the circle
+//     };
+//     if (!feature.properties.cluster) return L.circleMarker(latlng, markerStyle);
+//     var count = feature.properties.point_count;
+//     var size =
+//     count < 100 ? 'small' :
+//     count < 1000 ? 'medium' : 'large';
+//     var icon = L.divIcon({
+//     html: '<div><span>' + feature.properties.point_count_abbreviated + '</span></div>',
+//     className: 'marker-cluster marker-cluster-' + size,
+//     iconSize: L.point(25)
+//     });
 
-    return L.marker(latlng, {
-    icon: icon
-    });
-}
+//     return L.marker(latlng, {
+//     icon: icon
+//     });
+// }
 
 
 
-// Function to update the map markers with the filtered data
-function updateMapMarkers(data) {
-    data = JSON.parse(data);
+// // Function to update the map markers with the filtered data
+// function updateMapMarkers(data) {
+//     data = JSON.parse(data);
     
-    console.log('updateMapMarkers')
-    // Clear existing markers from the map
-    map.eachLayer(function(layer) {
-        if (layer instanceof L.Marker) {
-            map.removeLayer(layer);
-        }  
-    });
+//     console.log('updateMapMarkers')
+//     // Clear existing markers from the map
+//     map.eachLayer(function(layer) {
+//         if (layer instanceof L.Marker) {
+//             map.removeLayer(layer);
+//         }  
+//     });
 
-    index = supercluster({
-        radius: 20,
-        extent: 256,
-        maxZoom: 9,
-        }).load(data.features); // Expects an array of Features.
-    ready = true;
+//     index = supercluster({
+//         radius: 20,
+//         extent: 256,
+//         maxZoom: 9,
+//         }).load(data.features); // Expects an array of Features.
+//     ready = true;
 
-    // map.addLayer(markers); 
-    update();
-    // Get the bounding box of the markers
-    updateTable(data.features);
-    document.getElementById('loading-popupid').classList.add('hidden');
-}
+//     // map.addLayer(markers); 
+//     update();
+//     // Get the bounding box of the markers
+//     updateTable(data.features);
+//     document.getElementById('loading-popupid').classList.add('hidden');
+// }
 
 var geoJsonCtyLayer;
 var geoJsonCtyLayerid;
@@ -455,6 +457,7 @@ var numicon;
 // Create a GeoJSON layer to store all polygons with count > 0
 
 var ctytallyLayer;
+var markerIconCollection;
 function ctyct(data, d) {
     // Initialize a tally object
     let tally = {};
@@ -467,6 +470,7 @@ function ctyct(data, d) {
     } else {
         console.log('no such luck');
     }
+
 
     // Parse the data and tally occurrences
     JSON.parse(d).features.forEach(feature => {
@@ -564,6 +568,13 @@ function ctyct(data, d) {
         }
     }).addTo(map);
 
+    if (markerIconCollection) {
+        map.removeLayer(markerIconCollection);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+
     // Create GeoJSON layer for markers (with zoom level control)
     markerIconCollection = L.geoJSON(markerFeatures, {
         pointToLayer: function(feature, latlng) {
@@ -614,20 +625,23 @@ map.on('zoomend', function () {
     }
 });
 
-// Show points only if zoom level is between 10 and 14
-map.on('zoomend', function () {
-    var currentZoom = map.getZoom();
-    if (currentZoom >= 11 && currentZoom <= 20) {
-        markers.addTo(map);
-    } else {
-        markers.remove();
-    }
-});
+// // Show points only if zoom level is between 10 and 14
+// map.on('zoomend', function () {
+//     var currentZoom = map.getZoom();
+//     if (currentZoom >= 11 && currentZoom <= 20) {
+//         markers.addTo(map);
+//     } else {
+//         markers.remove();
+//     }
+// });
 
 
 // Function to apply category filter
 function applyCategoryFilter() {
-    var category = document.getElementById('fta_cat').value; 
+
+    document.getElementById('dlbutton').style.display = 'none';
+
+    var category = document.getElementById('ftacatPicks').value; 
     var states = getSelValues('statePicks')
     var counties = getSelValues('countyPicks')
     var well_status = getSelValues('statusPicks');
@@ -658,21 +672,25 @@ function applyCategoryFilter() {
             states: states,
             //statesop: statesop,
             county: counties,
-            //countyop: countyop,
+            //--countyop: countyop,
             well_type: well_type,
-            //well_typeop: well_typeop,
+            //--well_typeop: well_typeop,
             well_status: well_status,
-            //well_statusop: well_statusop,
-            // well_name: well_name,
-            // well_nameop: well_nameop,
-            category: category,
+            //--well_statusop: well_statusop,
+            // --well_name: well_name,
+            // --well_nameop: well_nameop,
+            // category: category,
         },
         success: function(data) {
-            filteredData = data
+            filteredData = JSON.parse(data);
             console.log('had success retrieving the records') // replace with action item
-            updateMapMarkers(data);
+            // updateMapMarkers(data);
+            updateTable(filteredData.features);
+            filterProd(data);
             getCounties(states, counties, data);
             getStates(states);
+            document.getElementById('dlbutton').style.display = 'block';
+            document.getElementById('loading-popupid').style.display = 'none';
         },
         error: function(xhr, status, error) {
             console.error(error); // make sure to alter user to the error
@@ -719,6 +737,54 @@ function updateTable(features) {
     // Initial display of rows
     displayRows(currentPage);
 
+    // // Function to update pagination controls
+    // function updatePaginationControls(currentPage) {
+    //     var paginationCell = document.getElementById('pagination');
+    //     paginationCell.innerHTML = ''; // Clear existing pagination buttons
+
+    //     // Calculate total pages
+    //     var totalPages = Math.ceil(features.length / rowsPerPage);
+
+    //     // Show buttons for the first page, last page, two pages before and two pages after the current page
+    //     var buttonsToShow = [];
+    //     if (totalPages > 0) {
+    //         if (currentPage > 3) {
+    //             buttonsToShow.push(1);
+    //         }
+
+    //         if (currentPage > 2) {
+    //             buttonsToShow.push(currentPage - 2);
+    //         }
+    //         if (currentPage > 1) {
+    //             buttonsToShow.push(currentPage - 1);
+    //         }
+
+    //         buttonsToShow.push(currentPage);
+
+    //         if (currentPage < totalPages) {
+    //             buttonsToShow.push(currentPage + 1);
+    //         }
+    //         if (currentPage < totalPages - 1) {
+    //             buttonsToShow.push(currentPage + 2);
+    //         }
+
+    //         if (totalPages > 1) {
+    //             buttonsToShow.push(totalPages);
+    //         }
+    //     }
+
+    //     // Add page number buttons
+    //     buttonsToShow.forEach(function(page) {
+    //         var button = document.createElement('button');
+    //         button.textContent = page;
+    //         button.className = "pagebtn";
+    //         button.onclick = function() {
+    //             currentPage = parseInt(this.textContent);
+    //             displayRows(currentPage);
+    //         };
+    //         paginationCell.appendChild(button);
+    //     });
+    // }
     // Function to update pagination controls
     function updatePaginationControls(currentPage) {
         var paginationCell = document.getElementById('pagination');
@@ -727,45 +793,70 @@ function updateTable(features) {
         // Calculate total pages
         var totalPages = Math.ceil(features.length / rowsPerPage);
 
-        // Show buttons for the first page, last page, two pages before and two pages after the current page
+        // Show buttons for the first page, last page, previous page, current page, and next page
         var buttonsToShow = [];
+
         if (totalPages > 0) {
-            if (currentPage > 3) {
-                buttonsToShow.push(1);
-            }
-
-            if (currentPage > 2) {
-                buttonsToShow.push(currentPage - 2);
-            }
+            // First page button
             if (currentPage > 1) {
-                buttonsToShow.push(currentPage - 1);
+                var firstButton = document.createElement('button');
+                firstButton.textContent = "First";  // Set label as "First"
+                firstButton.className = "pagebtn";
+                firstButton.onclick = function() {
+                    currentPage = 1;
+                    displayRows(currentPage);
+                };
+                paginationCell.appendChild(firstButton);
             }
 
-            buttonsToShow.push(currentPage);
-
-            if (currentPage < totalPages) {
-                buttonsToShow.push(currentPage + 1);
+            // Previous page button
+            if (currentPage > 1) {
+                var prevButton = document.createElement('button');
+                prevButton.textContent = "Previous";  // Set label as "Previous"
+                prevButton.className = "pagebtn";
+                prevButton.onclick = function() {
+                    currentPage = currentPage - 1;
+                    displayRows(currentPage);
+                };
+                paginationCell.appendChild(prevButton);
             }
-            if (currentPage < totalPages - 1) {
-                buttonsToShow.push(currentPage + 2);
-            }
 
-            if (totalPages > 1) {
-                buttonsToShow.push(totalPages);
-            }
-        }
-
-        // Add page number buttons
-        buttonsToShow.forEach(function(page) {
-            var button = document.createElement('button');
-            button.textContent = page;
-            button.onclick = function() {
+            // Current page button
+            var currentButton = document.createElement('button');
+            currentButton.textContent = currentPage;
+            currentButton.className = "pagebtn";
+            currentButton.onclick = function() {
                 currentPage = parseInt(this.textContent);
                 displayRows(currentPage);
             };
-            paginationCell.appendChild(button);
-        });
+            paginationCell.appendChild(currentButton);
+
+            // Next page button
+            if (currentPage < totalPages) {
+                var nextButton = document.createElement('button');
+                nextButton.textContent = "Next";  // Set label as "Next"
+                nextButton.className = "pagebtn";
+                nextButton.onclick = function() {
+                    currentPage = currentPage + 1;
+                    displayRows(currentPage);
+                };
+                paginationCell.appendChild(nextButton);
+            }
+
+            // Last page button
+            if (currentPage < totalPages) {
+                var lastButton = document.createElement('button');
+                lastButton.textContent = "Last";  // Set label as "Last"
+                lastButton.className = "pagebtn";
+                lastButton.onclick = function() {
+                    currentPage = totalPages;
+                    displayRows(currentPage);
+                };
+                paginationCell.appendChild(lastButton);
+            }
+        }
     }
+
 
     // Function to go to a specific page
     window.goToPage = function() {
@@ -795,7 +886,7 @@ function updateTable(features) {
     }); */
 }
 // Function to download CSV of table data
-function downloadTableData() {
+function downloadTableData(filteredData) {
     console.log('starting the download')
     // Check if filtered data is available
     if (!filteredData) {
@@ -866,7 +957,7 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 });
 
 // Initialize legend state
-document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
+// document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
 const statesarray = [
     "Alabama", 
@@ -932,6 +1023,17 @@ statesarray.forEach(st => {
     document.getElementById('state-container').appendChild(sbutton);
 });
 
+const ftacats = ['Injection / Storage / Service', 'Not Drilled','Orphaned / Abandoned / Unverified','Other / Unknown','Plugged','Production']
+
+ftacats.forEach(st => {
+    const fbutton = document.createElement('button');
+    fbutton.className = 'filterbutton';
+    fbutton.id = st+'btn';
+    fbutton.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
+    fbutton.onclick = () => toggleselection('ftacat',st);
+    // Append the button to the button-container div
+    document.getElementById('ftacat-container').appendChild(fbutton);
+});
 
 function getButtonValues() {
     // Select all buttons inside the container
@@ -999,6 +1101,8 @@ stcontainer.addEventListener('mouseenter', () => {
 stbutton.addEventListener('mouseleave', () => {
     stcontainer.style.display = 'none';
 });
+
+
 
 
 ctycontainer = document.getElementById('county-container')
@@ -1095,6 +1199,39 @@ typebutton.addEventListener('mouseleave', () => {
     typecontainer.style.display = 'none';
 });
 
+
+
+fcontainer = document.getElementById('ftacat-container')
+fbutton = document.getElementById('ftacatbutton')
+
+// Show dropdown when button is clicked
+fbutton.addEventListener('click', () => {
+    if (fcontainer.style.display === 'none' || fcontainer.style.display === '' ) {
+        fcontainer.style.display = 'block';
+    } else if (fcontainer.style.display = 'block') {
+        fcontainer.style.display = 'none';
+    }
+});
+
+// Close dropdown if cursor leaves the button or the dropdown container
+fcontainer.addEventListener('mouseleave', () => {
+    fcontainer.style.display = 'none';
+});
+
+// Prevent dropdown from closing if cursor is inside the dropdown content
+fcontainer.addEventListener('mouseenter', () => {
+    fcontainer.style.display = 'block';
+});
+
+// Keep dropdown open if the cursor is inside the button or dropdown
+fbutton.addEventListener('mouseleave', () => {
+    fcontainer.style.display = 'none';
+});
+
+
+
+
+
 function toggleselection(c,v) {
     var earray = statetextbox.querySelectorAll("*");
     var ecount = earray.length;
@@ -1110,8 +1247,8 @@ function toggleselection(c,v) {
             document.getElementById(v+'btn').classList = 'filterbutton'
         }
         document.getElementById('input-'+v).remove()
-    } else if (ecount>=3 && c ==='state') {
-        alert('at max');
+    } else if (ecount>6 && c ==='state') {
+        alert("You've selected the max number of states per search. Also this state count alert needs updating");
     } else {
         if (c === 'state') {
             document.getElementById(v+'btn').classList = 'highlightbutton'
@@ -1136,9 +1273,34 @@ function toggleselection(c,v) {
                 statetextbox.innerHTML = '**REQUIRED**'
             };
         };
-        buttonState.textContent = v;
+        
+        // Create a span for the original text
+        const textSpan = document.createElement('span');
+        textSpan.textContent = v;  // Set the text inside the span
+
+        // Create a span for the 'X' that will appear on hover
+        const closeSpan = document.createElement('span');
+        closeSpan.textContent = ' X';
+        closeSpan.style.display = 'none';  // Hide 'X' initially
+        closeSpan.style.color = "red";
+
+        // Append the spans inside the button
+        buttonState.appendChild(textSpan);
+        buttonState.appendChild(closeSpan);
+
+        // Add hover effect to display 'X'
+        buttonState.addEventListener('mouseenter', () => {
+            closeSpan.style.display = 'inline';  // Show the 'X' when hovered
+        });
+
+        buttonState.addEventListener('mouseleave', () => {
+            closeSpan.style.display = 'none';  // Hide the 'X' when not hovered
+        });
+
+        // buttonState.textContent = v;
         buttonState.id = "input-" + v;
         buttonState.style.fontWeight = 'bold';
+
 
         // Append the new button to the input box (which is now an input field)
         if (statetextbox.innerHTML==='**REQUIRED**') {
@@ -1175,3 +1337,362 @@ document.getElementById('countycount').addEventListener('change', function() {
 });
 
 
+
+var productionwells;
+var pluggedwells;
+var otherwells;
+var orphanwells;
+var notdrilledwells;
+var injectionwells;
+
+
+function filterProd(data) {
+    fd = JSON.parse(data);
+    console.log(fd)
+
+
+
+    document.getElementById('category6').checked = false;
+    document.getElementById('category5').checked = false;
+    document.getElementById('category4').checked = false;
+    document.getElementById('category3').checked = false;
+    document.getElementById('category2').checked = false;
+    document.getElementById('category1').checked = false;
+
+
+    if (productionwells) {
+        map.removeLayer(productionwells);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+    productionwells = L.geoJSON(fd, {
+        filter: function (feature) {
+            return feature.properties.ft_category === 'Production Well';
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
+                zIndex: 10000,
+                radius: 1, // Radius // Fill opacity of the circle
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            // Bind a popup to each circle marker based on the properties in the GeoJSON data
+
+            layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                feature.properties.ft_category + "<br><b>State: </b>" + 
+                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                feature.properties.well_name + "<br><b>Operator: </b>" + 
+                feature.properties.operator + "<br><b>Longitude:</b> " + 
+                feature.properties.lng + "<br><b>Latitude: </b>" 
+            );
+        }
+
+    });
+
+    if (pluggedwells) {
+        map.removeLayer(pluggedwells);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+    pluggedwells = L.geoJSON(fd, {
+        filter: function (feature) {
+            return feature.properties.ft_category === 'Plugged';
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
+                zIndex: 10000,
+                radius: 1, // Radius // Fill opacity of the circle
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            // Bind a popup to each circle marker based on the properties in the GeoJSON data
+
+            layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                feature.properties.ft_category + "<br><b>State: </b>" + 
+                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                feature.properties.well_name + "<br><b>Operator: </b>" + 
+                feature.properties.operator + "<br><b>Longitude:</b> " + 
+                feature.properties.lng + "<br><b>Latitude: </b>" 
+            );
+        }
+    });
+
+    if (otherwells) {
+        map.removeLayer(otherwells);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+    otherwells = L.geoJSON(fd, {
+        filter: function (feature) {
+            return feature.properties.ft_category === 'Other / Unknown';
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
+                zIndex: 10000,
+                radius: 1, // Radius // Fill opacity of the circle
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            // Bind a popup to each circle marker based on the properties in the GeoJSON data
+
+            layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                feature.properties.ft_category + "<br><b>State: </b>" + 
+                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                feature.properties.well_name + "<br><b>Operator: </b>" + 
+                feature.properties.operator + "<br><b>Longitude:</b> " + 
+                feature.properties.lng + "<br><b>Latitude: </b>" 
+            );
+        }
+    });
+
+    if (orphanwells) {
+        map.removeLayer(orphanwells);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+    orphanwells = L.geoJSON(fd, {
+        filter: function (feature) {
+            return feature.properties.ft_category === 'Orphaned / Abandoned / Unverified Plug';
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
+                zIndex: 10000,
+                radius: 1, // Radius // Fill opacity of the circle
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            // Bind a popup to each circle marker based on the properties in the GeoJSON data
+
+            layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                feature.properties.ft_category + "<br><b>State: </b>" + 
+                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                feature.properties.well_name + "<br><b>Operator: </b>" + 
+                feature.properties.operator + "<br><b>Longitude:</b> " + 
+                feature.properties.lng + "<br><b>Latitude: </b>" 
+            );
+        }
+    });
+
+    if (notdrilledwells) {
+        map.removeLayer(notdrilledwells);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+    notdrilledwells = L.geoJSON(fd, {
+        filter: function (feature) {
+            return feature.properties.ft_category === 'Not Drilled';
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
+                zIndex: 10000,
+                radius: 1, // Radius // Fill opacity of the circle
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            // Bind a popup to each circle marker based on the properties in the GeoJSON data
+
+            layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                feature.properties.ft_category + "<br><b>State: </b>" + 
+                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                feature.properties.well_name + "<br><b>Operator: </b>" + 
+                feature.properties.operator + "<br><b>Longitude:</b> " + 
+                feature.properties.lng + "<br><b>Latitude: </b>" 
+            );
+        }
+    });
+
+    if (injectionwells) {
+        map.removeLayer(injectionwells);
+        console.log('tried to remove it');
+    } else {
+        console.log('no such luck');
+    };
+    injectionwells = L.geoJSON(fd, {
+        filter: function (feature) {
+            return feature.properties.ft_category === 'Injection / Storage / Service';
+        },
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                color: getColor(feature.properties.ft_category),
+                fillColor: getColor(feature.properties.ft_category),
+                zIndex: 10000,
+                radius: 1, // Radius // Fill opacity of the circle
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            // Bind a popup to each circle marker based on the properties in the GeoJSON data
+
+            layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
+                feature.properties.ft_category + "<br><b>State: </b>" + 
+                feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
+                feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
+                feature.properties.well_status + "<br><b>Well Name: </b>" + 
+                feature.properties.well_name + "<br><b>Operator: </b>" + 
+                feature.properties.operator + "<br><b>Longitude:</b> " + 
+                feature.properties.lng + "<br><b>Latitude: </b>" 
+            );
+        }
+    });
+    // map.addLayer(productionwells)
+}
+// Toggle polygons visibility based on checkbox
+document.getElementById('category6').addEventListener('change', function() {
+    if (this.checked) {
+        productionwells.addTo(map)
+    } else if (productionwells) {
+        map.removeLayer(productionwells);
+    } 
+});
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('category5').addEventListener('change', function() {
+    if (this.checked) {
+        pluggedwells.addTo(map);
+    } else if (pluggedwells) {
+        map.removeLayer(pluggedwells);
+    }
+});
+
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('category4').addEventListener('change', function() {
+    if (this.checked) {
+        otherwells.addTo(map);
+    } else if (otherwells) {
+        map.removeLayer(otherwells);
+    }
+});
+
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('category3').addEventListener('change', function() {
+    if (this.checked) {
+        orphanwells.addTo(map);
+    } else if (orphanwells) {
+        map.removeLayer(orphanwells);
+    }
+});
+
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('category2').addEventListener('change', function() {
+    if (this.checked) {
+        notdrilledwells.addTo(map);
+    } else if (notdrilledwells) {
+        map.removeLayer(notdrilledwells);
+    }
+});
+
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('category1').addEventListener('change', function() {
+    if (this.checked) {
+        injectionwells.addTo(map);
+    } else if (injectionwells) {
+        map.removeLayer(injectionwells);
+    }
+});
+
+
+
+// Function to toggle the point layer visibility based on zoom level
+function togglePointLayerByZoom() {
+    var currentZoom = map.getZoom();
+    console.log(currentZoom);
+
+    // toggle production wells
+    if (currentZoom >= 13 && currentZoom <= 20) {
+        if (!map.hasLayer(productionwells) && document.getElementById('category6').checked) {
+            map.addLayer(productionwells);  // Add point layer when zoom level is between 14 and 20
+        }
+    } else if (productionwells) {
+        map.removeLayer(productionwells);  // Remove point layer when zoom level is outside 14 to 20
+        
+    };
+
+    // toggle plugged
+    if (currentZoom >= 13 && currentZoom <= 20) {
+        if (!map.hasLayer(pluggedwells) && document.getElementById('category5').checked) {
+            map.addLayer(pluggedwells);  // Add point layer when zoom level is between 14 and 20
+        }
+    } else {
+        if (map.hasLayer(pluggedwells)) {
+            map.removeLayer(pluggedwells);  // Remove point layer when zoom level is outside 14 to 20
+        }
+    };
+    
+    // toggle other
+    if (currentZoom >= 13 && currentZoom <= 20) {
+        if (!map.hasLayer(otherwells) && document.getElementById('category4').checked) {
+            map.addLayer(otherwells);  // Add point layer when zoom level is between 14 and 20
+        }
+    } else {
+        if (map.hasLayer(otherwells)) {
+            map.removeLayer(otherwells);  // Remove point layer when zoom level is outside 14 to 20
+        }
+    };
+
+    // toggle other
+    if (currentZoom >= 13 && currentZoom <= 20) {
+        if (!map.hasLayer(orphanwells) && document.getElementById('category3').checked) {
+            map.addLayer(orphanwells);  // Add point layer when zoom level is between 14 and 20
+        }
+    } else {
+        if (map.hasLayer(orphanwells)) {
+            map.removeLayer(orphanwells);  // Remove point layer when zoom level is outside 14 to 20
+        }
+    };
+
+    // toggle notdrilled
+    if (currentZoom >= 13 && currentZoom <= 20) {
+        if (!map.hasLayer(notdrilledwells) && document.getElementById('category2').checked) {
+            map.addLayer(notdrilledwells);  // Add point layer when zoom level is between 14 and 20
+        }
+    } else {
+        if (map.hasLayer(notdrilledwells)) {
+            map.removeLayer(notdrilledwells);  // Remove point layer when zoom level is outside 14 to 20
+        }
+    };
+
+    // toggle injection
+    if (currentZoom >= 13 && currentZoom <= 20) {
+        if (!map.hasLayer(injectionwells) && document.getElementById('category1').checked) {
+            map.addLayer(injectionwells);  // Add point layer when zoom level is between 14 and 20
+        }
+    } else {
+        if (map.hasLayer(injectionwells)) {
+            map.removeLayer(injectionwells);  // Remove point layer when zoom level is outside 14 to 20
+        }
+    };
+}
+
+// Call togglePointLayerByZoom every time the map zooms
+map.on('zoomend', togglePointLayerByZoom);
+
+// Initial check for the zoom level
+togglePointLayerByZoom();
