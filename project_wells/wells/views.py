@@ -255,11 +255,6 @@ def generate_new_table(cols):
         new_table_html += "</tr>"
     return new_table_html
 
-def mapToDB(state):
-    if state in ['TX']:
-        return 'six'
-    else:
-        pass
 
 def parse_states(data):
     states = list()

@@ -5,6 +5,7 @@ def homepage(request):
     #return HttpResponse("Welcome to the Public Facing Data Portal")
     return render(request, '/wells/templates/wells.html')
 
-def about(request):
-    #return HttpResponse("Datasets are currently limited")
-    return render(request, 'about.html')
+# def homepage(request):
+#     #return HttpResponse("Welcome to the Public Facing Data Portal")
+#     return render(request, 'wells.html')
+

@@ -130,7 +130,8 @@ function getStates(data) {
                 minZoom: 6,
                 tolerance: 3,
                 debug: 0,
-                style: geojsonStyle
+                style: geojsonStyle,
+                zIndex: 100,
             };
             canvasLayer_state = L.geoJSON(data, options).addTo(map);
 
@@ -138,7 +139,12 @@ function getStates(data) {
 
             stateLayer=canvasLayer_state._leaflet_id
             try {
-                map.fitBounds(canvasLayer_state.getBounds());
+                statebounds = canvasLayer_state.getBounds();
+                map.fitBounds(statebounds);
+                map.on('moveend', function() {
+                    setCheckboxes();
+                })
+                
             } catch(err) {
                 // console.log('no such layer exists just yet'); 
             } 
@@ -162,7 +168,7 @@ function getCounties(s,c,data) {
             states: states,
         },
         success: function(data) {
-            ctyct(data,pts);
+            
             // console.log('GeoJSON data received:', data);
             // Convert GeoJSON to vector tiles using leaflet-geojson-vt
             map.eachLayer(function(layer) {
@@ -179,6 +185,7 @@ function getCounties(s,c,data) {
                     
             }); 
 
+            
             var geojsonStyle = {
                 fillColor:"#FFFFFF",
                 color: "#000",
@@ -186,16 +193,40 @@ function getCounties(s,c,data) {
                 opacity: .5,
                 fillOpacity: 0.00001,
                 };
-            
-            var options = {
+
+            // canvasLayer_cty = L.geoJson.vt(data, options).addTo(map);
+            canvasLayer_cty = L.geoJSON(data, {
+                style: geojsonStyle,
+                zIndex: 10,
                 maxZoom: 20,
-                minZoom: 8,
+                minZoom: 1,
                 tolerance: 3,
                 debug: 0,
-                style: geojsonStyle,
-                zIndex: 5000
-            };
-            canvasLayer_cty = L.geoJson.vt(data, options).addTo(map);
+                onEachFeature: function(feature, layer) {
+                    const county = feature.county;
+                    // layer.bindPopup(`<strong>County:</strong> ${county}`);
+                    // Add hover functionality to show county name in a tooltip
+                    layer.on({
+                        mouseover: function(e) {
+                            var layer = e.target;
+                            layer.bindTooltip(`<strong>County:</strong> ${county}`, {
+                                permanent: false,
+                                direction: 'top',
+                                opacity: 0.8
+                            }).openTooltip();
+                        },
+                        mouseout: function(e) {
+                            e.target.closeTooltip();
+                        }
+                    });
+                    layer.on('click', function () {
+                        console.log('clicked it');  // Log the message when the polygon is clicked
+                    });
+                }
+            }).addTo(map);
+
+            ctyct(data,pts);
+
 
             countyLayer = canvasLayer_cty._leaflet_id
             
@@ -329,52 +360,6 @@ function addType(states) {
 };
 
 
-function onEachFeatureFn(prop, feature, layer) {
-        layer.feature.property.longitude
-    }
-// // Empty Layer Group that will receive the clusters data on the fly.
-// var markers = L.geoJSON(null, {
-//     pointToLayer: createClusterIcon,
-//     onEachFeature: function (feature, layer) {
-//         const wwlink = '<br><b>WellWiki Page: </b><a href='+feature.properties.wellwiki+' target="_blank">'+feature.properties.wellwiki+'</a>';
-//         layer.bindPopup("<b>API Number: </b>" + feature.properties.api_num + "<br><b>FracTracker Class: </b>" + 
-//                                                 feature.properties.ft_category + "<br><b>State: </b>" + 
-//                                                 feature.properties.stusps + "<br><b>Provided Well Type: </b>" + 
-//                                                 feature.properties.well_type + "<br><b>Provided Well Status: </b>" + 
-//                                                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
-//                                                 feature.properties.well_name + "<br><b>Operator: </b>" + 
-//                                                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                                                 feature.properties.lng + "<br><b>Latitude: </b>" 
-//                                                 // feature.properties.lat + wwlink
-//                                                 );
-// }
-// });
-
-        // Update the displayed clusters after user pan / zoom.
-// map.on('moveend', update);
-
-// var ready;
-// function update() {
-//     if (!ready) return;
-//     var bounds = map.getBounds();
-//     var bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
-//     var zoom = map.getZoom();
-//     var clusters = index.getClusters(bbox, zoom);
-//     markers.clearLayers();
-//     markers.addData(clusters);
-// }
-
-// // Zoom to expand the cluster clicked by user.
-// markers.on('click', function(e) {
-//     var clusterId = e.layer.feature.properties.cluster_id;
-//     var center = e.latlng;
-//     var expansionZoom;
-//     if (clusterId) {
-//     expansionZoom = index.getClusterExpansionZoom(clusterId);
-//     map.flyTo(center, expansionZoom);
-//     }
-// });
-
 
 function getColor(stype) {
     switch (stype) {
@@ -395,58 +380,6 @@ function getColor(stype) {
     }
     }
 
-// function createClusterIcon(feature, latlng) {
-//     var markerStyle = {
-//         color: getColor(feature.properties.ft_category),
-//         fillColor: getColor(feature.properties.ft_category),
-//         maxZoom: 20,
-//         minZoom: 8,
-//         radius: 1, // Radius // Fill opacity of the circle
-//     };
-//     if (!feature.properties.cluster) return L.circleMarker(latlng, markerStyle);
-//     var count = feature.properties.point_count;
-//     var size =
-//     count < 100 ? 'small' :
-//     count < 1000 ? 'medium' : 'large';
-//     var icon = L.divIcon({
-//     html: '<div><span>' + feature.properties.point_count_abbreviated + '</span></div>',
-//     className: 'marker-cluster marker-cluster-' + size,
-//     iconSize: L.point(25)
-//     });
-
-//     return L.marker(latlng, {
-//     icon: icon
-//     });
-// }
-
-
-
-// // Function to update the map markers with the filtered data
-// function updateMapMarkers(data) {
-//     data = JSON.parse(data);
-    
-//     console.log('updateMapMarkers')
-//     // Clear existing markers from the map
-//     map.eachLayer(function(layer) {
-//         if (layer instanceof L.Marker) {
-//             map.removeLayer(layer);
-//         }  
-//     });
-
-//     index = supercluster({
-//         radius: 20,
-//         extent: 256,
-//         maxZoom: 9,
-//         }).load(data.features); // Expects an array of Features.
-//     ready = true;
-
-//     // map.addLayer(markers); 
-//     update();
-//     // Get the bounding box of the markers
-//     updateTable(data.features);
-//     document.getElementById('loading-popupid').classList.add('hidden');
-// }
-
 var geoJsonCtyLayer;
 var geoJsonCtyLayerid;
 var ctytally;
@@ -466,10 +399,7 @@ function ctyct(data, d) {
 
     if (ctytallyLayer) {
         map.removeLayer(ctytallyLayer);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    }
+    } ;
 
 
     // Parse the data and tally occurrences
@@ -546,16 +476,17 @@ function ctyct(data, d) {
                 fillOpacity: opacity // Set fill opacity based on count
             };
         },
+        zIndex: 200,
         onEachFeature: function(feature, layer) {
             const county = feature.county;
             const statename = feature.statename;
             const count = tally[`${statename}_${county}`] || 0;
-            layer.bindPopup(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`);
+            // layer.bindPopup(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`);
             // Add hover functionality to show county name in a tooltip
             layer.on({
                 mouseover: function(e) {
                     var layer = e.target;
-                    layer.bindTooltip(`<strong>County:</strong> ${county}`, {
+                    layer.bindTooltip(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`, {
                         permanent: false,
                         direction: 'top',
                         opacity: 0.8
@@ -570,13 +501,11 @@ function ctyct(data, d) {
 
     if (markerIconCollection) {
         map.removeLayer(markerIconCollection);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
 
     // Create GeoJSON layer for markers (with zoom level control)
     markerIconCollection = L.geoJSON(markerFeatures, {
+        zIndex: 1,
         pointToLayer: function(feature, latlng) {
             const numberIcon = L.divIcon({
                 className: 'number-icon',
@@ -603,7 +532,7 @@ function ctyct(data, d) {
             styleElement.innerHTML = iconStyle;
             document.head.appendChild(styleElement);
 
-            return L.marker(latlng, { icon: numberIcon });
+            return L.marker(latlng, { icon: numberIcon, zIndex: 1 });
         }
     }).addTo(map);
 
@@ -626,16 +555,6 @@ map.on('zoomend', function () {
         }
     }
 });
-
-// // Show points only if zoom level is between 10 and 14
-// map.on('zoomend', function () {
-//     var currentZoom = map.getZoom();
-//     if (currentZoom >= 11 && currentZoom <= 20) {
-//         markers.addTo(map);
-//     } else {
-//         markers.remove();
-//     }
-// });
 
 
 // Function to apply category filter
@@ -672,16 +591,10 @@ function applyCategoryFilter() {
         method: 'GET',
         data: {
             states: states,
-            //statesop: statesop,
             county: counties,
-            //--countyop: countyop,
             well_type: well_type,
-            //--well_typeop: well_typeop,
             well_status: well_status,
-            //--well_statusop: well_statusop,
-            // --well_name: well_name,
-            // --well_nameop: well_nameop,
-            // category: category,
+            category: category,
         },
         success: function(data) {
             filteredData = JSON.parse(data);
@@ -695,11 +608,27 @@ function applyCategoryFilter() {
             document.getElementById('loading-popupid').style.display = 'none';
         },
         error: function(xhr, status, error) {
+            alert("There was an error retrieving you're records. Try adding some filters to reduce the number of resulting features");
             console.error(error); // make sure to alter user to the error
             document.getElementById('loading-popupid').style.display = 'none';
         }
     });
 }
+
+function setCheckboxes () {
+    if (map.getZoom() > 7) {
+        console.log('greater than:');
+        console.log(map.getZoom())
+        document.getElementById('countycount').checked = true;
+    } else {
+        console.log('less than:');
+        console.log(map.getZoom());
+        document.getElementById('countycount').checked = false;
+    }
+    document.getElementById('countychoropleth').checked = true;
+
+}
+
 
 function updateTable(features) {
     var tableBody = document.getElementById('maintablebody');
@@ -739,54 +668,6 @@ function updateTable(features) {
     // Initial display of rows
     displayRows(currentPage);
 
-    // // Function to update pagination controls
-    // function updatePaginationControls(currentPage) {
-    //     var paginationCell = document.getElementById('pagination');
-    //     paginationCell.innerHTML = ''; // Clear existing pagination buttons
-
-    //     // Calculate total pages
-    //     var totalPages = Math.ceil(features.length / rowsPerPage);
-
-    //     // Show buttons for the first page, last page, two pages before and two pages after the current page
-    //     var buttonsToShow = [];
-    //     if (totalPages > 0) {
-    //         if (currentPage > 3) {
-    //             buttonsToShow.push(1);
-    //         }
-
-    //         if (currentPage > 2) {
-    //             buttonsToShow.push(currentPage - 2);
-    //         }
-    //         if (currentPage > 1) {
-    //             buttonsToShow.push(currentPage - 1);
-    //         }
-
-    //         buttonsToShow.push(currentPage);
-
-    //         if (currentPage < totalPages) {
-    //             buttonsToShow.push(currentPage + 1);
-    //         }
-    //         if (currentPage < totalPages - 1) {
-    //             buttonsToShow.push(currentPage + 2);
-    //         }
-
-    //         if (totalPages > 1) {
-    //             buttonsToShow.push(totalPages);
-    //         }
-    //     }
-
-    //     // Add page number buttons
-    //     buttonsToShow.forEach(function(page) {
-    //         var button = document.createElement('button');
-    //         button.textContent = page;
-    //         button.className = "pagebtn";
-    //         button.onclick = function() {
-    //             currentPage = parseInt(this.textContent);
-    //             displayRows(currentPage);
-    //         };
-    //         paginationCell.appendChild(button);
-    //     });
-    // }
     // Function to update pagination controls
     function updatePaginationControls(currentPage) {
         var paginationCell = document.getElementById('pagination');
@@ -871,21 +752,7 @@ function updateTable(features) {
         }
     };
 
-    /* Function to sort the table by the selected column
-    document.getElementById('sort-dropdown').addEventListener('change', function() {
-        var selectedColumn = this.value;
-        console.log('itchanged')
-        features.sort(function(a, b) {
-            // Sorting logic for text data
-            console.log(a)
-            console.log(a.properties[selectedColumn])
-            if (a.properties[selectedColumn] < b.properties[selectedColumn]) return -1;
-            if (a.properties[selectedColumn] > b.properties[selectedColumn]) return 1;
-            return 0;
-        });
-        // After sorting, update the table
-        displayRows(currentPage);
-    }); */
+
 }
 // Function to download CSV of table data
 function downloadTableData(filteredData) {
@@ -1052,7 +919,7 @@ function getButtonValues() {
     return starray
   }
 
-  function getSelValues(s) {
+function getSelValues(s) {
     // Select all buttons inside the container
     const buttonchk = document.getElementById(s).querySelectorAll('*');
     starray = ''
@@ -1062,7 +929,7 @@ function getButtonValues() {
       starray+=b.id.slice(6)+','
     });
     return starray
-  }
+}
 
 
 function openlist(bo) {
@@ -1250,14 +1117,16 @@ function toggleselection(c,v) {
             document.getElementById(v+'btn').classList = 'filterbutton'
         } else if (c==='type') {
             document.getElementById(v+'btn').classList = 'filterbutton'
-        }
-        document.getElementById('input-'+v).remove()
+        };
+        document.getElementById('input-'+v).remove();
+        if (statetextbox.innerHTML === '') {
+            statetextbox.innerHTML = '**REQUIRED**'
+        };
     } else if (ecount>6 && c ==='state') {
         alert("You've selected the max number of states per search. Also this state count alert needs updating");
     } else {
         if (c === 'state') {
             document.getElementById(v+'btn').classList = 'highlightbutton'
-
         } else if (c === 'county') {
             document.getElementById(v+'btn').classList = 'highlightbutton'
         } else if (c === 'status') {
@@ -1268,21 +1137,91 @@ function toggleselection(c,v) {
         var buttonState = document.createElement('button-state');
         buttonState.classList.add('selbutton');
         buttonState.onclick = function() {
-            // console.log('buttonstate id:');
-            // console.log(buttonState.id.slice(6));
             document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
             buttonState.remove();
-            // console.log('statetextbox');
-            // console.log(statetextbox)
-            if (statetextbox === '') {
+            if (statetextbox.innerHTML === '') {
                 statetextbox.innerHTML = '**REQUIRED**'
             };
         };
         
         // Create a span for the original text
         const textSpan = document.createElement('span');
-        textSpan.textContent = v;  // Set the text inside the span
-
+        if (c === 'state') {
+            if (v === "Alabama") {
+                textSpan.textContent = 'AL'
+            } else if (v === "Arizona") {
+                textSpan.textContent = 'AZ';  // Set the text inside the span
+            } else if (v === "Arkansas") {
+                textSpan.textContent = 'AR';  // Set the text inside the span
+            } else if (v === "California") {
+                textSpan.textContent = 'CA';  // Set the text inside the span
+            } else if (v === "Colorado") {
+                textSpan.textContent = 'CO';  // Set the text inside the span
+            } else if (v === "Florida") {
+                textSpan.textContent = 'FL';  // Set the text inside the span
+            } else if (v === "Idaho") {
+                textSpan.textContent = 'ID';  // Set the text inside the span
+            } else if (v === "Illinois") {
+                textSpan.textContent = 'IL';  // Set the text inside the span
+            } else if (v === "Indiana") {
+                textSpan.textContent = 'IN';  // Set the text inside the span
+            } else if (v === "Iowa") {
+                textSpan.textContent = 'IA';  // Set the text inside the span
+            } else if (v === "Kansas") {
+                textSpan.textContent = 'KS';  // Set the text inside the span
+            } else if (v === "Kentucky") {
+                textSpan.textContent = 'KY';  // Set the text inside the span
+            } else if (v === "Louisiana") {
+                textSpan.textContent = 'LA';  // Set the text inside the span
+            } else if (v === "Maryland") {
+                textSpan.textContent = 'MD';  // Set the text inside the span
+            } else if (v === "Michigan") {
+                textSpan.textContent = 'MI';  // Set the text inside the span
+            } else if (v === "Mississippi") {
+                textSpan.textContent = 'MS';  // Set the text inside the span
+            } else if (v === "Missouri") {
+                textSpan.textContent = 'MO';  // Set the text inside the span
+            } else if (v === "Montana") {
+                textSpan.textContent = 'MT';  // Set the text inside the span
+            } else if (v === "Nebraska") {
+                textSpan.textContent = 'NE';  // Set the text inside the span
+            } else if (v === "Nevada") {
+                textSpan.textContent = 'NV';  // Set the text inside the span
+            } else if (v === "New Mexico") {
+                textSpan.textContent = 'NM';  // Set the text inside the span
+            } else if (v === "New York") {
+                textSpan.textContent = 'NY';  // Set the text inside the span
+            } else if (v === "North Dakota") {
+                textSpan.textContent = 'ND';  // Set the text inside the span
+            } else if (v === "Ohio") {
+                textSpan.textContent = 'OH';  // Set the text inside the span
+            } else if (v === "Oklahoma") {
+                textSpan.textContent = 'OK';  // Set the text inside the span
+            } else if (v === "Oregon") {
+                textSpan.textContent = 'OR';  // Set the text inside the span
+            } else if (v === "Pennsylvania") {
+                textSpan.textContent = 'PA';  // Set the text inside the span
+            } else if (v === "South Dakota") {
+                textSpan.textContent = 'SD';  // Set the text inside the span
+            } else if (v === "Tennessee") {
+                textSpan.textContent = 'TN';  // Set the text inside the span
+            } else if (v === "Texas") {
+                textSpan.textContent = 'TX';  // Set the text inside the span
+            } else if (v === "Utah") {
+                textSpan.textContent = 'UT';  // Set the text inside the span
+            } else if (v === "Virginia") {
+                textSpan.textContent = 'VA';  // Set the text inside the span
+            } else if (v === "Washington") {
+                textSpan.textContent = 'WA';  // Set the text inside the span
+            } else if (v === "West Virginia") {
+                textSpan.textContent = 'WV';  // Set the text inside the span
+            } else if (v === "Wyoming") {
+                textSpan.textContent = 'WY';  // Set the text inside the span
+            }
+            
+        } else {
+            textSpan.textContent = v;  // Set the text inside the span
+        };
         // Create a span for the 'X' that will appear on hover
         const closeSpan = document.createElement('span');
         closeSpan.textContent = ' X';
@@ -1329,17 +1268,7 @@ function toggleselection(c,v) {
 
 
 
-// Toggle polygons visibility based on checkbox
-document.getElementById('countycount').addEventListener('change', function() {
-    if (this.checked) {
-        ctytallyLayer.addTo(map);
-        markerIconCollection.addTo(map)
-    } else {
-        map.removeLayer(ctytallyLayer);
-        map.removeLayer(markerIconCollection)
 
-    }
-});
 
 
 
@@ -1353,7 +1282,7 @@ var injectionwells;
 
 function filterProd(data) {
     fd = JSON.parse(data);
-    console.log(fd)
+    // console.log(fd)
 
 
 
@@ -1367,10 +1296,7 @@ function filterProd(data) {
 
     if (productionwells) {
         map.removeLayer(productionwells);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
     productionwells = L.geoJSON(fd, {
         filter: function (feature) {
             return feature.properties.ft_category === 'Production Well';
@@ -1401,10 +1327,7 @@ function filterProd(data) {
 
     if (pluggedwells) {
         map.removeLayer(pluggedwells);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
     pluggedwells = L.geoJSON(fd, {
         filter: function (feature) {
             return feature.properties.ft_category === 'Plugged';
@@ -1434,10 +1357,7 @@ function filterProd(data) {
 
     if (otherwells) {
         map.removeLayer(otherwells);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
     otherwells = L.geoJSON(fd, {
         filter: function (feature) {
             return feature.properties.ft_category === 'Other / Unknown';
@@ -1467,10 +1387,7 @@ function filterProd(data) {
 
     if (orphanwells) {
         map.removeLayer(orphanwells);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
     orphanwells = L.geoJSON(fd, {
         filter: function (feature) {
             return feature.properties.ft_category === 'Orphaned / Abandoned / Unverified Plug';
@@ -1500,10 +1417,7 @@ function filterProd(data) {
 
     if (notdrilledwells) {
         map.removeLayer(notdrilledwells);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
     notdrilledwells = L.geoJSON(fd, {
         filter: function (feature) {
             return feature.properties.ft_category === 'Not Drilled';
@@ -1533,10 +1447,7 @@ function filterProd(data) {
 
     if (injectionwells) {
         map.removeLayer(injectionwells);
-        console.log('tried to remove it');
-    } else {
-        console.log('no such luck');
-    };
+    } ;
     injectionwells = L.geoJSON(fd, {
         filter: function (feature) {
             return feature.properties.ft_category === 'Injection / Storage / Service';
@@ -1623,6 +1534,32 @@ document.getElementById('category1').addEventListener('change', function() {
     }
 });
 
+// Toggle polygons visibility based on checkbox
+document.getElementById('countylayer').addEventListener('change', function() {
+    if (this.checked && canvasLayer_cty) {
+        canvasLayer_cty.addTo(map);
+    } else if (canvasLayer_cty) {
+        map.removeLayer(canvasLayer_cty);
+    }
+});
+
+
+// Toggle polygons visibility based on checkbox
+document.getElementById('countychoropleth').addEventListener('change', function() {
+    if (this.checked) {
+        ctytallyLayer.addTo(map);
+    } else if (ctytallyLayer) {
+        map.removeLayer(ctytallyLayer);
+    }
+});
+// Toggle polygons visibility based on checkbox
+document.getElementById('countycount').addEventListener('change', function() {
+    if (this.checked) {
+        markerIconCollection.addTo(map);
+    } else if (markerIconCollection) {
+        map.removeLayer(markerIconCollection);
+    }
+});
 
 
 // Function to toggle the point layer visibility based on zoom level
@@ -1630,70 +1567,89 @@ function togglePointLayerByZoom() {
     var currentZoom = map.getZoom();
     console.log(currentZoom);
 
-    // toggle production wells
-    if (currentZoom >= 13 && currentZoom <= 20) {
-        if (!map.hasLayer(productionwells) && document.getElementById('category6').checked) {
-            map.addLayer(productionwells);  // Add point layer when zoom level is between 14 and 20
-        }
-    } else if (productionwells) {
-        map.removeLayer(productionwells);  // Remove point layer when zoom level is outside 14 to 20
+
+    const wellftc = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
+    // toggle well layers
+    for (const [k,v] of Object.entries(wellftc)) {
+        if (currentZoom >= 13 && currentZoom <= 20) {
+            if (!map.hasLayer(v) && document.getElementById(k).checked) {
+                map.addLayer(v);  // Add point layer when zoom level is between 14 and 20
+            }
+        } else if (v) {
+            map.removeLayer(v);  // Remove point layer when zoom level is outside 14 to 20
+        };
+    }
+
+    // // toggle production wells
+    // if (currentZoom >= 13 && currentZoom <= 20) {
+    //     if (!map.hasLayer(productionwells) && document.getElementById('category6').checked) {
+    //         map.addLayer(productionwells);  // Add point layer when zoom level is between 14 and 20
+    //     }
+    // } else if (productionwells) {
+    //     map.removeLayer(productionwells);  // Remove point layer when zoom level is outside 14 to 20
         
-    };
+    // };
 
-    // toggle plugged
-    if (currentZoom >= 13 && currentZoom <= 20) {
-        if (!map.hasLayer(pluggedwells) && document.getElementById('category5').checked) {
-            map.addLayer(pluggedwells);  // Add point layer when zoom level is between 14 and 20
-        }
-    } else {
-        if (map.hasLayer(pluggedwells)) {
-            map.removeLayer(pluggedwells);  // Remove point layer when zoom level is outside 14 to 20
-        }
-    };
+    // // toggle plugged
+    // if (currentZoom >= 13 && currentZoom <= 20) {
+    //     if (!map.hasLayer(pluggedwells) && document.getElementById('category5').checked) {
+    //         map.addLayer(pluggedwells);  // Add point layer when zoom level is between 14 and 20
+    //     }
+    // } else if (pluggedwells) {
+    //     // if (map.hasLayer(pluggedwells)) {
+    //     //     map.removeLayer(pluggedwells);  // Remove point layer when zoom level is outside 14 to 20
+    //     // }
+    //     map.removeLayer(pluggedwells);
+    // };
     
-    // toggle other
-    if (currentZoom >= 13 && currentZoom <= 20) {
-        if (!map.hasLayer(otherwells) && document.getElementById('category4').checked) {
-            map.addLayer(otherwells);  // Add point layer when zoom level is between 14 and 20
-        }
-    } else {
-        if (map.hasLayer(otherwells)) {
-            map.removeLayer(otherwells);  // Remove point layer when zoom level is outside 14 to 20
-        }
-    };
+    // // toggle other
+    // if (currentZoom >= 13 && currentZoom <= 20) {
+    //     if (!map.hasLayer(otherwells) && document.getElementById('category4').checked) {
+    //         map.addLayer(otherwells);  // Add point layer when zoom level is between 14 and 20
+    //     }
+    // } else if (otherwells) {
+    //     // if (map.hasLayer(otherwells)) {
+    //     //     map.removeLayer(otherwells);  // Remove point layer when zoom level is outside 14 to 20
+    //     // }
+    //     map.removeLayer(otherwells);
+    // };
 
-    // toggle other
-    if (currentZoom >= 13 && currentZoom <= 20) {
-        if (!map.hasLayer(orphanwells) && document.getElementById('category3').checked) {
-            map.addLayer(orphanwells);  // Add point layer when zoom level is between 14 and 20
-        }
-    } else {
-        if (map.hasLayer(orphanwells)) {
-            map.removeLayer(orphanwells);  // Remove point layer when zoom level is outside 14 to 20
-        }
-    };
+    // // toggle other
+    // if (currentZoom >= 13 && currentZoom <= 20) {
+    //     if (!map.hasLayer(orphanwells) && document.getElementById('category3').checked) {
+    //         map.addLayer(orphanwells);  // Add point layer when zoom level is between 14 and 20
+    //     }
+    // } else if (orphanwells) {
 
-    // toggle notdrilled
-    if (currentZoom >= 13 && currentZoom <= 20) {
-        if (!map.hasLayer(notdrilledwells) && document.getElementById('category2').checked) {
-            map.addLayer(notdrilledwells);  // Add point layer when zoom level is between 14 and 20
-        }
-    } else {
-        if (map.hasLayer(notdrilledwells)) {
-            map.removeLayer(notdrilledwells);  // Remove point layer when zoom level is outside 14 to 20
-        }
-    };
+    //     // if (map.hasLayer(orphanwells)) {
+    //     //     map.removeLayer(orphanwells);  // Remove point layer when zoom level is outside 14 to 20
+    //     // }
+    //     map.removeLayer(orphanwells);
+    // };
 
-    // toggle injection
-    if (currentZoom >= 13 && currentZoom <= 20) {
-        if (!map.hasLayer(injectionwells) && document.getElementById('category1').checked) {
-            map.addLayer(injectionwells);  // Add point layer when zoom level is between 14 and 20
-        }
-    } else {
-        if (map.hasLayer(injectionwells)) {
-            map.removeLayer(injectionwells);  // Remove point layer when zoom level is outside 14 to 20
-        }
-    };
+    // // toggle notdrilled
+    // if (currentZoom >= 13 && currentZoom <= 20) {
+    //     if (!map.hasLayer(notdrilledwells) && document.getElementById('category2').checked) {
+    //         map.addLayer(notdrilledwells);  // Add point layer when zoom level is between 14 and 20
+    //     }
+    // } else if (notdrilledwells) {
+    //     // if (map.hasLayer(notdrilledwells)) {
+    //     //     map.removeLayer(notdrilledwells);  // Remove point layer when zoom level is outside 14 to 20
+    //     // }
+    //     map.removeLayer(notdrilledwells);
+    // };
+
+    // // toggle injection
+    // if (currentZoom >= 13 && currentZoom <= 20) {
+    //     if (!map.hasLayer(injectionwells) && document.getElementById('category1').checked) {
+    //         map.addLayer(injectionwells);  // Add point layer when zoom level is between 14 and 20
+    //     }
+    // } else if (injectionwells) {
+    //     // if (map.hasLayer(injectionwells)) {
+    //     //     map.removeLayer(injectionwells);  // Remove point layer when zoom level is outside 14 to 20
+    //     // }
+    //     map.removeLayer(injectionwells);
+    // };
 }
 
 // Call togglePointLayerByZoom every time the map zooms

@@ -29,16 +29,18 @@ table {
 th, td {
     text-align: center;
     font-family: Arial, sans-serif; /* Set font family to Arial */
+    
 }
 
 /* Style for table headers */
 th {
     position: sticky;
+    padding: 4px;
     top: 0;
     z-index: 10;
     color: #00253B;
     background-color: #d4dadc;
-    border: 1px solid #00253B;
+    border: 2px solid #00253B;
     font-size: 13px; /* Adjust the font size as needed */
 }
 
