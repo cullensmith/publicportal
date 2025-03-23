@@ -444,18 +444,23 @@
                 <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png">
 
                 <div class="legend" id="legend" >
-                    <div class="legend-header" id="legend-toggle">
-                        <span>Legend</span>
+                    <div class="legend-header" style="display:grid;grid-auto-flow: column;" id="legend-toggle">
+                        <div style="justify-self:right">
+                            <span>Legend</span>
+                        </div>
+                        <div  style="justify-self:right">
+                            <span id="legend_arrow">x</span>
+                        </div>
                     </div>
                     <div class="legend-content">
-                        <p>Well Locations</p>
+                        <p style="margin-bottom:5px"><strong>Well Locations</strong></p>
                         <label class="category1"><input type="checkbox" id="category1" unchecked> Injection / Storage / Service</label>
                         <label class="category1"><input type="checkbox" id="category2" unchecked> Not Drilled</label>
                         <label class="category1"><input type="checkbox" id="category3" unchecked> Orphaned / Abandoned / Unverified Plug</label>
                         <label class="category1"><input type="checkbox" id="category4" unchecked> Other / Unknown</label>
                         <label class="category1"><input type="checkbox" id="category5" unchecked> Plugged</label>
                         <label class="category1"><input type="checkbox" id="category6"  unchecked> Production Well</label>
-                        <p>County Layers</p>
+                        <p style="margin-bottom:5px"><strong>County Layers</strong></p>
                         <label class="category1"><input type="checkbox" id="countylayer"  unchecked> County Borders</label>
                         <label class="category1"><input type="checkbox" id="countycount"  unchecked> County Counts</label>
                         <label class="category1"><input type="checkbox" id="countychoropleth"  unchecked> County Choropleth</label>

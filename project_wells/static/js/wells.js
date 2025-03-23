@@ -135,7 +135,6 @@ function getStates(data) {
             };
             canvasLayer_state = L.geoJSON(data, options).addTo(map);
 
-            // canvasLayer_state = L.geoJson.vt(data, options).addTo(map); 
 
             stateLayer=canvasLayer_state._leaflet_id
             try {
@@ -194,7 +193,6 @@ function getCounties(s,c,data) {
                 fillOpacity: 0.00001,
                 };
 
-            // canvasLayer_cty = L.geoJson.vt(data, options).addTo(map);
             canvasLayer_cty = L.geoJSON(data, {
                 style: geojsonStyle,
                 zIndex: 10,
@@ -378,7 +376,7 @@ function getColor(stype) {
         default:
         return '#FDFFFC';
     }
-    }
+}
 
 var geoJsonCtyLayer;
 var geoJsonCtyLayerid;
@@ -498,6 +496,7 @@ function ctyct(data, d) {
             });
         }
     }).addTo(map);
+    document.getElementById('countychoropleth').checked = true;
 
     if (markerIconCollection) {
         map.removeLayer(markerIconCollection);
@@ -534,26 +533,21 @@ function ctyct(data, d) {
 
             return L.marker(latlng, { icon: numberIcon, zIndex: 1 });
         }
-    }).addTo(map);
-
-    // Set zoom level visibility for the markers
-    markerIconCollection.eachLayer(function(layer) {
-        layer.options.minZoom = 8;  // Minimum zoom level to show marker
-        layer.options.maxZoom = 14; // Maximum zoom level to show marker
     });
+    document.getElementById('countycount').checked = false;
 }
 
 
 // Show points only if zoom level is between 10 and 14
 map.on('zoomend', function () {
     var currentZoom = map.getZoom();
-    if (currentZoom >= 8 && currentZoom <= 20) {
-        markerIconCollection.addTo(map);
-    } else {
+    console.log(currentZoom)
+    if (currentZoom <= 6) {
         if (markerIconCollection) {
-        markerIconCollection.remove();
+            markerIconCollection.remove();
+            document.getElementById('countycount').checked = false;
         }
-    }
+    } 
 });
 
 
@@ -563,7 +557,16 @@ function applyCategoryFilter() {
     document.getElementById('dlbutton').style.display = 'none';
 
     var category = document.getElementById('ftacatPicks').value; 
-    var states = getSelValues('statePicks')
+    
+    var states = getSelValues('statePicks');  // Assuming this returns a comma-delimited string
+    // Split the string into an array
+    states = states.split(',');
+    // Now filter out the null values
+    states = states.filter(value => value !== null && value !== '');  // Also filters out empty strings
+    states = states.join(',');
+
+    console.log('states')
+    console.log(states)
     var counties = getSelValues('countyPicks')
     var well_status = getSelValues('statusPicks');
     var well_type = getSelValues('typePicks');
@@ -600,6 +603,8 @@ function applyCategoryFilter() {
             filteredData = JSON.parse(data);
             console.log('had success retrieving the records') // replace with action item
             // updateMapMarkers(data);
+            console.log(data)
+            console.log(filteredData)
             updateTable(filteredData.features);
             filterProd(data);
             getCounties(states, counties, data);
@@ -616,17 +621,8 @@ function applyCategoryFilter() {
 }
 
 function setCheckboxes () {
-    if (map.getZoom() > 7) {
-        console.log('greater than:');
-        console.log(map.getZoom())
-        document.getElementById('countycount').checked = true;
-    } else {
-        console.log('less than:');
-        console.log(map.getZoom());
-        document.getElementById('countycount').checked = false;
-    }
-    document.getElementById('countychoropleth').checked = true;
-
+    // document.getElementById('countycount').checked = false;
+    // document.getElementById('countychoropleth').checked = true;
 }
 
 
@@ -823,13 +819,12 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
+        document.getElementById('legend_arrow').innerText = 'x';
     } else {
         content.style.display = 'none';
+        document.getElementById('legend_arrow').innerText = '';
     }
 });
-
-// Initialize legend state
-// document.querySelector('.legend-content').style.display = 'none'; // Start with legend collapsed
 
 const statesarray = [
     "Alabama", 
@@ -1545,7 +1540,7 @@ document.getElementById('countylayer').addEventListener('change', function() {
 
 
 // Toggle polygons visibility based on checkbox
-document.getElementById('countychoropleth').addEventListener('change', function() {
+document.getElementById('countychoropleth').addEventListener('click', function() {
     if (this.checked) {
         ctytallyLayer.addTo(map);
     } else if (ctytallyLayer) {
@@ -1553,7 +1548,7 @@ document.getElementById('countychoropleth').addEventListener('change', function(
     }
 });
 // Toggle polygons visibility based on checkbox
-document.getElementById('countycount').addEventListener('change', function() {
+document.getElementById('countycount').addEventListener('click', function() {
     if (this.checked) {
         markerIconCollection.addTo(map);
     } else if (markerIconCollection) {
@@ -1574,82 +1569,14 @@ function togglePointLayerByZoom() {
         if (currentZoom >= 13 && currentZoom <= 20) {
             if (!map.hasLayer(v) && document.getElementById(k).checked) {
                 map.addLayer(v);  // Add point layer when zoom level is between 14 and 20
+                document.getElementById(k).checked = true;
             }
         } else if (v) {
             map.removeLayer(v);  // Remove point layer when zoom level is outside 14 to 20
+            document.getElementById(k).checked = false;
         };
     }
 
-    // // toggle production wells
-    // if (currentZoom >= 13 && currentZoom <= 20) {
-    //     if (!map.hasLayer(productionwells) && document.getElementById('category6').checked) {
-    //         map.addLayer(productionwells);  // Add point layer when zoom level is between 14 and 20
-    //     }
-    // } else if (productionwells) {
-    //     map.removeLayer(productionwells);  // Remove point layer when zoom level is outside 14 to 20
-        
-    // };
-
-    // // toggle plugged
-    // if (currentZoom >= 13 && currentZoom <= 20) {
-    //     if (!map.hasLayer(pluggedwells) && document.getElementById('category5').checked) {
-    //         map.addLayer(pluggedwells);  // Add point layer when zoom level is between 14 and 20
-    //     }
-    // } else if (pluggedwells) {
-    //     // if (map.hasLayer(pluggedwells)) {
-    //     //     map.removeLayer(pluggedwells);  // Remove point layer when zoom level is outside 14 to 20
-    //     // }
-    //     map.removeLayer(pluggedwells);
-    // };
-    
-    // // toggle other
-    // if (currentZoom >= 13 && currentZoom <= 20) {
-    //     if (!map.hasLayer(otherwells) && document.getElementById('category4').checked) {
-    //         map.addLayer(otherwells);  // Add point layer when zoom level is between 14 and 20
-    //     }
-    // } else if (otherwells) {
-    //     // if (map.hasLayer(otherwells)) {
-    //     //     map.removeLayer(otherwells);  // Remove point layer when zoom level is outside 14 to 20
-    //     // }
-    //     map.removeLayer(otherwells);
-    // };
-
-    // // toggle other
-    // if (currentZoom >= 13 && currentZoom <= 20) {
-    //     if (!map.hasLayer(orphanwells) && document.getElementById('category3').checked) {
-    //         map.addLayer(orphanwells);  // Add point layer when zoom level is between 14 and 20
-    //     }
-    // } else if (orphanwells) {
-
-    //     // if (map.hasLayer(orphanwells)) {
-    //     //     map.removeLayer(orphanwells);  // Remove point layer when zoom level is outside 14 to 20
-    //     // }
-    //     map.removeLayer(orphanwells);
-    // };
-
-    // // toggle notdrilled
-    // if (currentZoom >= 13 && currentZoom <= 20) {
-    //     if (!map.hasLayer(notdrilledwells) && document.getElementById('category2').checked) {
-    //         map.addLayer(notdrilledwells);  // Add point layer when zoom level is between 14 and 20
-    //     }
-    // } else if (notdrilledwells) {
-    //     // if (map.hasLayer(notdrilledwells)) {
-    //     //     map.removeLayer(notdrilledwells);  // Remove point layer when zoom level is outside 14 to 20
-    //     // }
-    //     map.removeLayer(notdrilledwells);
-    // };
-
-    // // toggle injection
-    // if (currentZoom >= 13 && currentZoom <= 20) {
-    //     if (!map.hasLayer(injectionwells) && document.getElementById('category1').checked) {
-    //         map.addLayer(injectionwells);  // Add point layer when zoom level is between 14 and 20
-    //     }
-    // } else if (injectionwells) {
-    //     // if (map.hasLayer(injectionwells)) {
-    //     //     map.removeLayer(injectionwells);  // Remove point layer when zoom level is outside 14 to 20
-    //     // }
-    //     map.removeLayer(injectionwells);
-    // };
 }
 
 // Call togglePointLayerByZoom every time the map zooms

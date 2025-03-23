@@ -2,12 +2,13 @@ from django.shortcuts import render
 from .models import Wells, Counties, States, stStatus, stType #, CountyNames
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.views.generic import View
-from django.db.models import Q
+# from django.views.generic import View
+# from django.db.models import Q
 import json 
 import ast
+import time
 
-
+from django.core.serializers import serialize
 
 # Create your views here.
 def wells(request):
@@ -121,8 +122,8 @@ def statenameMap(s):
 
 def getstates_view(request):
     print('now were getting the states for the map')
-    print(f'here is the request: {request}')
-    print(f"states requested: {request.GET.getlist('states')}")
+    print(f'here is the request from getstates: {request}')
+    print(f"states requested from getstates: {request.GET.getlist('states')}")
     states_in = request.GET.getlist('states')[0].split(',')
     print(f'states in = {states_in}')
     states = list()
@@ -169,8 +170,8 @@ def getstates_view(request):
 
 def getcounties_view(request):
     print('now were getting the counties for the map')
-    print(f'here is the request: {request}')
-    print(f"states requested: {request.GET.getlist('states')}")
+    print(f'here is the request from getcounties: {request}')
+    print(f"states requested from getcounties: {request.GET.getlist('states')}")
     print(request.GET.getlist('states')) #[0].split(',')
     print('states_in request ^^')
     states_in = request.GET.getlist('states')[0].split(',')
@@ -319,14 +320,14 @@ def parse_states(data):
     return list(set(states))
 
 def generate_geojson(request):
+    start_time = time.time()
     print('now were getting the data for the map')
-    print(f'here is the request: {request}')
-    print(f"states requested: {request.GET.getlist('states')}")
+    print(f'here is the request from generate_geojson: {request}')
+    print(f"states requested from generate_geojson: {request.GET.getlist('states')}")
     states_in = request.GET.getlist('states')[0].split(',')
     states = parse_states(states_in)
-
-    # for s in states:
-    #     mapToDB()
+    stop_time1 = time.time()
+    print(f'part 1 took: {start_time - stop_time1} sec')
 
     well_status = list()
     if len(request.GET.getlist('well_status'))>0:
@@ -392,6 +393,9 @@ def generate_geojson(request):
 
     print(f'here is the main dict: {filterop_dict}')
 
+    stop_time2 = time.time()
+    print(f'part 2 took: {stop_time2 - stop_time1} sec')
+
     for k,v in filterop_dict.items():
         for s in v:
             if len(s) > 0:
@@ -409,8 +413,14 @@ def generate_geojson(request):
                     else:
                         filter_kwargs.update({f'ft_category__in':here})
 
+    stop_time3 = time.time()
+    print(f'part 3 took: {stop_time3 - stop_time2} sec')
+
     attrvals = list()
     attrvals = Wells.objects.filter(**filter_kwargs)
+
+    stop_time4 = time.time()
+    print(f'part 4 took: {stop_time4 - stop_time3} sec')
 
     newwell = list()
     for n,x in enumerate(attrvals):
@@ -429,6 +439,19 @@ def generate_geojson(request):
             "properties" : d,
         } for d in newwell]
     }
-
+    stop_time5a = time.time()
+    print(f'part 5a took: {stop_time5a - stop_time4} sec')
     mapdata = json.dumps(geojson)
+
+    stop_time5 = time.time()
+    print(f'part 5 took: {stop_time5 - stop_time5a} sec')
+
+
+
+    # mapdata = serialize('json', attrvals, fields=('api_num','other_id','latitude','longitude','stusps','county','municipality','well_name','operator','spud_date','plug_data','well_type','well_status','well_configuration','ft_category','id'))
+
+    stop_time6 = time.time()
+    print(f'part 6 took: {stop_time6 - stop_time5} sec')
+
+    print(f'part total was took: {stop_time6 - start_time} sec')
     return JsonResponse(mapdata, safe=False)
