@@ -6,8 +6,8 @@ const statustextbox = document.getElementById('statusPicks');
 const statusbuttonContainer = document.getElementById('status-container');
 const typetextbox = document.getElementById('typePicks');
 const typebuttonContainer = document.getElementById('type-container');
-const cattextbox = document.getElementById('catPicks');
-const catbuttonContainer = document.getElementById('cat-container');
+const cattextbox = document.getElementById('ftacatPicks');
+const catbuttonContainer = document.getElementById('ftacat-container');
 
 
 // Main portion centered around the map container
@@ -72,7 +72,7 @@ if (typeof URLSearchParams !== 'undefined' && location.search) {
     var params = new URLSearchParams(location.search);
     var geocoderString = params.get('geocoder');
     if (geocoderString && L.Control.Geocoder[geocoderString]) {
-    console.log('Using geocoder', geocoderString);
+    // console.log('Using geocoder', geocoderString);
     geocoder = L.Control.Geocoder[geocoderString]();
     } else if (geocoderString) {
     console.warn('Unsupported geocoder', geocoderString);
@@ -80,17 +80,40 @@ if (typeof URLSearchParams !== 'undefined' && location.search) {
 }
 
 var control = L.Control.geocoder({
+    defaultMarkGeocode: false,
     collapsed: false,
-    placeholder: '',
+    placeholder: 'Go to a location...',
     position:'topright',
     geocoder: geocoder
 }).addTo(map);
-var dots;
 
-// Call the getContainer routine.
-var htmlObject = control.getContainer();
-// Get the desired parent node.
-var a = document.getElementById('search-container');
+
+// Store the marker object
+var searchMarker = null;
+
+// Custom transparent icon (1x1 pixel transparent PNG)
+var transparentIcon = L.icon({
+    iconUrl: 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png',  // A 1x1 transparent PNG URL or your own image
+    iconSize: [1, 1],  // Set size to 1x1 (or a very small size)
+    iconAnchor: [0.5, 0.5],  // Anchor it at the center
+    popupAnchor: [0, -16],  // Adjust popup position
+});
+
+// Overriding the default marker to make it transparent
+control.on('markgeocode', function(event) {
+    var latlng = event.geocode.center;
+    var marker = L.marker(latlng, {
+        icon: L.divIcon({
+            className: 'transparent-marker', // Use custom class for the marker
+            iconSize: [0, 0]  // Set the size of the marker to 0 (invisible)
+        })
+    }).addTo(map);
+    map.setView(latlng, 14);  // Center map on the result
+});
+
+
+
+var dots;
 
 // Function to fetch GeoJSON data from a view
 function getStates(data) {
@@ -175,11 +198,11 @@ function getCounties(s,c,data) {
                     if (layer._leaflet_id == countyLayer) {
                         map.removeLayer(layer);
                     } else {
-                        console.log('layer id did not match')
+                        // console.log('layer id did not match')
                     }
                     }
                     catch(err) {
-                        console.log('no such county layer exists');
+                        // console.log('no such county layer exists');
                     }
                     
             }); 
@@ -217,9 +240,9 @@ function getCounties(s,c,data) {
                             e.target.closeTooltip();
                         }
                     });
-                    layer.on('click', function () {
-                        console.log('clicked it');  // Log the message when the polygon is clicked
-                    });
+                    // layer.on('click', function () {
+                    //     console.log('clicked it');  // Log the message when the polygon is clicked
+                    // });
                 }
             }).addTo(map);
 
@@ -487,7 +510,7 @@ function ctyct(data, d) {
                     layer.bindTooltip(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`, {
                         permanent: false,
                         direction: 'top',
-                        opacity: 0.8
+                        opacity: 0.9
                     }).openTooltip();
                 },
                 mouseout: function(e) {
@@ -541,7 +564,7 @@ function ctyct(data, d) {
 // Show points only if zoom level is between 10 and 14
 map.on('zoomend', function () {
     var currentZoom = map.getZoom();
-    console.log(currentZoom)
+    // console.log(currentZoom)
     if (currentZoom <= 6) {
         if (markerIconCollection) {
             markerIconCollection.remove();
@@ -554,7 +577,7 @@ map.on('zoomend', function () {
 // Function to apply category filter
 function applyCategoryFilter() {
 
-    document.getElementById('dlbutton').style.display = 'none';
+    document.getElementById('refineblock').style.display = 'none';
 
     var category = document.getElementById('ftacatPicks').value; 
     
@@ -565,12 +588,12 @@ function applyCategoryFilter() {
     states = states.filter(value => value !== null && value !== '');  // Also filters out empty strings
     states = states.join(',');
 
-    console.log('states')
-    console.log(states)
+    // console.log('states')
+    // console.log(states)
     var counties = getSelValues('countyPicks')
     var well_status = getSelValues('statusPicks');
     var well_type = getSelValues('typePicks');
-
+    var category = getSelValues('ftacatPicks');
     // open up the loading window
     document.getElementById('loading-popupid').style.display = 'block';
     // Start adding periods to the loading popup text
@@ -603,13 +626,14 @@ function applyCategoryFilter() {
             filteredData = JSON.parse(data);
             console.log('had success retrieving the records') // replace with action item
             // updateMapMarkers(data);
-            console.log(data)
-            console.log(filteredData)
+            // console.log(data);
+            // console.log(filteredData);
+            // console.log(filteredData.features);
             updateTable(filteredData.features);
             filterProd(data);
             getCounties(states, counties, data);
             getStates(states);
-            document.getElementById('dlbutton').style.display = 'block';
+            document.getElementById('refineblock').style.display = 'block';
             document.getElementById('loading-popupid').style.display = 'none';
         },
         error: function(xhr, status, error) {
@@ -626,16 +650,85 @@ function setCheckboxes () {
 }
 
 
+function sortTable() {
+    console.log(filteredData)
+    field = document.getElementById('sort-field').value;
+    console.log('field')
+    console.log(field)
+    sdata = filteredData.features
+    const sortedData = [...sdata].sort((a, b) => {
+        // console.log('a')
+        // console.log(field);
+        const operatorA = a.properties[field] ? a.properties[field].toLowerCase() : '';
+        // console.log('b')
+        // console.log(field)
+        const operatorB = b.properties[field] ? b.properties[field].toLowerCase() : '';
+        if (operatorA < operatorB) return -1;
+        if (operatorA > operatorB) return 1;
+        return 0;
+    });
+    
+    updateTable(sortedData);  // Render the sorted table
+    sdata = ''
+}
+
+
+document.getElementById('sortbtn').addEventListener('click', function () {
+    sortTable();
+});
+
+// function revert() {
+//     updateTable(filteredData)
+// }
+
 function updateTable(features) {
+    console.log('UT')
+    console.log(features)
     var tableBody = document.getElementById('maintablebody');
     var currentPage = 1;
     var rowsPerPage = 50;
-
+    // console.log('features')
+    // console.log(features)
     // Function to display rows based on current page
+
+    var pgrecsMax;
+
+    function maxrec(p) {
+        // console.log('here is p')
+        // console.log(p)
+        pgrecsMax = p
+        if ((((p-1)*50) + 50) > features.length) {
+            pgrecsMax = features.length
+        } else {
+            // pgrecsMax = (((currentPage-1)*50) + 50)
+            pgrecsMax = 5
+        }
+    };
+
+    maxrec(currentPage)
+
     function displayRows(currentPage) {
         var startIndex = (currentPage - 1) * rowsPerPage;
         var endIndex = startIndex + rowsPerPage;
         var pageFeatures = features.slice(startIndex, endIndex);
+
+        var pgrecsMax;
+
+        function maxrec(p) {
+            pgrecsMax = p
+            if ((((p-1)*50) + 50) > features.length) {
+                pgrecsMax = features.length
+            } else {
+                // pgrecsMax = (((currentPage-1)*50) + 50)
+                pgrecsMax = (((p-1)*50) + 50)
+            }
+        };
+    
+        maxrec(currentPage)
+    
+        // maxrec(currentPage)
+        document.getElementById('records').innerText = 'Records ' + (((currentPage-1)*50)+1) + ' - ' + pgrecsMax + ' of ' + features.length
+
 
         // Clear existing rows in table body
         tableBody.innerHTML = '';
@@ -702,10 +795,10 @@ function updateTable(features) {
 
             // Current page button
             var currentButton = document.createElement('button');
-            currentButton.textContent = currentPage;
+            currentButton.textContent = "Page: " + currentPage;
             currentButton.className = "pagebtn";
             currentButton.onclick = function() {
-                currentPage = parseInt(this.textContent);
+                currentPage = parseInt(currentPage);
                 displayRows(currentPage);
             };
             paginationCell.appendChild(currentButton);
@@ -869,7 +962,7 @@ const statesarray = [
     // "South Carolina", 
     "South Dakota", 
     "Tennessee", 
-    "Texas", 
+    "Texas (disabled)", 
     "Utah", 
     // "Vermont", 
     "Virginia", 
@@ -890,7 +983,7 @@ statesarray.forEach(st => {
     document.getElementById('state-container').appendChild(sbutton);
 });
 
-const ftacats = ['Injection / Storage / Service', 'Not Drilled','Orphaned / Abandoned / Unverified','Other / Unknown','Plugged','Production']
+const ftacats = ['Injection / Storage / Service', 'Not Drilled','Orphaned / Abandoned / Unverified','Other / Unknown','Plugged','Production Well']
 
 ftacats.forEach(st => {
     const fbutton = document.createElement('button');
@@ -1112,13 +1205,15 @@ function toggleselection(c,v) {
             document.getElementById(v+'btn').classList = 'filterbutton'
         } else if (c==='type') {
             document.getElementById(v+'btn').classList = 'filterbutton'
+        } else if (c==='ftacat') {
+            document.getElementById(v+'btn').classList = 'filterbutton'
         };
         document.getElementById('input-'+v).remove();
         if (statetextbox.innerHTML === '') {
             statetextbox.innerHTML = '**REQUIRED**'
         };
     } else if (ecount>6 && c ==='state') {
-        alert("You've selected the max number of states per search. Also this state count alert needs updating");
+        alert("You've selected the max number of states per search.");
     } else {
         if (c === 'state') {
             document.getElementById(v+'btn').classList = 'highlightbutton'
@@ -1128,7 +1223,9 @@ function toggleselection(c,v) {
             document.getElementById(v+'btn').classList = 'highlightbutton'
         } else if (c === 'type') {
             document.getElementById(v+'btn').classList = 'highlightbutton'
-        } 
+        } else if (c === 'ftacat') {
+            document.getElementById(v+'btn').classList = 'highlightbutton'
+        }
         var buttonState = document.createElement('button-state');
         buttonState.classList.add('selbutton');
         buttonState.onclick = function() {
@@ -1136,7 +1233,15 @@ function toggleselection(c,v) {
             buttonState.remove();
             if (statetextbox.innerHTML === '') {
                 statetextbox.innerHTML = '**REQUIRED**'
-            };
+            }else if (ctytextbox.innerHTML==='') {
+                ctytextbox.innerHTML='You can limit your results to those within a specific county by clicking the corresponding button below.'
+            } else if (statustextbox.innerHTML==='') {
+                statustextbox.innerHTML='Status varies from state to state, take a look at the reference below.'
+            } else if (typetextbox.innerHTML==='') {
+                typetextbox.innerHTML='Type varies from state to state, take a look at the reference below.'
+            } else if (cattextbox.innerHTML==='') {
+                cattextbox.innerHTML='Our attempt to normalize the varying classifications across the country. '
+            } ;
         };
         
         // Create a span for the original text
@@ -1242,9 +1347,18 @@ function toggleselection(c,v) {
 
 
         // Append the new button to the input box (which is now an input field)
-        if (statetextbox.innerHTML==='**REQUIRED**') {
+        if (statetextbox.innerHTML==='**REQUIRED**' && c==='state') {
             statetextbox.innerHTML=''
-        } 
+        } else if (c==='county' && ctytextbox.innerHTML==='You can limit your results to those within a specific county by clicking the corresponding button below.') {
+            ctytextbox.innerHTML=''
+        } else if (c==='status' && statustextbox.innerHTML==='Status varies from state to state, take a look at the reference below.') {
+            statustextbox.innerHTML=''
+        } else if (c==='type' && typetextbox.innerHTML==='Type varies from state to state, take a look at the reference below.') {
+            typetextbox.innerHTML=''
+        } else if (c==='ftacat' && cattextbox.innerHTML==='Our attempt to normalize the varying classifications across the country. ') {
+            cattextbox.innerHTML=''
+        } ;
+        
         if (c === 'state') {
             statetextbox.appendChild(buttonState);
         } else if (c === 'county') {
@@ -1257,6 +1371,8 @@ function toggleselection(c,v) {
             statustextbox.appendChild(buttonState);
         } else if (c === 'type') {
             typetextbox.appendChild(buttonState);
+        } else if (c === 'ftacat') {
+            cattextbox.appendChild(buttonState);
         }
     }
 }
@@ -1560,7 +1676,7 @@ document.getElementById('countycount').addEventListener('click', function() {
 // Function to toggle the point layer visibility based on zoom level
 function togglePointLayerByZoom() {
     var currentZoom = map.getZoom();
-    console.log(currentZoom);
+    // console.log(currentZoom);
 
 
     const wellftc = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
@@ -1584,3 +1700,148 @@ map.on('zoomend', togglePointLayerByZoom);
 
 // Initial check for the zoom level
 togglePointLayerByZoom();
+
+
+
+
+// Create the Leaflet Draw Control
+var drawControl = new L.Control.Draw({
+    draw: {
+        circle: true, // Allow the user to draw a circle
+        circlemarker: false,
+        polygon: false,
+        polyline: false,
+        rectangle: false,
+        marker: false,
+    }
+});
+
+// Manually attach the draw control to a div outside the map
+var drawControlsDiv = document.getElementById('draw-controls');
+
+// Attach the draw control to the separate div
+map.addControl(drawControl);
+
+// Move the control outside of the map container
+var controlContainer = document.querySelector('.leaflet-draw-toolbar');
+drawControlsDiv.appendChild(controlContainer);
+
+// Event listener to count points inside the circle
+map.on('draw:created', function (e) {
+var layer = e.layer;
+
+if (layer instanceof L.Circle) {
+    // Get circle's center and radius
+    var circleCenter = layer.getLatLng();
+    var circleRadius = layer.getRadius();
+
+    // Count how many points are inside the circle
+    var pointsInside = 0;
+        // JSON object to store points inside the circle
+    var pointsInsideJSON = {
+        count: 0,
+        points: []
+        };
+
+    const wellftcat = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
+    
+    
+    for (const [k,v] of Object.entries(wellftcat)) {
+        if (document.getElementById(k).checked === true) {
+            v.eachLayer(function (marker) {
+                // console.log(marker)
+                // console.log(marker.feature.properties.api_num)
+                // Check if the marker is inside the circle
+                var distance = circleCenter.distanceTo(marker.getLatLng());
+                if (distance <= circleRadius) {
+                pointsInsideJSON.count++;
+
+                // Collect all attributes of the marker, including coordinates
+                var markerData = {
+                    api_num: marker.feature.properties.api_num,     // Custom attribute
+                    other_id: marker.feature.properties.other_id,     // Custom attribute
+                    latitude: marker.feature.properties.latitude,     // Custom attribute
+                    longitude: marker.feature.properties.longitude,     // Custom attribute
+                    stusps: marker.feature.properties.stusps,     // Custom attribute
+                    county: marker.feature.properties.county,     // Custom attribute
+                    municipality: marker.feature.properties.municipality,     // Custom attribute
+                    well_name: marker.feature.properties.well_name,     // Custom attribute
+                    operator: marker.feature.properties.operator,     // Custom attribute
+                    spud_date: marker.feature.properties.spud_date,     // Custom attribute
+                    plug_date: marker.feature.properties.plug_date,     // Custom attribute
+                    well_type: marker.feature.properties.well_type,     // Custom attribute
+                    well_status: marker.feature.properties.well_status,     // Custom attribute
+                    well_configuration: marker.feature.properties.well_configuration,     // Custom attribute
+                    ft_category: marker.feature.properties.ft_category,     // Custom attribute
+                    id: marker.feature.properties.id,     // Custom attribute
+                };
+
+                pointsInsideJSON.points.push(markerData);
+                }
+            });
+    }}
+    // console.log(JSON.stringify(pointsInsideJSON, null, 2));
+
+    //   starting here ============
+    data = JSON.stringify(pointsInsideJSON, null, 2)
+    // Convert the points to GeoJSON
+    function convertToGeoJSON(data) {
+        return {
+            type: "FeatureCollection",
+            features: data.points.map(point => ({
+            type: "Feature",
+            geometry: {
+                type: "Point",
+                coordinates: [point.longitude, point.latitude]
+            },
+            properties: {
+                api_num: point.api_num,
+                other_id: point.other_id,
+                latitude: point.latitude,
+                longitude: point.longitude,
+                stusps: point.stusps,
+                county: point.county,
+                municipality: point.municipality,
+                well_name: point.well_name,
+                operator: point.operator,
+                spud_date: point.spud_date,
+                plug_date: point.plug_date,
+                well_type: point.well_type,
+                well_status: point.well_status,
+                well_configuration: point.well_configuration,
+                ft_category: point.ft_category,
+                id: point.id,
+
+            }
+            }))
+        };
+        }
+    
+        // Convert data to GeoJSON
+        const refinedrad = convertToGeoJSON(pointsInsideJSON);
+        
+        updateTable(refinedrad.features)
+        // Log the result
+        // console.log(JSON.stringify(geoJSON, null, 2));
+
+
+      // Display the JSON object in the console
+    //   console.log(JSON.stringify(pointsInsideJSON, null, 2));
+    // alert("Points inside the circle: " + pointsInside);
+}
+});
+
+function refinefilter () {
+    f = document.getElementById('sort-field2').value;
+    s = document.getElementById('srch-input').value;
+    const refinedsrch = {
+        "type": "FeatureCollection",
+        "features": filteredData.features.filter(function(feature) {
+          return feature.properties[f] === s; // Change the value as needed
+        })
+      };
+      console.log('here')
+      console.log(refinedsrch.features)
+      updateTable(refinedsrch.features)
+}
+

@@ -9,7 +9,7 @@
   }
 
   .legend {
-      background: white;
+      background: rgb(255, 255, 255);
       padding: 6px 7px;
       font: 14px Arial, sans-serif;
       line-height: 18px;
@@ -35,22 +35,22 @@
       margin-right: 10px;
   }
   .legend-content .category1 {
-      color: '#A3CF5F'; /* Red */
+      color: '#A3CF5F'; 
   }
   .legend-content .category2 {
-      color: 'green'; /* Green */
+      color: green; 
   }
   .legend-content .category3 {
-      color: '#FFC857'; /* Blue */
+      color: '#FFC857'; 
   }
   .legend-content .category4 {
-      color: '#00253B'; /* Red */
+      color: '#00253B'; 
   }
   .legend-content .category5 {
-      color: '#0287D4'; /* Green */
+      color: '#0287D4'; 
   }
-  .legend-content .category3 {
-      color: red; /* Blue */
+  .legend-content .category6 {
+      color: red;
   }
   .legend-content input[type="checkbox"]:checked::before {
       content: '';
@@ -58,7 +58,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: currentColor;
+      /* background: currentColor; */
       margin-right: 10px;
   }
   .legend-header {

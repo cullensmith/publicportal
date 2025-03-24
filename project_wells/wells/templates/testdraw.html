@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaflet Draw Control Outside Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <style>
+    #map {
+      width: 600px;
+      height: 400px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    #draw-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 10px;
+    }
+    .leaflet-draw-toolbar {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <div id="draw-controls"></div> <!-- Draw control outside the map -->
+
+  <script>
+    // Initialize the map
+    var map = L.map('map').setView([51.505, -0.09], 13);
+
+    // Add a tile layer to the map
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // Add points to the map (example points)
+    var pointsLayer = L.layerGroup([
+      L.marker([51.505, -0.09]),
+      L.marker([51.515, -0.1]),
+      L.marker([51.525, -0.12])
+    ]).addTo(map);
+
+    // Create the Leaflet Draw Control
+    var drawControl = new L.Control.Draw({
+      draw: {
+        circle: true, // Allow the user to draw a circle
+        polygon: false,
+        polyline: false,
+        rectangle: false,
+        marker: false,
+      }
+    });
+
+    // Manually attach the draw control to a div outside the map
+    var drawControlsDiv = document.getElementById('draw-controls');
+    
+    // Attach the draw control to the separate div
+    map.addControl(drawControl);
+
+    // Move the control outside of the map container
+    var controlContainer = document.querySelector('.leaflet-draw-toolbar');
+    drawControlsDiv.appendChild(controlContainer);
+
+    // Event listener to count points inside the circle
+    map.on('draw:created', function (e) {
+      var layer = e.layer;
+
+      if (layer instanceof L.Circle) {
+        // Get circle's center and radius
+        var circleCenter = layer.getLatLng();
+        var circleRadius = layer.getRadius();
+
+        // Count how many points are inside the circle
+        var pointsInside = 0;
+
+        pointsLayer.eachLayer(function (marker) {
+          // Check if the marker is inside the circle
+          var distance = circleCenter.distanceTo(marker.getLatLng());
+          if (distance <= circleRadius) {
+            pointsInside++;
+          }
+        });
+
+        alert("Points inside the circle: " + pointsInside);
+      }
+    });
+  </script>
+
+</body>
+</html>

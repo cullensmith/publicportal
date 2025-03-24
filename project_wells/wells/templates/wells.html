@@ -25,6 +25,12 @@
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
+    {% comment %} <link rel = "stylesheet" href = "/static/css/leaflet-draw.css"/> {% endcomment %}
+    {% comment %} <script src="/static/js/leaflet-draw.js"/></script> {% endcomment %}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <!-- geojson vt  -->
@@ -33,6 +39,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /*
+        colors:
+         dark blue - 00253B
+         fractracker blue - 025687
+         light blue - 0287D4
+         green - A3CF5F 
+         light gray - FDFFFC 
+
+        */
+
+
         * {
             margin: 0;
             padding: 0;
@@ -47,9 +64,9 @@
         header {
             height: 100px;
             width: 100%;
-            background-color: #0287D4;
-            color: white;
-            display: flex;
+            background-color: white; /*#0287D4;*/
+            color: #025687;
+            display: grid;
             justify-content: center;
             align-items: center;
             font-size: 24px;
@@ -100,8 +117,10 @@
                 overflow: auto;
                 padding: 10px;
                 border: solid;
-                border-width: 10px;
+                border-width: 1px;
                 border-color: #0287D4;
+                border-radius:20px;
+                margin:6px;
         }
 
 
@@ -281,6 +300,14 @@
             border-color: #00253B;
             padding: 2px;
         }
+        .dropdownapplybutton {
+            background-color: #00253B;
+            color: white;
+            {% comment %} border-radius: 5px; {% endcomment %}
+            width: 100%;
+            border-color: #00253B;
+            padding: 2px;
+        }
         .selbutton {
             background-color: #ffffff;
             border-radius: 3px;
@@ -365,14 +392,38 @@
             display: none;
             width: 100%;
         } 
-
+        .dropdownbutton::after {
+            content: '   \142F'; /* Down arrow Unicode */
+            font-size: 7px; /* Space between text and the arrow */
+        }
+        .refine {
+            display:none
+        }
+        .refine.hidden {
+            display:none
+        }
+        .refine.show {
+            display:block
+        }
+        .image-container {
+            width: 300px;
+            height: 200px;
+            border: 2px solid #000;
+            text-align: center;
+            margin: 20px;
+          }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
 <body>
 
     <header>
-        <h1>National Oil & Gas Well Inventory</h1>
+        <div>
+            <h1 style="text-decoration: underline;text-decoration-color:#A3CF5F">National Oil & Gas Well Inventory</h1>
+        </div>
+        <div style="justify-self:center">
+            <h4 style="color:#0287D4;font-weight:normal">Updated Feb 28, 2025<h4>
+        </div>
     </header>
 
     <div class="main-content">
@@ -393,23 +444,23 @@
                 <div class="filter-content counties-content hide" id="ctyFilterContainer">
                     {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
                     <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
-                    <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties by State</button>
+                    <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
                     <div class="button-container" id="county-container"></div>
                 </div>
             </div>
             <div class="filter toggle-wellstatus hide">
                 <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
                 <div class="filter-content wellstatus-content" id="statusContainer">
-                    <div class="selectionContainer" id="statusPicks" style="max-height:14vh">These vary from state to state, take a look at the reference below.</div>
-                    <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status</button>
+                    <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
+                    <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
                     <div class="button-container" id="status-container"></div>
                 </div>
             </div>
             <div class="filter toggle-welltype hide">
                 <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
                 <div class="filter-content welltype-content" id="typeContainer">
-                    <div class="selectionContainer" id="typePicks" style="max-height:14vh">These vary from state to state, take a look at the reference below.</div>
-                    <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Types Available</button>
+                    <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
+                    <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
                     <div class="button-container" id="type-container"></div>
                 </div>
             </div>
@@ -422,21 +473,54 @@
                 <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
                 <div class="filter-content ftacat-content" id="ftacatContainer">
                     <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
-                    <button class="dropdownbutton" id="ftacatbutton" onclick="openlist('welltype')">General Classification</button>
+                    <button class="dropdownbutton" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
                     <div class="button-container" id="ftacat-container"></div>
                 </div>
             </div>
             <div >
-                <button style="padding: 5px;margin-top:10px" class="dropdownbutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                <button style="padding: 5px;margin-top:10px" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
             </div>
 
-            <div id="loading-popupid" class="loading-popup hidden">
-                Retrieving the Records<span id="loading-dots"></span>
+            <div id="postapply"  style="margin-top:30px">
+                <div id="loading-popupid" class="loading-popup hidden">
+                    Retrieving the Records<span id="loading-dots"></span>
+                </div>
+                <div class="refine hidden" id="refineblock">
+                    <div class="dlbtn">
+                        <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Results (CSV)</button>
+                    </div>
+                    <div id="search" style="margin-top:25px">
+                        {% comment %} <label>Refine your search</label> {% endcomment %}
+                        <select id="sort-field2" style="text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
+                            <option value="" style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
+                            <option value="api_num">API Number</option>
+                            <option value="county">County</option>
+                            <option value="well_name">Well Name</option>
+                            <option value="operator">Operator</option>
+                            <option value="spud_date">Spud Date</option>
+                            <option value="plug_date">Plug Date</option>
+                            <option value="well_type">Well Type</option>
+                            <option value="well_status">Well Status</option>
+                            <option value="well_configuratin">Well Configuration</option>
+                            <option value="ft_category">FracTracker Category</option>
+                        </select>
+                        <div style="display:grid;grid-auto-flow:column">
+                            <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;margin-left:-6px"></input></div>
+                            {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
+                            <div style="text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
+                        </div>    
+                    </div>
+                    <div id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
+                        <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
+                        <div id="controls" style="width:fit-content;justify-self:right">
+                            <div id="draw-controls"></div> <!-- Draw control outside the map -->
+                        </div>
+                    </div>
+                    <div>
+                        <button class="dropdownapplybutton" style="margin-top:16px" onclick="updateTable(filteredData.features)">Clear Selection</button>
+                    </div>
+                </div>
             </div>
-            <div class="dlbtn hide">
-                <button class="divbtns"  id="dlbutton" style="margin-top:4px" onclick="downloadTableData(filteredData)">Download Results (CSV)</button>
-            </div>
-
         </div>
         <div class="right" id="container">
             <!-- Top content of the right side -->
@@ -454,12 +538,12 @@
                     </div>
                     <div class="legend-content">
                         <p style="margin-bottom:5px"><strong>Well Locations</strong></p>
-                        <label class="category1"><input type="checkbox" id="category1" unchecked> Injection / Storage / Service</label>
-                        <label class="category1"><input type="checkbox" id="category2" unchecked> Not Drilled</label>
-                        <label class="category1"><input type="checkbox" id="category3" unchecked> Orphaned / Abandoned / Unverified Plug</label>
-                        <label class="category1"><input type="checkbox" id="category4" unchecked> Other / Unknown</label>
-                        <label class="category1"><input type="checkbox" id="category5" unchecked> Plugged</label>
-                        <label class="category1"><input type="checkbox" id="category6"  unchecked> Production Well</label>
+                        <label class="category1"><input type="checkbox" id="category1" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label>
+                        <label class="category1"><input type="checkbox" id="category2" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label>
+                        <label class="category1"><input type="checkbox" id="category3" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label>
+                        <label class="category1"><input type="checkbox" id="category4" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label>
+                        <label class="category1"><input type="checkbox" id="category5" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label>
+                        <label class="category1"><input type="checkbox" id="category6"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label>
                         <p style="margin-bottom:5px"><strong>County Layers</strong></p>
                         <label class="category1"><input type="checkbox" id="countylayer"  unchecked> County Borders</label>
                         <label class="category1"><input type="checkbox" id="countycount"  unchecked> County Counts</label>
@@ -471,13 +555,34 @@
                 <div>
                     <div style="padding:9px;display:grid;grid-auto-flow:column">
                         <div>
-                            <input style="width:120px;text-align: right;" type="number" id="page-input" placeholder="Jump to page #" min="1">
-                            <button class="divbtns" onclick="goToPage()">Go</button>
+                            <div>
+                                <input style="border:none;width:148px;text-align:center;height:25px;background-color:white;border-radius:7px" type="number" id="page-input" placeholder="Jump to page #" min="1">
+                                <button class="divbtns" onclick="goToPage()">Go</button>
+                            </div>
+                            {% comment %} <div class="pagenav-container" style="justify-self:center">
+                                <span id="pagination" style="justify-self: center"></span>
+                            </div> {% endcomment %}
                         </div>
-                        <div class="pagenav-container">
-                            <span id="pagination" style="justify-self: center"></span>
+                        <div style="color:white;margin-top:2px;justify-self:center">
+                            <span id="records"></span>
                         </div>
-                        <div>
+                        <div style="justify-self:right">
+                            <!-- Dropdown with a placeholder-like option for "Sort by" -->
+                            <select id="sort-field" style="text-align:center;border:none;height:25px;background-color:white;border-radius:7px">
+                                <option value="" style="color:#8a8a8a" selected>Choose a field</option> <!-- Placeholder option -->
+                                <option value="api_num">API Number</option>
+                                <option value="county">County</option>
+                                <option value="well_name">Well Name</option>
+                                <option value="operator">Operator</option>
+                                <option value="spud_date">Spud Date</option>
+                                <option value="plug_date">Plug Date</option>
+                                <option value="well_type">Well Type</option>
+                                <option value="well_status">Well Status</option>
+                                <option value="well_configuratin">Well Configuration</option>
+                                <option value="ft_category">FracTracker Category</option>
+                            </select>
+                            {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
+                            <button id="sortbtn" class="divbtns" onclick="sortTable()">Sort</button>
                         </div>
                     </div>
                 </div>
@@ -485,7 +590,7 @@
             <div class="bottom" id="bottomContainer">
             <!-- Bottom content of the right side -->
                 <div>
-                    <div id="pagination">
+                    <div id="pagination" style="display:flex;justify-content:center">
                     </div>
                 </div>
                 <div class="tablecontainer">
@@ -534,7 +639,6 @@
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
     <script>
-
         // Function to toggle filter visibility
         function toggleFilter(filterName) {
             let list = ['counties','wellstatus','welltype','ftacat']

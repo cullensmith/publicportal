@@ -379,7 +379,7 @@ def generate_geojson(request):
                      'well_type':['well_type','',well_type],
                     #  'well_name':['well_name','',well_name],
                      'county':['county','',county],
-                    #  'category':['category','',fcats]
+                     'category':['category','',fcats]
                     }
     
     filter_dict = { 
@@ -415,7 +415,7 @@ def generate_geojson(request):
 
     stop_time3 = time.time()
     print(f'part 3 took: {stop_time3 - stop_time2} sec')
-
+    print(f'here is the kwargs ---->> {filter_kwargs}')
     attrvals = list()
     attrvals = Wells.objects.filter(**filter_kwargs)
 
