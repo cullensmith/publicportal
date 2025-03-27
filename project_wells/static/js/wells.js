@@ -519,6 +519,7 @@ function ctyct(data, d) {
             });
         }
     }).addTo(map);
+    document.getElementById('countylayer').checked = true;
     document.getElementById('countychoropleth').checked = true;
 
     if (markerIconCollection) {
@@ -644,10 +645,7 @@ function applyCategoryFilter() {
     });
 }
 
-function setCheckboxes () {
-    // document.getElementById('countycount').checked = false;
-    // document.getElementById('countychoropleth').checked = true;
-}
+
 
 
 function sortTable() {
@@ -1210,7 +1208,11 @@ function toggleselection(c,v) {
         };
         document.getElementById('input-'+v).remove();
         if (statetextbox.innerHTML === '') {
-            statetextbox.innerHTML = '**REQUIRED**'
+            statetextbox.innerHTML = '**REQUIRED**';
+            document.getElementById('countybutton').classList.remove('notyet')
+            document.getElementById('statusbutton').classList.remove('notyet')
+            document.getElementById('typeybutton').classList.remove('notyet')
+            document.getElementById('ftacatbutton').classList.remove('notyet')
         };
     } else if (ecount>6 && c ==='state') {
         alert("You've selected the max number of states per search.");
@@ -1232,7 +1234,12 @@ function toggleselection(c,v) {
             document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
             buttonState.remove();
             if (statetextbox.innerHTML === '') {
-                statetextbox.innerHTML = '**REQUIRED**'
+                statetextbox.innerHTML = '**REQUIRED**';
+                document.getElementById('countybutton').classList.add('notyet')
+                document.getElementById('statusbutton').classList.remove('notyet')
+                document.getElementById('typeybutton').classList.remove('notyet')
+                document.getElementById('ftacatbutton').classList.remove('notyet')
+    
             }else if (ctytextbox.innerHTML==='') {
                 ctytextbox.innerHTML='You can limit your results to those within a specific county by clicking the corresponding button below.'
             } else if (statustextbox.innerHTML==='') {
@@ -1332,6 +1339,8 @@ function toggleselection(c,v) {
         buttonState.appendChild(textSpan);
         buttonState.appendChild(closeSpan);
 
+
+
         // Add hover effect to display 'X'
         buttonState.addEventListener('mouseenter', () => {
             closeSpan.style.display = 'inline';  // Show the 'X' when hovered
@@ -1348,7 +1357,12 @@ function toggleselection(c,v) {
 
         // Append the new button to the input box (which is now an input field)
         if (statetextbox.innerHTML==='**REQUIRED**' && c==='state') {
-            statetextbox.innerHTML=''
+            statetextbox.innerHTML='';
+            document.getElementById('countybutton').classList.remove('notyet')
+            document.getElementById('statusbutton').classList.remove('notyet')
+            document.getElementById('typeybutton').classList.remove('notyet')
+            document.getElementById('ftacatbutton').classList.remove('notyet')
+
         } else if (c==='county' && ctytextbox.innerHTML==='You can limit your results to those within a specific county by clicking the corresponding button below.') {
             ctytextbox.innerHTML=''
         } else if (c==='status' && statustextbox.innerHTML==='Status varies from state to state, take a look at the reference below.') {
@@ -1361,6 +1375,7 @@ function toggleselection(c,v) {
         
         if (c === 'state') {
             statetextbox.appendChild(buttonState);
+
         } else if (c === 'county') {
             // console.log(ctytextbox.innerHTML.slice(5))
             if (ctytextbox.innerHTML.slice(0,5) === 'Not n'){
@@ -1390,12 +1405,19 @@ var orphanwells;
 var notdrilledwells;
 var injectionwells;
 
+var filtproductionwells;
+var filtpluggedwells;
+var filtotherwells;
+var filtorphanwells;
+var filtnotdrilledwells;
+var filtinjectionwells;
+
+
+
 
 function filterProd(data) {
     fd = JSON.parse(data);
     // console.log(fd)
-
-
 
     document.getElementById('category6').checked = false;
     document.getElementById('category5').checked = false;

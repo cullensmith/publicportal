@@ -113,12 +113,13 @@
                 float: left; /* Float sidebar to the left */
                 font-family: Arial;
                 color: #00253B;
-                background-color: #0287D4;
-                overflow: auto;
+                background-color: #027bcf;
+                overflow-y: auto;
+                overflow-x: hidden;
                 padding: 10px;
                 border: solid;
-                border-width: 1px;
-                border-color: #0287D4;
+                border-width: 6px;
+                border-color: #027bcf;
                 border-radius:20px;
                 margin:6px;
         }
@@ -138,9 +139,10 @@
             font-family: acumin-pro-extra-condensed,sans-serif;
             margin-left: -10px;
             margin-right: -10px;
+            background-color:#027bcf;
         }
         .filter h4:hover {
-            background-color: #027bcf;
+            background-color: #0e6bc7;
         }
         .filter h4 {
             cursor: pointer;
@@ -183,7 +185,7 @@
             background-color: #027bcf;
         }
         .fh4.hide {
-            background-color: #0287D4;
+            background-color: #027bcf;
         }
         .filter-content.show {
             display: block;
@@ -300,13 +302,20 @@
             border-color: #00253B;
             padding: 2px;
         }
+        .dropdownbutton.notyet:hover {
+            cursor: not-allowed;
+        }
         .dropdownapplybutton {
             background-color: #00253B;
             color: white;
             {% comment %} border-radius: 5px; {% endcomment %}
             width: 100%;
-            border-color: #00253B;
-            padding: 2px;
+            {% comment %} border-color: #00253B; {% endcomment %}
+            {% comment %} padding: 2px; {% endcomment %}
+            border: none;
+        }
+        .dropdownapplybutton:hover {
+            cursor: pointer;
         }
         .selbutton {
             background-color: #ffffff;
@@ -412,6 +421,24 @@
             text-align: center;
             margin: 20px;
           }
+          .tabbtn {
+            color:white;
+            background-color:#2f9cdb;
+            margin-top:-14px;
+            border:none;
+            font-weight: bold;
+          }
+          .tabbtn:hover {
+            background-color:#006199;
+            cursor: pointer;
+          }
+          .tabbtn.sel {
+            background-color: #027bcf;
+            cursor:arrow;
+          }
+          .tabbtn.sel:hover {
+            cursor: default;
+          }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
@@ -429,6 +456,11 @@
     <div class="main-content">
         
         <div class="left" >
+            <div id="tabbtns" style="display:grid;grid-template-columns: 50% 50%;height: 5vh">
+                <button class="tabbtn sel" id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px">FILTER</button>
+                <button class="tabbtn" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px">RESULTS</button>
+            </div>
+
             <!-- filtering tools here -->
             <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
                 <h4 class="fh4 show" style="margin-top:-10px" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
@@ -444,7 +476,7 @@
                 <div class="filter-content counties-content hide" id="ctyFilterContainer">
                     {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
                     <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
-                    <button class="dropdownbutton" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
+                    <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
                     <div class="button-container" id="county-container"></div>
                 </div>
             </div>
@@ -452,7 +484,7 @@
                 <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
                 <div class="filter-content wellstatus-content" id="statusContainer">
                     <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
-                    <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
+                    <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
                     <div class="button-container" id="status-container"></div>
                 </div>
             </div>
@@ -460,7 +492,7 @@
                 <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
                 <div class="filter-content welltype-content" id="typeContainer">
                     <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
-                    <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
+                    <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
                     <div class="button-container" id="type-container"></div>
                 </div>
             </div>
@@ -473,12 +505,12 @@
                 <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
                 <div class="filter-content ftacat-content" id="ftacatContainer">
                     <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
-                    <button class="dropdownbutton" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
+                    <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
                     <div class="button-container" id="ftacat-container"></div>
                 </div>
             </div>
             <div >
-                <button style="padding: 5px;margin-top:10px" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                <button style="padding:20px;margin-top:10px" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
             </div>
 
             <div id="postapply"  style="margin-top:30px">
