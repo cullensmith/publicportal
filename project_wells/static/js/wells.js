@@ -577,8 +577,23 @@ map.on('zoomend', function () {
 
 // Function to apply category filter
 function applyCategoryFilter() {
+    document.getElementById('filterpanel').classList.add('hide')
+    document.getElementById('filterbtn').classList.remove('sel')
+    document.getElementById('loadingpanel').classList.remove('hide');
+    // let dots = '';
+    // let dotCount = 0;
+    // dotInterval = setInterval(() => {
+    //     dotCount += 1;
+    //     if (dotCount > 2) {
+    //         thetext = '   '; // Reset dots
+    //         dotCount = 0;
+    //     } else {
+    //         thetext = '...'
+    //     }
+    // }, 1000); // Update text every 500ms
+    // document.getElementById('loading-dots').textContent = thetext;
 
-    document.getElementById('refineblock').style.display = 'none';
+    // document.getElementById('refineblock').style.display = 'none';
 
     var category = document.getElementById('ftacatPicks').value; 
     
@@ -596,21 +611,10 @@ function applyCategoryFilter() {
     var well_type = getSelValues('typePicks');
     var category = getSelValues('ftacatPicks');
     // open up the loading window
-    document.getElementById('loading-popupid').style.display = 'block';
+    // document.getElementById('loading-popupid').style.display = 'block';
     // Start adding periods to the loading popup text
     // update this with something better such as spinny thing
-    let dots = '';
-    let dotCount = 0;
-    dotInterval = setInterval(() => {
-        dotCount += 1;
-        if (dotCount > 2) {
-            thetext = '   '; // Reset dots
-            dotCount = 0;
-        } else {
-            thetext = '...'
-        }
-        document.getElementById('loading-dots').textContent = thetext;
-    }, 1000); // Update text every 500ms
+
 
 
     $.ajax({
@@ -634,9 +638,49 @@ function applyCategoryFilter() {
             filterProd(data);
             getCounties(states, counties, data);
             getStates(states);
-            document.getElementById('refineblock').style.display = 'block';
-            document.getElementById('loading-popupid').style.display = 'none';
+            // document.getElementById('refineblock').style.display = 'block';
+            // document.getElementById('loading-popupid').style.display = 'none';
+            document.getElementById('loadingpanel').classList.add('hide')
+            document.getElementById('resultspanel').classList.remove('hide')
+            document.getElementById('resultsbtn').classList.add('sel')
+
+            document.getElementById('legenditemid21').classList.remove('dim')
+            document.getElementById('legenditemid11').classList.remove('dim')
+            document.getElementById('category1').classList.remove('dim')
+            
+            document.getElementById('legenditemid22').classList.remove('dim')
+            document.getElementById('legenditemid12').classList.remove('dim')
+            document.getElementById('category2').classList.remove('dim')
+
+            document.getElementById('legenditemid23').classList.remove('dim')
+            document.getElementById('legenditemid13').classList.remove('dim')
+            document.getElementById('category3').classList.remove('dim')
+            
+            document.getElementById('legenditemid24').classList.remove('dim')
+            document.getElementById('legenditemid14').classList.remove('dim')
+            document.getElementById('category4').classList.remove('dim')
+
+            document.getElementById('legenditemid25').classList.remove('dim')
+            document.getElementById('legenditemid15').classList.remove('dim')
+            document.getElementById('category5').classList.remove('dim')
+
+            document.getElementById('legenditemid26').classList.remove('dim')
+            document.getElementById('legenditemid16').classList.remove('dim')
+            document.getElementById('category6').classList.remove('dim')
+
+            document.getElementById('legenditemid27').classList.remove('dim')
+            document.getElementById('legenditemid17').classList.remove('dim')
+            document.getElementById('countylayer').classList.remove('dim')
+
+            document.getElementById('legenditemid28').classList.remove('dim')
+            document.getElementById('legenditemid18').classList.remove('dim')
+            document.getElementById('countycount').classList.remove('dim')
+
+            document.getElementById('legenditemid29').classList.remove('dim')
+            document.getElementById('legenditemid19').classList.remove('dim')
+            document.getElementById('countychoropleth').classList.remove('dim')
         },
+
         error: function(xhr, status, error) {
             alert("There was an error retrieving you're records. Try adding some filters to reduce the number of resulting features");
             console.error(error); // make sure to alter user to the error
@@ -1211,7 +1255,7 @@ function toggleselection(c,v) {
             statetextbox.innerHTML = '**REQUIRED**';
             document.getElementById('countybutton').classList.remove('notyet')
             document.getElementById('statusbutton').classList.remove('notyet')
-            document.getElementById('typeybutton').classList.remove('notyet')
+            document.getElementById('typebutton').classList.remove('notyet')
             document.getElementById('ftacatbutton').classList.remove('notyet')
         };
     } else if (ecount>6 && c ==='state') {
@@ -1237,7 +1281,7 @@ function toggleselection(c,v) {
                 statetextbox.innerHTML = '**REQUIRED**';
                 document.getElementById('countybutton').classList.add('notyet')
                 document.getElementById('statusbutton').classList.remove('notyet')
-                document.getElementById('typeybutton').classList.remove('notyet')
+                document.getElementById('typebutton').classList.remove('notyet')
                 document.getElementById('ftacatbutton').classList.remove('notyet')
     
             }else if (ctytextbox.innerHTML==='') {
@@ -1360,7 +1404,7 @@ function toggleselection(c,v) {
             statetextbox.innerHTML='';
             document.getElementById('countybutton').classList.remove('notyet')
             document.getElementById('statusbutton').classList.remove('notyet')
-            document.getElementById('typeybutton').classList.remove('notyet')
+            document.getElementById('typebutton').classList.remove('notyet')
             document.getElementById('ftacatbutton').classList.remove('notyet')
 
         } else if (c==='county' && ctytextbox.innerHTML==='You can limit your results to those within a specific county by clicking the corresponding button below.') {
@@ -1867,3 +1911,34 @@ function refinefilter () {
       updateTable(refinedsrch.features)
 }
 
+filterbtn.addEventListener('click', (e) => {
+    document.getElementById('resultspanel').classList.add('hide');
+    document.getElementById('filterpanel').classList.remove('hide');
+    document.getElementById('resultsbtn').classList.remove('sel')
+    document.getElementById('filterbtn').classList.add('sel')
+
+
+});
+resultsbtn.addEventListener('click', (e) => {
+    document.getElementById('filterpanel').classList.add('hide');
+    document.getElementById('resultspanel').classList.remove('hide');
+    document.getElementById('filterbtn').classList.remove('sel')
+    document.getElementById('resultsbtn').classList.add('sel')
+
+
+});
+
+
+
+window.onload = function() {
+    document.getElementById('category1').checked = false;
+    document.getElementById('category2').checked = false;
+    document.getElementById('category3').checked = false;
+    document.getElementById('category4').checked = false;
+    document.getElementById('category5').checked = false;
+    document.getElementById('category6').checked = false;
+    document.getElementById('countylayer').checked = false;
+    document.getElementById('countycount').checked = false;
+    document.getElementById('countychoropleth').checked = false;
+
+}

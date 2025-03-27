@@ -406,39 +406,89 @@
             font-size: 7px; /* Space between text and the arrow */
         }
         .refine {
-            display:none
+            display:block
         }
         .refine.hidden {
             display:none
         }
-        .refine.show {
-            display:block
-        }
+
         .image-container {
             width: 300px;
             height: 200px;
             border: 2px solid #000;
             text-align: center;
             margin: 20px;
-          }
-          .tabbtn {
-            color:white;
-            background-color:#2f9cdb;
-            margin-top:-14px;
-            border:none;
-            font-weight: bold;
-          }
-          .tabbtn:hover {
-            background-color:#006199;
-            cursor: pointer;
-          }
-          .tabbtn.sel {
-            background-color: #027bcf;
-            cursor:arrow;
-          }
-          .tabbtn.sel:hover {
-            cursor: default;
-          }
+        }
+        .tabbtn {
+        color:white;
+        background-color:#2f9cdb;
+        margin-top:-14px;
+        border:none;
+        font-weight: bold;
+        }
+        .tabbtn:hover {
+        background-color:#006199;
+        cursor: pointer;
+        }
+        .tabbtn.sel {
+        background-color: #027bcf;
+        cursor:arrow;
+        }
+        .tabbtn.sel:hover {
+        cursor: default;
+        }
+        .tabpanel.show {
+        display:block;
+        }
+        .tabpanel.hide {
+        display:none
+        }
+        /* HTML: <div class="loader"></div> */
+        .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        display: grid;
+        border-radius: 50%;
+        background:
+            linear-gradient(0deg ,rgb(0 0 0/50%) 30%,#0000 0 70%,rgb(0 0 0/100%) 0) 50%/8% 100%,
+            linear-gradient(90deg,rgb(0 0 0/25%) 30%,#0000 0 70%,rgb(0 0 0/75% ) 0) 50%/100% 8%;
+        background-repeat: no-repeat;
+        animation: l23 1s infinite steps(12);
+        }
+        .loader::before,
+        .loader::after {
+        content: "";
+        grid-area: 1/1;
+        border-radius: 50%;
+        background: inherit;
+        opacity: 0.915;
+        transform: rotate(30deg);
+        }
+        .loader::after {
+        opacity: 0.83;
+        transform: rotate(60deg);
+        }
+        @keyframes l23 {
+        100% {transform: rotate(1turn)}
+        }
+        .loadingobjects {
+            display:grid;
+            justify-content:center
+        }
+        .ovdrop{
+            background-color:white;
+            color:black
+        }
+        .ovdrop:hover {
+            color:red
+        }
+
+        .dim {
+            color:lightgray
+        }
+        .dim:hover {
+            cursor: not-allowed;
+        }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
@@ -460,96 +510,104 @@
                 <button class="tabbtn sel" id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px">FILTER</button>
                 <button class="tabbtn" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px">RESULTS</button>
             </div>
-
-            <!-- filtering tools here -->
-            <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
-                <h4 class="fh4 show" style="margin-top:-10px" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
-                <div class="filter-content states-content show" id="filterState">
-                    <label for="stateinputbox" style="display:block;padding-bottom: 5px;">Choose up to 3:</label>
-                    <div class="selectionContainer" style="display:flex;justify-content:center" id="statePicks">**REQUIRED**</div>
-                    <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States<br></button>
-                    <div class="button-container" id="state-container"></div>
-                </div>
-            </div>
-            <div class="filter toggle-counties hide">
-                <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">COUNTY</h4>
-                <div class="filter-content counties-content hide" id="ctyFilterContainer">
-                    {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
-                    <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
-                    <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
-                    <div class="button-container" id="county-container"></div>
-                </div>
-            </div>
-            <div class="filter toggle-wellstatus hide">
-                <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
-                <div class="filter-content wellstatus-content" id="statusContainer">
-                    <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
-                    <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
-                    <div class="button-container" id="status-container"></div>
-                </div>
-            </div>
-            <div class="filter toggle-welltype hide">
-                <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
-                <div class="filter-content welltype-content" id="typeContainer">
-                    <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
-                    <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
-                    <div class="button-container" id="type-container"></div>
-                </div>
-            </div>
-            {% comment %} <div class="filter-content">
-                <label for="well_name">Well Name:</label>
-                <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
-            </div> {% endcomment %}
-
-            <div class="filter toggle-ftacat hide">
-                <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
-                <div class="filter-content ftacat-content" id="ftacatContainer">
-                    <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
-                    <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
-                    <div class="button-container" id="ftacat-container"></div>
-                </div>
-            </div>
-            <div >
-                <button style="padding:20px;margin-top:10px" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
-            </div>
-
-            <div id="postapply"  style="margin-top:30px">
-                <div id="loading-popupid" class="loading-popup hidden">
-                    Retrieving the Records<span id="loading-dots"></span>
-                </div>
-                <div class="refine hidden" id="refineblock">
-                    <div class="dlbtn">
-                        <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Results (CSV)</button>
+            <div class="tabpanel " id="filterpanel">
+                <!-- filtering tools here -->
+                <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
+                    <h4 class="fh4 show" style="" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
+                    <div class="filter-content states-content show" id="filterState">
+                        <label for="stateinputbox" style="display:block;padding-bottom: 5px;">Choose up to 3:</label>
+                        <div class="selectionContainer" style="display:flex;justify-content:center" id="statePicks">**REQUIRED**</div>
+                        <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States<br></button>
+                        <div class="button-container" id="state-container"></div>
                     </div>
-                    <div id="search" style="margin-top:25px">
-                        {% comment %} <label>Refine your search</label> {% endcomment %}
-                        <select id="sort-field2" style="text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
-                            <option value="" style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
-                            <option value="api_num">API Number</option>
-                            <option value="county">County</option>
-                            <option value="well_name">Well Name</option>
-                            <option value="operator">Operator</option>
-                            <option value="spud_date">Spud Date</option>
-                            <option value="plug_date">Plug Date</option>
-                            <option value="well_type">Well Type</option>
-                            <option value="well_status">Well Status</option>
-                            <option value="well_configuratin">Well Configuration</option>
-                            <option value="ft_category">FracTracker Category</option>
-                        </select>
-                        <div style="display:grid;grid-auto-flow:column">
-                            <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;margin-left:-6px"></input></div>
-                            {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
-                            <div style="text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
-                        </div>    
+                </div>
+                <div class="filter toggle-counties hide">
+                    <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">COUNTY</h4>
+                    <div class="filter-content counties-content hide" id="ctyFilterContainer">
+                        {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
+                        <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
+                        <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
+                        <div class="button-container" id="county-container"></div>
                     </div>
-                    <div id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
-                        <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
-                        <div id="controls" style="width:fit-content;justify-self:right">
-                            <div id="draw-controls"></div> <!-- Draw control outside the map -->
+                </div>
+                <div class="filter toggle-wellstatus hide">
+                    <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
+                    <div class="filter-content wellstatus-content" id="statusContainer">
+                        <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
+                        <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
+                        <div class="button-container" id="status-container"></div>
+                    </div>
+                </div>
+                <div class="filter toggle-welltype hide">
+                    <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
+                    <div class="filter-content welltype-content" id="typeContainer">
+                        <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
+                        <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
+                        <div class="button-container" id="type-container"></div>
+                    </div>
+                </div>
+                {% comment %} <div class="filter-content">
+                    <label for="well_name">Well Name:</label>
+                    <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
+                </div> {% endcomment %}
+
+                <div class="filter toggle-ftacat hide">
+                    <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
+                    <div class="filter-content ftacat-content" id="ftacatContainer">
+                        <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
+                        <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
+                        <div class="button-container" id="ftacat-container"></div>
+                    </div>
+                </div>
+                <div >
+                    <button style="padding:20px;margin-top:10px" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                </div>
+            </div>
+            <div class="tabpanel hide" id="loadingpanel">
+                <div class="loadingobjects">
+                    <div id="loadingtext" style="font-weight:bold;margin-top:60px;margin-bottom:20px">
+                        Retrieving your records
+                    </div>
+                    <div id="spinnerid" class="loader" style="margin:auto"></div>
+                </div>
+            </div>
+            <div class="tabpanel hide" id="resultspanel">
+                <div id="postapply"  style="margin-top:30px">
+
+                    <div class="refine" id="refineblock">
+                        <div class="dlbtn">
+                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Results (CSV)</button>
                         </div>
-                    </div>
-                    <div>
-                        <button class="dropdownapplybutton" style="margin-top:16px" onclick="updateTable(filteredData.features)">Clear Selection</button>
+                        <div id="search" style="margin-top:25px">
+                            {% comment %} <label>Refine your search</label> {% endcomment %}
+                            <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
+                                <option value="" style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
+                                <option value="api_num" class="ovdrop">API Number</option>
+                                <option value="county" class="ovdrop">County</option>
+                                <option value="well_name" class="ovdrop">Well Name</option>
+                                <option value="operator" class="ovdrop">Operator</option>
+                                <option value="spud_date" class="ovdrop">Spud Date</option>
+                                <option value="plug_date" class="ovdrop">Plug Date</option>
+                                <option value="well_type" class="ovdrop">Well Type</option>
+                                <option value="well_status" class="ovdrop">Well Status</option>
+                                <option value="well_configuratin" class="ovdrop">Well Configuration</option>
+                                <option value="ft_category" class="ovdrop">FracTracker Category</option>
+                            </select>
+                            <div style="display:grid;grid-template-columns:84% 16%;width:100%">
+                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
+                                {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
+                                <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
+                            </div>    
+                        </div>
+                        <div id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
+                            <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
+                            <div id="controls" style="width:fit-content;justify-self:right">
+                                <div id="draw-controls"></div> <!-- Draw control outside the map -->
+                            </div>
+                        </div>
+                        <div>
+                            <button class="dropdownapplybutton" style="margin-top:16px;padding:7px" onclick="updateTable(filteredData.features)">Clear Selection</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -570,16 +628,16 @@
                     </div>
                     <div class="legend-content">
                         <p style="margin-bottom:5px"><strong>Well Locations</strong></p>
-                        <label class="category1"><input type="checkbox" id="category1" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label>
-                        <label class="category1"><input type="checkbox" id="category2" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label>
-                        <label class="category1"><input type="checkbox" id="category3" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label>
-                        <label class="category1"><input type="checkbox" id="category4" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label>
-                        <label class="category1"><input type="checkbox" id="category5" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label>
-                        <label class="category1"><input type="checkbox" id="category6"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label>
+                        <div class="legenditem " id="legenditemid11"><label class="category1 dim" id="legenditemid21"><input type="checkbox" id="category1" class="dim" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label></div>
+                        <div class="legenditem " id="legenditemid12"><label class="category1 dim" id="legenditemid22"><input type="checkbox" id="category2" class="dim" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label></div>
+                        <div class="legenditem " id="legenditemid13"><label class="category1 dim" id="legenditemid23"><input type="checkbox" id="category3" class="dim" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label></div>
+                        <div class="legenditem " id="legenditemid14"><label class="category1 dim" id="legenditemid24"><input type="checkbox" id="category4" class="dim" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label></div>
+                        <div class="legenditem " id="legenditemid15"><label class="category1 dim" id="legenditemid25"><input type="checkbox" id="category5" class="dim" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label></div>
+                        <div class="legenditem " id="legenditemid16"><label class="category1 dim" id="legenditemid26"><input type="checkbox" id="category6" class="dim"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label></div>
                         <p style="margin-bottom:5px"><strong>County Layers</strong></p>
-                        <label class="category1"><input type="checkbox" id="countylayer"  unchecked> County Borders</label>
-                        <label class="category1"><input type="checkbox" id="countycount"  unchecked> County Counts</label>
-                        <label class="category1"><input type="checkbox" id="countychoropleth"  unchecked> County Choropleth</label>
+                        <div class="legenditem " id="legenditemid17"><label class="category1 dim" id="legenditemid27"><input type="checkbox" id="countylayer" class="dim"  unchecked> County Borders</label></div>
+                        <div class="legenditem " id="legenditemid18"><label class="category1 dim" id="legenditemid28"><input type="checkbox" id="countycount" class="dim"  unchecked> County Counts</label></div>
+                        <div class="legenditem " id="legenditemid19"><label class="category1 dim" id="legenditemid29"><input type="checkbox" id="countychoropleth" class="dim"  unchecked> County Choropleth</label></div>
                     </div>
                 </div>
             </div>
