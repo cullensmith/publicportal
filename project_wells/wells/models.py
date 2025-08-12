@@ -86,8 +86,8 @@ class Wells(models.Model):
     id = models.IntegerField(primary_key=True)
 
     class Meta:
-        managed = True
-        db_table = 'wells'
+        managed = False
+        db_table = '"wells"."wells"'
     
     def __str__(self) -> str:
         return super().__str__()

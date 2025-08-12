@@ -38,6 +38,10 @@
     <script src="https://unpkg.com/leaflet-geojson-vt@1.1.0/src/leaflet-geojson-vt.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <link href="https://fonts.googleapis.com/css2?family=Archivo&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+
+
     <style>
         /*
         colors:
@@ -57,7 +61,7 @@
         }
         
         html, body {
-            font-family: Arial;
+            font-family: 'Archivo Black', sans-serif;
         }
 
         /* Header styling */
@@ -92,7 +96,7 @@
         }
         #dividerContainer {
             cursor: ns-resize;
-            background-color: #00253B;;
+            background-color: #00253B;
             height: 40px;
             width: 100%;
             user-select: none;
@@ -111,17 +115,18 @@
                 min-width: 190px;
                 {% comment %} height: 81vh; {% endcomment %}
                 float: left; /* Float sidebar to the left */
-                font-family: Arial;
+                font-family: 'Archivo Black', sans-serif;
                 color: #00253B;
-                background-color: #027bcf;
+                background-color: #02253a;
                 overflow-y: auto;
                 overflow-x: hidden;
                 padding: 10px;
                 border: solid;
                 border-width: 6px;
-                border-color: #027bcf;
+                border-color: #00253a;
                 border-radius:20px;
                 margin:6px;
+                position:relative;
         }
 
 
@@ -136,18 +141,18 @@
         .filter {
             {% comment %} margin-bottom: 10px; {% endcomment %}
             {% comment %} padding: 8px; {% endcomment %}
-            font-family: acumin-pro-extra-condensed,sans-serif;
+            font-family: 'Archivo Black', sans-serif;
             margin-left: -10px;
             margin-right: -10px;
-            background-color:#027bcf;
+            background-color:#00253a;
         }
         .filter h4:hover {
-            background-color: #0e6bc7;
+            background-color: #001520;
         }
         .filter h4 {
             cursor: pointer;
             {% comment %} margin-bottom: 5px; {% endcomment %}
-            color: #00253B;
+            color: white;
             position: relative;
             padding: 12px;
 
@@ -157,15 +162,27 @@
             content: var(--after-content, "");
             float: right;
             position: absolute;
-            right: 12px;
+            left: 0px;
+            color:#ffc857;
+
         }
 
         .filter.show h4::after {
-            content: var(--after-content, "\25AC");
+            content: var(--after-content, "_");
+            position: relative;
+            top: -3px;
+            left: 0px;
+            color:#ffc857;
+
         }
 
         .filter.hide h4::after {
-            content: var(--after-content, "\25BC");
+            content: var(--after-content, "⌄");
+            position: relative;
+            top: -5px;
+            left: 0px;
+            color:#ffc857;
+
         }
 
         .filter.show {
@@ -178,19 +195,33 @@
         .filter-content {
             display: none;
             padding: 10px;
-            color: #00253B;
+            color: white;
             text-align: center;
         }
+
+        .fh4 {
+            cursor: default;
+            font-family:Archivo;
+            color:white;
+            background-color:#02253a;
+            padding-left:12px;
+            padding-bottom:0px;
+        }
         .fh4.show {
-            background-color: #027bcf;
+            background-color: #00253a;
+        }
+        .fh4.stay:hover {
+            cursor: default;
+            background-color: #00253a;
+
         }
         .fh4.hide {
-            background-color: #027bcf;
+            background-color: #00253a;
         }
         .filter-content.show {
             display: block;
             font-size: 12px;
-            background-color: #2f9cdb;
+            background-color: #025687;
             overflow-y: auto;
             max-height: 800px;
 
@@ -227,7 +258,7 @@
             padding-top: 8px;
             padding-bottom: 8px;
             justify-content: left;
-            color: #00253B;
+            color: red;
             position: relative;
             background-color: white;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -295,24 +326,27 @@
             color: white;
         }
         .dropdownbutton {
-            background-color: #00253B;
-            color: white;
+            background-color: #a3cf5f;
+            color: #00253a;
             {% comment %} border-radius: 5px; {% endcomment %}
             width: 100%;
-            border-color: #00253B;
+            {% comment %} border: none; {% endcomment %}
+            border-color: #a3cf5f;
+            border-radius: 8px;
             padding: 2px;
         }
         .dropdownbutton.notyet:hover {
             cursor: not-allowed;
         }
         .dropdownapplybutton {
-            background-color: #00253B;
-            color: white;
+            background-color: #a3cf5f;
+            color: #00253a;
             {% comment %} border-radius: 5px; {% endcomment %}
             width: 100%;
             {% comment %} border-color: #00253B; {% endcomment %}
             {% comment %} padding: 2px; {% endcomment %}
-            border: none;
+            border-color: #a3cf5f;
+            border-radius: 8px;
         }
         .dropdownapplybutton:hover {
             cursor: pointer;
@@ -402,8 +436,12 @@
             width: 100%;
         } 
         .dropdownbutton::after {
-            content: '   \142F'; /* Down arrow Unicode */
-            font-size: 7px; /* Space between text and the arrow */
+            content: '⌄'; /* Down arrow Unicode */
+            font-size: 18px; /* Space between text and the arrow */
+            font-weight:bold;
+            position:relative;
+            top:-3px;
+            left: 30px;
         }
         .refine {
             display:block
@@ -421,7 +459,7 @@
         }
         .tabbtn {
         color:white;
-        background-color:#2f9cdb;
+        background-color:#025687;
         margin-top:-14px;
         border:none;
         font-weight: bold;
@@ -431,7 +469,7 @@
         cursor: pointer;
         }
         .tabbtn.sel {
-        background-color: #027bcf;
+        background-color: #00253a;
         cursor:arrow;
         }
         .tabbtn.sel:hover {
@@ -489,17 +527,117 @@
         .dim:hover {
             cursor: not-allowed;
         }
+        /* Apply progress cursor when loading */
+        .loadinglayer {
+          cursor: not-allowed;
+        }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
+        .splash-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.6);
+          }
+        
+          .splash-content {
+            max-width: 1000px;
+            width: 80vw;
+            height: 80vh;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* center both horizontally and vertically */
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            font-family: 'Archivo Black', sans-serif;
+            color: #02253a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* keeps top content and bottom tabs spaced out */
+          }
+        
+          .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+          }
+        
+          .close-button:hover {
+            color: #000;
+          }
+        
+          .tab-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+          }
+        
+          .tab-buttons button {
+            flex: 1;
+            margin: 0 5px;
+            background-color: #02253a;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Archivo Black', sans-serif;
+          }
+        
+          .tab-buttons button:hover {
+            background-color: #035;
+          }
+        
+          .tab-content {
+            min-height: 150px;
+          }
+
     </style>
 </head>
 <body>
 
-    <header>
+    {% comment %} <header>
         <div>
-            <h1 style="text-decoration: underline;text-decoration-color:#A3CF5F">National Oil & Gas Well Inventory</h1>
+            <h1 style="color:#02253a;text-decoration: underline;text-decoration-color:#A3CF5F">National Oil & Gas Well Inventory</h1>
         </div>
         <div style="justify-self:center">
-            <h4 style="color:#0287D4;font-weight:normal">Updated Feb 28, 2025<h4>
+            <h4 style="color:#025687;font-weight:normal">Updated August 1, 2025<h4>
+        </div>
+    </header> {% endcomment %}
+
+    <header style="display: flex; justify-content: space-between; margin-left: -10px; padding: 10px 20px;">
+        <div style="display: flex; align-items: center;">
+            <img class="header-image" style="font-family:Archivo Black; margin-top:10px; height:80px; width:90px; position: relative; z-index: 5100;" src="/static/images/dataportallogo.png">
+            <h1 style="font-family:Archivo Black; margin-top:4px; margin-left: 20px; color:#02253a; line-height:1; font-size:45px;">
+                Oil & Gas Well<br>Inventory
+            </h1>
+        </div>
+        {% comment %} <div>
+            <h4 style="color:#025687;font-weight:normal">Updated August 1, 2025<h4>
+        </div> {% endcomment %}
+    
+        <div style="display: flex; gap: 10px;margin: 16px 10px">
+            <button onclick="openSplash()"
+                    style="font-family: 'Archivo Black'; background-color: #02253a; color: white; border: none; padding: 10px 22px; border-radius: 5px; cursor: pointer;">
+                About&nbsp;&nbsp;❯
+            </button>
+            <a href="https://www.fractracker.org/data/" target="_blank" style="text-decoration: none;">
+                <button style="font-family: 'Archivo Black'; background-color: #ffc857; color: #02253a; border: none; padding: 16px 22px; border-radius: 5px; cursor: pointer;">
+                  More Data&nbsp;&nbsp;❯
+                </button>
+            </a>
         </div>
     </header>
 
@@ -507,22 +645,22 @@
         
         <div class="left" >
             <div id="tabbtns" style="display:grid;grid-template-columns: 50% 50%;height: 5vh">
-                <button class="tabbtn sel" id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px">FILTER</button>
-                <button class="tabbtn" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px">RESULTS</button>
+                <button class="tabbtn sel" id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px;font-family:arial">FILTER</button>
+                <button class="tabbtn" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px;font-family:arial">RESULTS</button>
             </div>
             <div class="tabpanel " id="filterpanel">
                 <!-- filtering tools here -->
                 <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
-                    <h4 class="fh4 show" style="" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
-                    <div class="filter-content states-content show" id="filterState">
-                        <label for="stateinputbox" style="display:block;padding-bottom: 5px;">Choose up to 3:</label>
+                    <h4 class="fh4 stay" style="margin-top:25px;margin-bottom:-10px" id="statesh4" onclick="toggleFilter('states')">State</h4>
+                    <div class="filter-content states-content show" id="filterState" style="background-color:#00253a">
+                        <label for="stateinputbox" style="display:block;padding-bottom: 5px;font-weight:normal;font-family:Arial">Choose up to 3:</label>
                         <div class="selectionContainer" style="display:flex;justify-content:center" id="statePicks">**REQUIRED**</div>
-                        <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States<br></button>
+                        <button class="dropdownbutton" id="statebutton" style="text-align:center" onclick="openlist('state')">&nbsp;&nbsp;&nbsp;&nbsp;Available States</button>
                         <div class="button-container" id="state-container"></div>
                     </div>
                 </div>
                 <div class="filter toggle-counties hide">
-                    <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">COUNTY</h4>
+                    <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">County</h4>
                     <div class="filter-content counties-content hide" id="ctyFilterContainer">
                         {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
                         <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
@@ -531,7 +669,7 @@
                     </div>
                 </div>
                 <div class="filter toggle-wellstatus hide">
-                    <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
+                    <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">Well Status</h4>
                     <div class="filter-content wellstatus-content" id="statusContainer">
                         <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
                         <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
@@ -539,7 +677,7 @@
                     </div>
                 </div>
                 <div class="filter toggle-welltype hide">
-                    <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
+                    <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">Well Type</h4>
                     <div class="filter-content welltype-content" id="typeContainer">
                         <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
                         <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
@@ -552,7 +690,7 @@
                 </div> {% endcomment %}
 
                 <div class="filter toggle-ftacat hide">
-                    <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
+                    <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FracTracker Category</h4>
                     <div class="filter-content ftacat-content" id="ftacatContainer">
                         <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
                         <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
@@ -575,9 +713,7 @@
                 <div id="postapply"  style="margin-top:30px">
 
                     <div class="refine" id="refineblock">
-                        <div class="dlbtn">
-                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Results (CSV)</button>
-                        </div>
+
                         <div id="search" style="margin-top:25px">
                             {% comment %} <label>Refine your search</label> {% endcomment %}
                             <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
@@ -600,13 +736,16 @@
                             </div>    
                         </div>
                         <div id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
-                            <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
+                            <div id="drawtext" style="margin-top:4px;color:white;font-family:arial;font-weight:normal;font-size:12px"><h4>Select wells within a circle:</h4></div>
                             <div id="controls" style="width:fit-content;justify-self:right">
                                 <div id="draw-controls"></div> <!-- Draw control outside the map -->
                             </div>
                         </div>
                         <div>
                             <button class="dropdownapplybutton" style="margin-top:16px;padding:7px" onclick="updateTable(filteredData.features)">Clear Selection</button>
+                        </div>
+                        <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
+                            <button class="divbtns" id="dlbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="downloadTableData(filteredData)">Download <span style="font-size: 20px; display: inline-block; transform: rotate(270deg); margin-left: 8px;">&#8676;</span></button>
                         </div>
                     </div>
                 </div>
@@ -615,7 +754,7 @@
         <div class="right" id="container">
             <!-- Top content of the right side -->
             <div id="map">
-                <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png">
+                {% comment %} <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png"> {% endcomment %}
 
                 <div class="legend" id="legend" >
                     <div class="legend-header" style="display:grid;grid-auto-flow: column;" id="legend-toggle">
@@ -725,7 +864,25 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div>
+            <!-- Splash Modal -->
+            <div id="splashScreen" class="splash-modal">
+                <div class="splash-content">
+                <span class="close-button" onclick="closeSplash()">&times;</span>
+            
+                <!-- Main Content Area (changes when tabs are clicked) -->
+                <div id="tabContent" class="tab-content" style="overflow-y:auto">
+                    <h2>Welcome</h2>
+                    <p>This is the default content shown in the modal.</p>
+                </div>
+            
+                <!-- Tab Buttons -->
+                <div class="tab-buttons">
+                    <button disabled onclick="showTab('tab1')" class="btn" id="btn1" disabled>Terms of Service</button>
+                    {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
+                    <button disabled onclick="showTab('tab3')" class="btn" id="btn2" disabled>Data Details</button>
+                </div>
+            </div>
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
     <script>
@@ -749,25 +906,87 @@
                         filterBox.style.border = 'none';
                         filterH4.classList.remove('show');
                         filterH4.classList.add('hide');
-                        filterIcon.style.setProperty('--after-content', '"\\25BC"');
+                        filterIcon.style.setProperty('--after-content', '"⌄"');
                     } else {
                     filterContent.classList.add('show');
                     filterContent.classList.remove('hide');
                     filterH4.classList.add('show');
                     filterH4.classList.remove('hide');
-                    filterIcon.style.setProperty('--after-content', '"\\25AC"');
+                    filterIcon.style.setProperty('--after-content', '"_"');
                     }
                 } else {
                     filterContent.classList.remove('show');
                     filterContent.classList.add('hide');
                     filterH4.classList.remove('show');
                     filterH4.classList.add('hide');
-                    filterIcon.style.setProperty('--after-content', '"\\25BC"');
+                    filterIcon.style.setProperty('--after-content', '"⌄"');
                 }
             })
 
 
         }
+
+        function openSplash() {
+            document.getElementById("splashScreen").style.display = "block";
+            showTab('tab1'); // Show default tab content
+          }
+        
+          function closeSplash() {
+            document.getElementById("splashScreen").style.display = "none";
+          }
+          function openDD() {
+            document.getElementById("splashScreen").style.display = "block";
+            showTab('tab3'); // Show default tab content
+          }
+        
+          function closeDD() {
+            document.getElementById("splashScreen").style.display = "none";
+          }
+          function showTab(tabId) {
+            const content = {
+              tab1: {
+                title: 'Welcome to our National Oil & Gas Well Inventory Portal',
+                text: `<br>This application was developed to provides key insights into oil and gas well infrastructure across the United States by FracTracker Alliance.<br>`+
+                       `<br>© Copyright 2025 `+
+                       `<a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>`+
+                       `<br>The FracTracker data available to the public on this web page is subject to the following terms and conditions:<br><br>`+
+                        `1. The Site and App are provided on an “as is” basis without warranties or representations of any kind, either express or implied, including, but not limited to, warranties of title or implied warranties of merchantability or fitness for a particular purpose. <br>2. In no event shall FracTracker be liable for any special, direct, indirect, consequential, or incidental damages or any damages whatsoever arising out of or in connection with the use of the Site and App or the contents of the Site and App.<br>3. FracTracker Alliance retains all rights, title, and interest in and to the Data compilation, the database structure, and the Portal itself, including all associated intellectual property rights. The license granted herein is strictly limited to the uses permitted under these Terms.<br>4. A core condition of using the Data is that your use must be consistent with and supportive of the mission of FracTracker Alliance. Our mission is to "map, analyze, and communicate the risks of oil, gas, and petrochemical development to advance just energy alternatives that protect public health, natural resources, and the climate." We reserve the right, <strong>in our sole discretion</strong>, to determine whether a particular use is consistent with our mission.<br>5. When using the Data in any public-facing materials, you must cite FracTracker Alliance as the source.<br>6. By using the Site and/or App, you agree to our <a href="https://www.fractracker.org/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a> (“Terms”) and our <a href="https://www.fractracker.org/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a> (“Privacy Policy”).` +
+                        `<br><br><label><input type="checkbox" id="splash-checkbox"> <strong>I agree to the terms</strong></label>`
+              },
+              
+              tab3: {
+                title: 'About The Dataset',
+                text:
+                `<br><a href="https://www.fractracker.org/resources/oil-and-gas-101/" target="_blank" rel="noopener noreferrer">Head over to our handy guide for more information about oil and gas drilling</a>`+
+                '<br><br>This dataset is updated by FracTracker on a monthly basis and was last updated 08/01/25.'+
+                '<br><br><b>Oil and Natural Gas</b>'+
+                '<br><br><u>Oil</u> – <i>As with other fossil fuels, oil is found in underground reservoirs. It is the end product of the decomposition of organic materials that have been subjected to geologic heat and pressure over millions of years.</i>'+
+                '<br><br><u>Natural Gas</u> – <i>When first obtained from the ground, natural gas is composed of primarily methane with other alkanes typically mixed in, and possibly also carbon dioxide, nitrogen, and hydrogen sulfide. Shale gas, specifically, is natural gas trapped within shale geologic formations (a type of sedimentary rock). Both oil and natural gas are considered non-renewable resources since they cannot be replenished on a human timeframe.</i>'
+
+            }
+        };
+      
+        const tabContent = document.getElementById("tabContent");
+        tabContent.innerHTML = `<h2>${content[tabId].title}</h2><p style="font-family:arial">${content[tabId].text}</p>`;
+      
+        // ✅ Only attach checkbox logic if this is tab1
+        if (tabId === 'tab1') {
+          const checkbox = document.getElementById('splash-checkbox');
+          const btn1 = document.getElementById('btn1');
+          const btn2 = document.getElementById('btn2');
+      
+          if (checkbox) {
+            checkbox.addEventListener('change', function () {
+              const isChecked = checkbox.checked;
+              [btn1, btn2].forEach(btn => {
+                btn.disabled = !isChecked;
+                btn.classList.toggle('active', isChecked);
+                btn.style.cursor = isChecked ? 'pointer' : 'not-allowed';
+              });
+            });
+          }
+        }
+      }
     </script>
 </body>
 </html>

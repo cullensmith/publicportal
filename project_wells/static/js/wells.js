@@ -164,7 +164,7 @@ function getStates(data) {
                 statebounds = canvasLayer_state.getBounds();
                 map.fitBounds(statebounds);
                 map.on('moveend', function() {
-                    setCheckboxes();
+                    // setCheckboxes();
                 })
                 
             } catch(err) {
@@ -1655,11 +1655,17 @@ function filterProd(data) {
 }
 // Toggle polygons visibility based on checkbox
 document.getElementById('category6').addEventListener('change', function() {
+    // document.getElementById('category6').classList.add('loadinglayer');
+    document.body.classList.add('loadinglayer');
+
     if (this.checked) {
         productionwells.addTo(map)
     } else if (productionwells) {
         map.removeLayer(productionwells);
     } 
+    document.body.classList.remove('loadinglayer');
+
+    // document.getElementById('category6').classList.remove('loadinglayer');
 });
 
 // Toggle polygons visibility based on checkbox
