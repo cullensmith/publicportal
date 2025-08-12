@@ -1017,12 +1017,16 @@ const statesarray = [
 // Iterate through the statesarray array and create a button for each st
 statesarray.forEach(st => {
     const sbutton = document.createElement('button');
+
     sbutton.className = 'filterbutton';
     sbutton.id = st+'btn';
     sbutton.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
     sbutton.onclick = () => toggleselection('state',st);
     // Append the button to the button-container div
+    document.getElementById('state-container').style.setProperty("font-family", "Arial, sans-serif", "important");
+
     document.getElementById('state-container').appendChild(sbutton);
+    
 });
 
 const ftacats = ['Injection / Storage / Service', 'Not Drilled','Orphaned / Abandoned / Unverified','Other / Unknown','Plugged','Production Well']

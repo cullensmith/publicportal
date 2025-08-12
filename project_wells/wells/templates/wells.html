@@ -208,7 +208,9 @@
             padding-bottom:0px;
         }
         .fh4.show {
-            background-color: #00253a;
+            {% comment %} background-color: #00253a; {% endcomment %}
+            background-color: #001520;
+
         }
         .fh4.stay:hover {
             cursor: default;
@@ -221,7 +223,8 @@
         .filter-content.show {
             display: block;
             font-size: 12px;
-            background-color: #025687;
+            {% comment %} background-color: #025687; {% endcomment %}
+            background-color: #001520;
             overflow-y: auto;
             max-height: 800px;
 
@@ -243,8 +246,12 @@
         }
 
         .selectionContainer {
-            background-color: rgb(216, 216, 216);
-            color:rgb(104, 104, 104);
+            {% comment %} background-color: rgb(216, 216, 216); {% endcomment %}
+            background-color:#00253a;
+            {% comment %} color:rgb(104, 104, 104); {% endcomment %}
+            color:white;
+            font-family:arial;
+            font-weight:normal;
             max-height: 33vh;
             padding: 5px;
             border-radius: 5px;
@@ -352,11 +359,14 @@
             cursor: pointer;
         }
         .selbutton {
-            background-color: #ffffff;
+            background-color: #00253a;
+            border: 1px solid white;
+            color:white;
             border-radius: 3px;
             padding: 5px;
             margin: 2px;
-            color: #025687;
+            font-family:arial;
+            font-weight:normal;
         }
         .selbutton:hover {
             {% comment %} background-color: red; {% endcomment %}
@@ -654,9 +664,9 @@
                     <h4 class="fh4 stay" style="margin-top:25px;margin-bottom:-10px" id="statesh4" onclick="toggleFilter('states')">State</h4>
                     <div class="filter-content states-content show" id="filterState" style="background-color:#00253a">
                         <label for="stateinputbox" style="display:block;padding-bottom: 5px;font-weight:normal;font-family:Arial">Choose up to 3:</label>
-                        <div class="selectionContainer" style="display:flex;justify-content:center" id="statePicks">**REQUIRED**</div>
+                        <div class="selectionContainer" style="display:flex;justify-content:center;color:#ffc857;cursor:default" id="statePicks">**REQUIRED**</div>
                         <button class="dropdownbutton" id="statebutton" style="text-align:center" onclick="openlist('state')">&nbsp;&nbsp;&nbsp;&nbsp;Available States</button>
-                        <div class="button-container" id="state-container"></div>
+                        <div class="button-container" id="state-container" style="font-family:arial;font-weight:normal"></div>
                     </div>
                 </div>
                 <div class="filter toggle-counties hide">
