@@ -664,7 +664,7 @@
                     <div class="filter-content counties-content hide" id="ctyFilterContainer">
                         {% comment %} <label for="countyPicks">County:</label> {% endcomment %}
                         <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
-                        <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
+                        <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State</button>
                         <div class="button-container" id="county-container"></div>
                     </div>
                 </div>
@@ -672,7 +672,7 @@
                     <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">Well Status</h4>
                     <div class="filter-content wellstatus-content" id="statusContainer">
                         <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
-                        <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
+                        <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status</button>
                         <div class="button-container" id="status-container"></div>
                     </div>
                 </div>
@@ -680,7 +680,7 @@
                     <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">Well Type</h4>
                     <div class="filter-content welltype-content" id="typeContainer">
                         <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
-                        <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
+                        <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available</button>
                         <div class="button-container" id="type-container"></div>
                     </div>
                 </div>
@@ -693,7 +693,7 @@
                     <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FracTracker Category</h4>
                     <div class="filter-content ftacat-content" id="ftacatContainer">
                         <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
-                        <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
+                        <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification</button>
                         <div class="button-container" id="ftacat-container"></div>
                     </div>
                 </div>
@@ -703,8 +703,8 @@
             </div>
             <div class="tabpanel hide" id="loadingpanel">
                 <div class="loadingobjects">
-                    <div id="loadingtext" style="font-weight:bold;margin-top:60px;margin-bottom:20px">
-                        Retrieving your records
+                    <div id="loadingtext" style="font-family:arial;font-weight:normal;margin-top:60px;margin-bottom:20px;color:white">
+                        Retrieving your records...
                     </div>
                     <div id="spinnerid" class="loader" style="margin:auto"></div>
                 </div>
@@ -946,7 +946,7 @@
             const content = {
               tab1: {
                 title: 'Welcome to our National Oil & Gas Well Inventory Portal',
-                text: `<br>This application was developed to provides key insights into oil and gas well infrastructure across the United States by FracTracker Alliance.<br>`+
+                text: `<br>This application was developed to provides key insights into oil and gas well infrastructure across the United States by FracTracker Alliance. This dataset is maintained by FracTracker on a monthly basis and was last updated 08/01/25.<br>`+
                        `<br>© Copyright 2025 `+
                        `<a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>`+
                        `<br>The FracTracker data available to the public on this web page is subject to the following terms and conditions:<br><br>`+
@@ -961,7 +961,18 @@
                 '<br><br>This dataset is updated by FracTracker on a monthly basis and was last updated 08/01/25.'+
                 '<br><br><b>Oil and Natural Gas</b>'+
                 '<br><br><u>Oil</u> – <i>As with other fossil fuels, oil is found in underground reservoirs. It is the end product of the decomposition of organic materials that have been subjected to geologic heat and pressure over millions of years.</i>'+
-                '<br><br><u>Natural Gas</u> – <i>When first obtained from the ground, natural gas is composed of primarily methane with other alkanes typically mixed in, and possibly also carbon dioxide, nitrogen, and hydrogen sulfide. Shale gas, specifically, is natural gas trapped within shale geologic formations (a type of sedimentary rock). Both oil and natural gas are considered non-renewable resources since they cannot be replenished on a human timeframe.</i>'
+                '<br><br><u>Natural Gas</u> – <i>When first obtained from the ground, natural gas is composed of primarily methane with other alkanes typically mixed in, and possibly also carbon dioxide, nitrogen, and hydrogen sulfide. Shale gas, specifically, is natural gas trapped within shale geologic formations (a type of sedimentary rock). Both oil and natural gas are considered non-renewable resources since they cannot be replenished on a human timeframe.</i>'+
+                '<br><br><b>FracTracker Categories</b>'+
+                '<br><br>Our attempt to normalize the myriad of well types and statuses used by the individual state agencies'+
+                '<br><br><u>Injection / Storage / Service</u> – <i>well used to inject fluids into porous rock formations</i>'+
+                '<br><br><u>Not Drilled</u> – <i></i>'+
+                '<br><br><u>Orphaned / Abandoned / Unverified</u> – <i>no longer in production, but status remains unclear</i>'+
+                '<br><br><u>Other / Unknown</u> – <i>default status provided</i>'+
+                '<br><br><u>Plugged</u> – <i>verified plugged</i>'+
+                '<br><br><u>Production / Storage / Service</u> – <i>currently active and producing</i>'+
+                '<br><br><b>Additional References</b>'+
+                '<br><br><u>Well Status</u> – <i></i>'+
+                '<br><br><u>Well Type</u> – <i></i>'
 
             }
         };
