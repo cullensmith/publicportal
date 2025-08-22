@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+# from .views import request_csv
 
 
 app_name = 'wells'
@@ -14,4 +15,7 @@ urlpatterns = [
     path('createCountyList',views.createCountyList, name="createCountyList"),
     path('createStatusList',views.createStatusList, name="createStatusList"),
     path('createTypeList',views.createTypeList, name="createTypeList"),
+    # path('request-csv/', request_csv, name='request_csv'),
+    # path('send-csv-email/', views.send_csv_email, name='send_csv_email'),
+
 ]

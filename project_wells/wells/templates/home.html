@@ -4,6 +4,8 @@
     <meta charset=utf-8 />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FracTracker Wells Portal</title>
+    <link rel="icon" type="image/png" href="/static/images/ft2021_logo_icon_dark_blue_small.png">
+
     <!-- Include Project Specific CSS -->
 
     {% comment %} <link rel = "stylesheet" href = "/static/css/filtering.css"/> {% endcomment %}
@@ -54,6 +56,204 @@
             align-items: center;
             font-size: 24px;
         }
+
+
+
+        
+        .print-btn {
+            background-color: red;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        
+        .print-btn:hover {
+            background-color: red;
+        }
+        
+        .print-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+
+        
+        /* Print preview modal */
+        .print-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+        
+        .print-content {
+            position: relative;
+            margin: 2% auto;
+            width: 80%;
+            height: 90%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .print-map {
+            width: 100%;
+            height: 80%;
+            border: 1px solid #ddd;
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .print-actions {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+
+
+
+
+        .screenshot-btn {
+            font-family: 'Archivo Black'; 
+            font-size:18px;
+            background-color: #a3cf5f;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        
+        .screenshot-btn:hover {
+            background-color: #a3cf5f;
+        }
+        
+        .screenshot-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .splash-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+          }
+        
+          .splash-content {
+            max-width: 1000px;
+            width: 80%;
+            height: 80%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* center both horizontally and vertically */
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            font-family: 'Archivo Black', sans-serif;
+            color: #02253a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* keeps top content and bottom tabs spaced out */
+          }
+          
+          .enter-button {
+            display:none;
+            height: 50px;
+            width: 100px;
+            background-color: #a3cf5f;
+            color: #02253a;
+            font-weight: bold;
+            font-size:16px;
+            border:none;
+            border-radius:6px;
+            cursor: pointer;
+          }
+          .enter-button.enabled {
+            display:block;
+            opacity: 1;
+            pointer-events: auto;
+          }
+          .close-button {
+            display:none;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+          }
+        
+          .close-button:hover {
+            color: #000;
+          }
+        
+          .close-button.enabled {
+            display: block;
+            pointer-events: auto;
+          }
+
+          .checkbox-agree:hover{
+            cursor: pointer;
+          }
+
+          .tab-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+          }
+        
+          .tab-buttons button {
+            flex: 1;
+            margin: 0 5px;
+            background-color: #02253a;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Archivo Black', sans-serif;
+          }
+        
+          .tab-buttons button:hover {
+            background-color: #035;
+          }
+        
+          .tab-content {
+            min-height: 150px;
+          }
 
         /* Main content styling */
         .main-content {
@@ -398,7 +598,7 @@
                 </div>
             </div>
             <div class="filter toggle-wellstatus hide">
-                <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
+                <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">STATE WELL STATUS</h4>
                 <div class="filter-content wellstatus-content" id="statusContainer">
                     <div class="selectionContainer" id="statusPicks" style="max-height:14vh">These vary from state to state, take a look at the reference below.</div>
                     <button class="dropdownbutton" id="statusbutton" onclick="openlist('wellstatus')">Well Status</button>
@@ -406,7 +606,7 @@
                 </div>
             </div>
             <div class="filter toggle-welltype hide">
-                <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
+                <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">STATE WELL TYPE</h4>
                 <div class="filter-content welltype-content" id="typeContainer">
                     <div class="selectionContainer" id="typePicks" style="max-height:14vh">These vary from state to state, take a look at the reference below.</div>
                     <button class="dropdownbutton" id="typebutton" onclick="openlist('welltype')">Types Available</button>
@@ -419,9 +619,9 @@
             </div> {% endcomment %}
 
             <div class="filter toggle-ftacat hide">
-                <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
+                <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">WELL CATEGORY</h4>
                 <div class="filter-content ftacat-content" id="ftacatContainer">
-                    <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
+                    <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Standardized National Classifications </div>
                     <button class="dropdownbutton" id="ftacatbutton" onclick="openlist('welltype')">General Classification</button>
                     <div class="button-container" id="ftacat-container"></div>
                 </div>
@@ -526,9 +726,391 @@
             </div>
         </div>
     </div>
+
+    
+    <!-- Print Preview Modal -->
+    <div id="printModal" class="print-modal">
+        <div class="print-content">
+            <button class="close-btn" onclick="closePrintPreview()">&times;</button>
+            <div class="print-header">
+                <h2>Map Preview</h2>
+                <p>Date: <span id="printDate"></span></p>
+            </div>
+            <div id="printMap" class="print-map"></div>
+            <div class="print-actions">
+                {% comment %} <div class="controls" style="position: absolute; bottom: 87px; left: 10px; right: 10px;"> {% endcomment %}
+                    {% comment %} <button class="print-btn" onclick="showPrintPreview()">📋 Create Map Screenshot</button> {% endcomment %}
+                <button class="screenshot-btn" onclick="captureMapScreenshot()"><i class="fa-solid fa-print"></i> Print Map</button>
+                {% comment %} <button class="screenshot-btn" onclick="captureMapScreenshot()">📸 Download Screenshot</button> {% endcomment %}
+                <button class="print-btn" onclick="closePrintPreview()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- Splash Modal -->
+    <div id="splashScreen" class="splash-modal">
+        <div class="splash-content">
+        <span class="close-button" onclick="closeSplash()" id="closex">&times;</span>
+    
+        <!-- Main Content Area (changes when tabs are clicked) -->
+        <div id="tabContent" class="tab-content" style="overflow-y:auto">
+            <h2>Welcome</h2>
+            <p>This is the default content shown in the modal.</p>
+        </div>
+    
+        <!-- Tab Buttons -->
+        <div class="tab-buttons">
+            <button disabled onclick="showTab('tab1')" class="btn" id="btn1" >Terms of Service</button>
+            {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
+            <button disabled onclick="showTab('tab3')" class="btn" id="btn2" >Data Details</button>
+        </div>
+    {% comment %} </div> {% endcomment %}
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <script>
+
+        let printMapInstance;
+
+
+        // Screenshot preview function
+        function showPrintPreview() {
+            const modal = document.getElementById('printModal');
+            const printDate = document.getElementById('printDate');
+            
+            // Set current date
+            printDate.textContent = new Date().toLocaleDateString();
+            
+            // Show modal
+            modal.style.display = 'block';
+            
+            // Create print map instance with better layer handling
+            setTimeout(() => {
+                if (printMapInstance) {
+                    printMapInstance.remove();
+                }
+                
+                printMapInstance = L.map('printMap').setView(map.getCenter(), map.getZoom());
+                
+                // Find the current tile layer from the main map
+                let originalTileLayer;
+
+                map.eachLayer(layer => {
+                    if (layer instanceof L.TileLayer && !(layer instanceof L.ImageOverlay)) {
+                        originalTileLayer = layer;
+                    }
+                });
+
+                let tileLayer;
+                if (originalTileLayer) {
+                    tileLayer = L.tileLayer(originalTileLayer._url, {
+                        ...originalTileLayer.options
+                    }).addTo(printMapInstance);
+                } else {
+                    // Fallback to OpenStreetMap if no tile layer found
+                    tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(printMapInstance);
+                }
+                
+                // Wait for base tiles to load
+                let tilesLoaded = 0;
+                let tilesToLoad = 0;
+                
+                tileLayer.on('tileloadstart', function() {
+                    tilesToLoad++;
+                });
+                
+                tileLayer.on('tileload', function() {
+                    tilesLoaded++;
+                });
+                
+                tileLayer.on('tileerror', function() {
+                    tilesLoaded++;
+                });
+                
+                // Copy all layers from original map with full styling
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker) {
+                        // Copy marker with all options including custom icons
+                        const newMarker = L.marker(layer.getLatLng(), {
+                            icon: layer.options.icon,
+                            opacity: layer.options.opacity,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newMarker.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+                        // Handle polylines with full styling
+                        const newPolyline = L.polyline(layer.getLatLngs(), {
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            dashArray: layer.options.dashArray,
+                            lineCap: layer.options.lineCap,
+                            lineJoin: layer.options.lineJoin,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newPolyline.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.Polygon) {
+                        // Handle polygons with full styling
+                        const newPolygon = L.polygon(layer.getLatLngs(), {
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            dashArray: layer.options.dashArray,
+                            lineCap: layer.options.lineCap,
+                            lineJoin: layer.options.lineJoin,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newPolygon.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.Circle) {
+                        // Handle circles with full styling
+                        const newCircle = L.circle(layer.getLatLng(), {
+                            radius: layer.getRadius(),
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            dashArray: layer.options.dashArray,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newCircle.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.CircleMarker && !(layer instanceof L.Circle)) {
+                        // Handle circle markers with full styling
+                        const newCircleMarker = L.circleMarker(layer.getLatLng(), {
+                            radius: layer.options.radius,
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newCircleMarker.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.GeoJSON) {
+                        // Handle GeoJSON layers with styling
+                        const newGeoJSON = L.geoJSON(layer.toGeoJSON(), {
+                            style: layer.options.style,
+                            pointToLayer: layer.options.pointToLayer,
+                            onEachFeature: layer.options.onEachFeature,
+                            filter: layer.options.filter,
+                            coordsToLatLng: layer.options.coordsToLatLng,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                    } else if (layer instanceof L.LayerGroup) {
+                        // Handle layer groups recursively
+                        const newLayerGroup = L.layerGroup();
+                        layer.eachLayer(function(subLayer) {
+                            // Recursively add sublayers with styling
+                            if (subLayer instanceof L.Marker) {
+                                const newSubMarker = L.marker(subLayer.getLatLng(), {
+                                    icon: subLayer.options.icon,
+                                    opacity: subLayer.options.opacity,
+                                    ...subLayer.options
+                                });
+                                if (subLayer.getPopup()) {
+                                    newSubMarker.bindPopup(subLayer.getPopup().getContent());
+                                }
+                                newLayerGroup.addLayer(newSubMarker);
+                            }
+                            // Add other sublayer types as needed
+                        });
+                        newLayerGroup.addTo(printMapInstance);
+                    } else if (layer instanceof L.ImageOverlay) {
+                        // Handle image overlays
+                        const newImageOverlay = L.imageOverlay(
+                            layer._url,
+                            layer.getBounds(),
+                            {
+                                opacity: layer.options.opacity,
+                                alt: layer.options.alt,
+                                interactive: layer.options.interactive,
+                                crossOrigin: layer.options.crossOrigin,
+                                errorOverlayUrl: layer.options.errorOverlayUrl,
+                                zIndex: layer.options.zIndex,
+                                className: layer.options.className,
+                                ...layer.options
+                            }
+                        ).addTo(printMapInstance);
+                    }
+                    // Note: TileLayer is handled separately above
+                });
+                
+                // Ensure the print map renders properly
+                setTimeout(() => {
+                    printMapInstance.invalidateSize();
+                    
+                    // Enable screenshot button once everything is loaded
+                    setTimeout(() => {
+                        const screenshotBtn = document.querySelector('.screenshot-btn');
+                        if (screenshotBtn) {
+                            screenshotBtn.disabled = false;
+                            screenshotBtn.innerHTML = '<i class="fa-solid fa-print"></i> Print Map';
+
+                        }
+                    }, 1000);
+                }, 200);
+            }, 100);
+        }
+        
+        // Close screenshot preview
+        function closePrintPreview() {
+            document.getElementById('printModal').style.display = 'none';
+            if (printMapInstance) {
+                printMapInstance.remove();
+                printMapInstance = null;
+            }
+        }
+        function captureMapScreenshot() {
+            const captureButton = document.querySelector('.screenshot-btn');
+            const originalText = captureButton.textContent;
+            const title = document.querySelector('.print-header h2');
+            const printActions = document.querySelector('.print-actions');
+            const closeButton = document.querySelector('.close-btn');
+            const originalTitle = title.textContent;
+        
+            // Update title and hide buttons
+            title.textContent = 'FracTracker Data Portal';
+            printActions.style.display = 'none';
+            closeButton.style.display = 'none';
+        
+            // Show waiting cursor
+            document.body.style.cursor = 'wait';
+        
+            setTimeout(() => {
+                if (printMapInstance) {
+                    printMapInstance.invalidateSize();
+                }
+        
+                setTimeout(() => {
+                    const printContent = document.querySelector('.print-content');
+        
+                    html2canvas(printContent, {
+                        useCORS: true,
+                        allowTaint: true,
+                        scale: 2,
+                        logging: false,
+                        width: printContent.offsetWidth,
+                        height: printContent.offsetHeight,
+                        backgroundColor: '#ffffff',
+                        foreignObjectRendering: false,
+                        imageTimeout: 15000,
+                        onclone: function(clonedDoc) {
+                            const images = clonedDoc.querySelectorAll('img');
+                            images.forEach(img => {
+                                if (!img.complete) {
+                                    img.onload = function() {};
+                                }
+                            });
+                        }
+                    }).then(function(canvas) {
+                        // Ask user for filename
+                        let userInput = prompt("Enter a filename for your download:", "fractracker-dataportal-map");
+                        if (!userInput) {
+                            userInput = "fractracker-dataportal-map";
+                        }
+        
+                        // Sanitize filename (remove invalid characters)
+                        userInput = userInput.replace(/[^a-z0-9_\-\.]/gi, '_').toLowerCase();
+        
+                        // Add date to filename
+                        const filename = `${userInput}.png`;
+        
+                        const link = document.createElement('a');
+                        link.download = filename;
+                        link.href = canvas.toDataURL('image/png');
+        
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+        
+                        // Reset UI
+                        title.textContent = originalTitle;
+                        printActions.style.display = 'block';
+                        closeButton.style.display = 'block';
+                        document.body.style.cursor = 'default';
+        
+                        showMessage('Screenshot saved successfully!', 'success');
+                        setTimeout(() => {
+                            closePrintPreview();
+                        }, 1000);
+        
+                    }).catch(function(error) {
+                        console.error('Screenshot failed:', error);
+        
+                        // Reset UI
+                        title.textContent = originalTitle;
+                        printActions.style.display = 'block';
+                        closeButton.style.display = 'block';
+                        captureButton.disabled = false;
+                        captureButton.textContent = originalText;
+                        document.body.style.cursor = 'default';
+        
+                        showMessage('Screenshot failed. Please try again.', 'error');
+                    });
+                }, 1500);
+            }, 500);
+        }
+        
+        
+        // Show temporary message
+        function showMessage(text, type) {
+            const message = document.createElement('div');
+            message.textContent = text;
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                border-radius: 4px;
+                color: white;
+                font-weight: bold;
+                z-index: 10001;
+                ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 3000);
+        }
+        
+        // Wait for tiles to load before enabling screenshot
+        function waitForTilesToLoad() {
+            const printButtons = document.querySelectorAll('.print-btn');
+            
+            // Disable buttons initially
+            printButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = btn.textContent.replace('📋', '⏳');
+            });
+            
+            // Re-enable after a short delay to allow tiles to load
+            setTimeout(() => {
+                printButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.textContent.replace('⏳', '📋');
+                });
+            }, 2000);
+        }
+
 
         // Function to toggle filter visibility
         function toggleFilter(filterName) {
@@ -569,6 +1151,201 @@
 
 
         }
+
+        function openSplash() {
+            document.getElementById("splashScreen").style.display = "block";
+            showTab('tab1'); // Show default tab content
+          }
+        
+        function closeSplash() {
+            document.getElementById("splashScreen").style.display = "none";
+          }
+        function openDD() {
+            document.getElementById("splashScreen").style.display = "block";
+            showTab('tab3'); // Show default tab content
+          }
+        
+        function closeDD() {
+            document.getElementById("splashScreen").style.display = "none";
+          }
+
+
+
+        function showTab(tabId) {
+            const content = {
+              tab1: {
+                title: 'Welcome to our Petrochemical Data Portal',
+                text: `<br>This application was developed to provide key insights into petrochemical data across the United States by FracTracker Alliance.<br>`+
+                       `<br>© Copyright 2025 `+
+                       `<a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>`+
+                       `<br>The FracTracker data available to the public on this web page is subject to the following terms and conditions:<br><br>`+
+                       `<div style="font-size:13px;font-weight:normal;font-family:arial;margin-left:20px">1. The Site and App are provided on an “as is” basis without warranties or representations of any kind, either express or implied, including, but not limited to, warranties of title or implied warranties of merchantability or fitness for a particular purpose. <br>2. In no event shall FracTracker be liable for any special, direct, indirect, consequential, or incidental damages or any damages whatsoever arising out of or in connection with the use of the Site and App or the contents of the Site and App.<br>3. FracTracker Alliance retains all rights, title, and interest in and to the Data compilation, the database structure, and the Portal itself, including all associated intellectual property rights. The license granted herein is strictly limited to the uses permitted under these Terms.<br>4. A core condition of using the Data is that your use must be consistent with and supportive of the mission of FracTracker Alliance. Our mission is to "map, analyze, and communicate the risks of oil, gas, and petrochemical development to advance just energy alternatives that protect public health, natural resources, and the climate." We reserve the right, <strong>in our sole discretion</strong>, to determine whether a particular use is consistent with our mission.<br>5. When using the Data in any public-facing materials, you must cite FracTracker Alliance as the source.<br>6. By using the Site and/or App, you agree to our <a href="https://www.fractracker.org/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a> (“Terms”) and our <a href="https://www.fractracker.org/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a> (“Privacy Policy”).</div>` +
+                       `<button class="enter-button" id="enter-btn" style="margin-top:24px" onclick="closeSplash()">Enter</button>`+
+                       `<br><label><input type="checkbox" class ="checkbox-agree" id="splash-checkbox"> <strong>I agree to the terms</strong></label>`
+              },
+              
+              tab3: {
+                title: 'Data Sourcing',
+                text:
+                `<br><span><b>In need of background information? </b></span><a href="https://www.fractracker.org/petrochemicals/guide/" target="_blank" rel="noopener noreferrer">Petrochemical Basics</a><br>`+
+                `<br><span><b>Help Us Improve the FracTracker Data Portals:</b></span> <a href="https://forms.gle/NQ7QLRCm4HYm1SXF8" target="_blank" rel="noopener noreferrer">Feedback Form</a>`+
+                '<br><br><b>MARKET HUBS, PORTS and TERMINALS</b>'+
+                '<br><br><u>Crude Oil (Terminal)</u> – <i>These terminals facilitate the loading and unloading of crude oil, often connecting different modes of transportation like rail and pipelines. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>HGL (Market Hub)</u> - <i>Hydrocarbon gas liquids (HGL) storage and trading hubs. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>LNG (Terminal)</u> - <i>Liquefied natural gas import/export terminals – Facilities that can a) liquefy natural gas so it is ready to be exported as liquefied natural gas (LNG) and/or b) re-gasify LNG so it can be used as natural gas. Natural gas is transported in a liquid state because it takes up less space as a liquid than as a gas. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Natural Gas (Market Hub)</u> – <i>Natural Gas trading hubs. Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Natural Gas (Underground Storage)</u> – <i>Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Petroleum (Port)</u> – <i>A port that can import and/or export 200,000 or more short tons of petroleum products a year. Data from the EIA 8/01/2025.</i>'+
+                '<br><br><u>Petroleum (Terminals)</u> – <i>“All operable bulk petroleum product terminals in the United States with a total bulk shell storage capacity of 50,000 barrels or more, and/or ability to receive volumes from tanker, barge, or pipeline. Survey locations adjusted using public data.” Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Compressor stations</u> – <i>facilities that pressurize natural gas to keep it flowing through a pipeline. Data from HIFLD. Updated 7/01/2024.</i>'+
+                '<br><br><br><br><b>PLANTS</b>'+
+                '<br><br><u>Biodiesel</u> – <i>facilities that produce biodiesel, a renewable, clean-burning diesel fuel substitute made from various plant oils, animal fats, and recycled cooking grease. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Ethanol</u> – <i>facility that produces ethanol, a biofuel made by fermenting and distilling grains or other starchy materials. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Ethylene Crackers</u> – <i>plants that “crack” ethane (a natural gas liquid)  into ethylene. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Fertilizer</u> – <i>Nitrogen and phosphorus producing plants and mines. Updated 11/1/2023.</i>'+
+                '<br><br><u>Natural Gas (Processing)</u> – <i>Facilities that purify and refine raw natural gas, removing impurities and valuable liquids to produce pipeline-quality natural gas and other marketable products. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Petroleum (Refinery)</u> – <i>Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><br><br><b>POWER PLANTS</b>'+
+                '<br><br><u>Battery Storage</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Coal</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Geothermal</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Hydroelectric</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Hydro Pumped Storage</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Natural Gas</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Petroleum</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Electric Transmission Lines</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Liquid Pipelines</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Natural Gas Pipelines</u> – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><br><br><b>PIPELINES</b>'+
+                '<br><br><u>Recent Pipeline Projects</u> – <i>data compiled by FracTracker Alliance from various online sources. Updated 3/29/2025.</i>'+
+                '<br><br><u>Crude Oil Pipelines</u> – <i>major crude oil pipelines, including interstate trunk lines and selected intrastate lines, not including gathering lines. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>HGL Pipelines</u> – <i>Hydrocarbon gas liquid pipelines (aka natural gas liquid (NGL) pipelines). Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Natural Gas Pipelines</u> – <i>Data from EIA. Updated 8/01/2019.</i>'+
+                '<br><br><u>Petroleum Product Pipelines</u> - <i>Major petroleum product pipelines. Data from EIA. Updated 8/01/2025.</i>'
+            }
+        };
+      
+        // Enable or disable the button based on checkbox state
+
+
+
+        const tabContent = document.getElementById("tabContent");
+        tabContent.innerHTML = `<h2>${content[tabId].title}</h2><p style="font-family:arial">${content[tabId].text}</p>`;
+      
+
+
+
+        // ✅ Only attach checkbox logic if this is tab1
+        if (tabId === 'tab1') {
+            const checkbox = document.getElementById('splash-checkbox');
+            const enterBtn = document.getElementById('enter-btn');
+            const close_x = document.getElementById('closex');
+            const btn1 = document.getElementById('btn1');
+            const btn2 = document.getElementById('btn2');
+          
+            // Restore checkbox state from sessionStorage
+            const savedState = sessionStorage.getItem('splashCheckboxChecked');
+            if (savedState === 'true') {
+              checkbox.checked = true;
+              enterBtn.classList.add('enabled');
+              close_x.classList.add('enabled');
+              btn1.classList.add('active');
+              btn2.classList.add('active');
+            }
+          
+            checkbox.addEventListener('change', function () {
+              sessionStorage.setItem('splashCheckboxChecked', checkbox.checked);
+          
+              if (checkbox.checked) {
+                enterBtn.classList.add('enabled');
+                close_x.classList.add('enabled');
+                btn1.disabled=false;
+                btn2.disabled=false;
+
+              } else {
+                enterBtn.classList.remove('enabled');
+                close_x.classList.remove('enabled');
+                btn1.disabled=true;
+                btn2.disabled=true;
+              }
+            });
+          }
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        const mcheckbox = document.getElementById('splash-checkbox');
+    
+        // Restore state on load (within session)
+        if (sessionStorage.getItem('modalCheckboxChecked') === 'true') {
+          mcheckbox.checked = true;
+        }
+    
+        // Update state when checkbox is clicked
+        mcheckbox.addEventListener('change', () => {
+          sessionStorage.setItem('modalCheckboxChecked', mcheckbox.checked);
+        });
+      });
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        const splashScreen = document.getElementById('splashScreen');
+    
+        splashScreen.addEventListener('click', function (e) {
+          // Only block if click is directly on the background overlay
+          if (e.target === splashScreen) {
+            console.log('Overlay clicked - do nothing');
+            // Prevent accidental modal close
+            e.stopPropagation();
+          } else {
+            console.log('Clicked inside modal content');
+          }
+        });
+      });
+
+
+        // ✅ Show modal on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById("splashScreen");
+            splash.style.display = "block"; // show modal
+
+            // Load tab1 content
+            showTab('tab1');
+        });
+
+        // ✅ Close modal if clicked outside
+        window.onclick = function (event) {
+            const splash = document.getElementById("splashScreen");
+            if (event.target === splash) {
+            splash.style.display = "none";
+            }
+        };
+        window.addEventListener('beforeunload', function () {
+            sessionStorage.clear();
+          });
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                        || window.innerWidth <= 768;
+        
+        if (isMobile) {
+            console.log("Mobile device detected, for a more user friendly experience rotate your device so that it's horizontal");
+        } else (
+            console.log("Likely a desktop")
+        )
+        });
+
+        window.addEventListener("beforeprint", () => {
+            if (map && map.invalidateSize) {
+              setTimeout(() => {
+                map.invalidateSize();
+              }, 100);
+            }
+          });
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('printModal');
+            if (event.target === modal) {
+                closePrintPreview();
+            }
+        };
     </script>
 </body>
 </html>

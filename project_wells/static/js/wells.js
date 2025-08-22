@@ -946,6 +946,71 @@ function downloadTableData(filteredData) {
     // Remove the link element
     document.body.removeChild(link);
 }
+ 
+
+
+// function downloadTableData(filteredData) {
+//     if (!filteredData || !filteredData.features || filteredData.features.length === 0) {
+//         alert("No data to download.");
+//         return;
+//     } 
+//     console.log('clicked the right spot')
+//     // Store data globally for later access
+//     window._csvFilteredData = filteredData;
+
+//     // Show the modal
+//     document.getElementById('emailModal').style.display = 'block';
+// }
+
+// document.getElementById('sendEmailBtn').addEventListener('click', function() {
+//     const name = document.getElementById('userName').value.trim();
+//     const email = document.getElementById('userEmail').value.trim();
+//     const status = document.getElementById('emailStatus');
+//     const data = window._csvFilteredData;
+
+//     if (!name || !email) {
+//         status.innerText = 'Please enter both name and email.';
+//         return;
+//     }
+
+//     status.innerText = 'Sending...';
+
+//     fetch('/wells/send-csv-email/', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRFToken': getCSRFToken(),  // use your CSRF method
+//         },
+//         body: JSON.stringify({
+//             name: name,
+//             email: email,
+//             data: data,
+//         })
+//     })
+//     .then(res => res.json())
+//     .then(response => {
+//         if (response.success) {
+//             status.innerText = 'Email sent successfully!';
+//         } else {
+//             status.innerText = 'Error: ' + (response.message || 'Something went wrong.');
+//         }
+//     })
+//     .catch(err => {
+//         console.error('Email error:', err);
+//         status.innerText = 'An error occurred while sending the email.';
+//     });
+// });
+
+// // Helper to get CSRF token from cookie
+// function getCSRFToken() {
+//     const name = 'csrftoken';
+//     const cookieValue = document.cookie
+//         .split('; ')
+//         .find(row => row.startsWith(name + '='))
+//         ?.split('=')[1];
+//     return cookieValue;
+// }
+
 
 // Toggle legend content
 document.getElementById('legend-toggle').addEventListener('click', function() {

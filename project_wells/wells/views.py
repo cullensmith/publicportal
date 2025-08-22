@@ -7,8 +7,26 @@ from django.http import JsonResponse
 import json 
 import ast
 import time
-
+import csv
+from io import StringIO
+from datetime import timedelta
+from django.utils.timezone import now
+from django.core.mail import EmailMessage
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .models import CSVRequestLog
+from django.utils import timezone
 from django.core.serializers import serialize
+import io
+import zipfile
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.conf import settings
+from django.db import connection
+from .models import DownloadRequest
+# from google.oauth2 import service_account
+# from googleapiclient.discovery import build
+# from googleapiclient.http import MediaIoBaseUpload
 
 # Create your views here.
 def wells(request):
@@ -455,3 +473,245 @@ def generate_geojson(request):
 
     print(f'part total was took: {stop_time6 - start_time} sec')
     return JsonResponse(mapdata, safe=False)
+
+
+
+# @csrf_exempt
+# @require_POST
+# def request_csv(request):
+#     name = request.POST.get('name')
+#     email = request.POST.get('email')
+#     ip = get_client_ip(request)
+
+#     if not name or not email:
+#         return JsonResponse({'status': 'error', 'message': 'Missing name or email.'}, status=400)
+
+#     # Rate limit: max 5 requests per email per day
+#     today = now() - timedelta(days=1)
+#     recent_requests = CSVRequestLog.objects.filter(email=email, requested_at__gte=today)
+#     if recent_requests.count() >= 50:
+#         return JsonResponse({
+#             'status': 'error',
+#             'message': 'Rate limit exceeded. Only 5 requests per 24 hours are allowed.'
+#         }, status=429)
+
+#     # Log the request
+#     CSVRequestLog.objects.create(name=name, email=email, ip_address=ip)
+
+#     # Generate CSV
+#     csv_data = generate_csv()
+
+#     # Send email
+#     subject = 'Your requested CSV file'
+#     message = 'Hi {},\n\nHere is the CSV you requested.'.format(name)
+#     email_msg = EmailMessage(subject, message, to=[email])
+#     email_msg.attach('data.csv', csv_data.getvalue(), 'text/csv')
+#     email_msg.send()
+
+#     return JsonResponse({'status': 'success', 'message': 'CSV sent to your email.'})
+
+
+# def generate_csv():
+#     output = StringIO()
+#     writer = csv.writer(output)
+#     writer.writerow(['Name', 'Value'])
+#     for i in range(10):  # Replace with real data
+#         writer.writerow([f'Item {i}', i * 10])
+#     output.seek(0)
+#     return output
+
+
+# def get_client_ip(request):
+#     """Get IP from request headers (handle proxies)"""
+#     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+#     if x_forwarded_for:
+#         ip = x_forwarded_for.split(',')[0]
+#     else:
+#         ip = request.META.get('REMOTE_ADDR')
+#     return ip
+
+
+# @csrf_exempt
+# def send_csv_email(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+#         name = data.get('name')
+#         email = data.get('email')
+#         geojson = data.get('data')
+#         ip = get_client_ip(request)
+
+#         # Rate limit (5 per day per IP)
+#         today = timezone.now().date()
+#         count = CSVRequestLog.objects.filter(requested_at__date=today).count()
+
+#         # count = CSVRequestLog.objects.filter(ip=ip_address, requested_at__date=today).count()
+#         if count >= 5:
+#             return JsonResponse({'success': False, 'message': 'Rate limit exceeded (5/day).'}, status=429)
+#         # CSVRequestLog.objects.create(name=name, email=email, ip=ip)
+
+#         CSVRequestLog.objects.create(name=name, email=email, ip_address=ip)
+
+#         # Create CSV from GeoJSON
+#         csv_file = StringIO()
+#         writer = csv.writer(csv_file)
+#         headers = geojson['features'][0]['properties'].keys()
+#         writer.writerow(headers)
+#         for feature in geojson['features']:
+#             writer.writerow([feature['properties'][h] for h in headers])
+
+#         csv_file.seek(0)
+#         email_msg = EmailMessage(
+#             subject='Your Well Data Request',
+#             body='Attached is the CSV you requested.',
+#             to=[email]
+#         )
+#         email_msg.attach('well_location_data.csv', csv_file.getvalue(), 'text/csv')
+#         email_msg.send()
+
+#         return JsonResponse({'success': True})
+
+#     return JsonResponse({'success': False}, status=405)
+
+# def get_client_ip(request):
+#     # return request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR'))
+#     """Get client IP address from request headers."""
+#     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+#     if x_forwarded_for:
+#         return x_forwarded_for.split(",")[0]
+#     return request.META.get("REMOTE_ADDR")
+
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class DownloadCSVView(View):
+#     def post(self, request, *args, **kwargs):
+#         try:
+#             data = json.loads(request.body)
+#             name = data.get("name")
+#             email = data.get("email")
+#             filtered_data = data.get("filteredData")  # Expecting GeoJSON-like structure
+
+#             # Rate limit: Check if this IP made more than 5 requests in the past hour
+#             ip = get_client_ip(request)
+#             one_hour_ago = timezone.now() - timezone.timedelta(hours=1)
+#             recent_requests = DownloadRequest.objects.filter(ip_address=ip, timestamp__gte=one_hour_ago)
+#             if recent_requests.count() >= 5:
+#                 return JsonResponse({"error": "Rate limit exceeded (5/hour)."}, status=429)
+
+#             # Log request
+#             DownloadRequest.objects.create(name=name, email=email, ip_address=ip, timestamp=timezone.now())
+
+#             # Generate CSV in memory
+#             csv_buffer = io.StringIO()
+#             writer = csv.writer(csv_buffer)
+
+#             features = filtered_data["features"]
+#             if not features:
+#                 return JsonResponse({"error": "No data to export."}, status=400)
+
+#             headers = list(features[0]["properties"].keys())
+#             writer.writerow(headers)
+#             for feature in features:
+#                 writer.writerow([feature["properties"].get(h, "") for h in headers])
+
+#             # Zip the CSV in memory
+#             zip_buffer = io.BytesIO()
+#             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+#                 zip_file.writestr("filtered_data.csv", csv_buffer.getvalue())
+
+#             zip_buffer.seek(0)  # Go back to start
+
+#             # Send email with zipped attachment
+#             email_message = EmailMessage(
+#                 subject="Your CSV Download",
+#                 body="Hello {},\n\nYour data is attached as a zip file.".format(name),
+#                 from_email=settings.DEFAULT_FROM_EMAIL,
+#                 to=[email],
+#             )
+#             email_message.attach('filtered_data.zip', zip_buffer.read(), 'application/zip')
+#             email_message.send()
+
+#             return JsonResponse({"success": "CSV emailed successfully."})
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+
+
+# Add your Google Drive folder ID here
+GOOGLE_DRIVE_FOLDER_ID = "YOUR_FOLDER_ID_HERE"
+GOOGLE_SERVICE_ACCOUNT_FILE = "path/to/service_account_key.json"
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DownloadCSVView(View):
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            name = data.get("name")
+            email = data.get("email")
+            filtered_data = data.get("filteredData")
+            ip = get_client_ip(request)
+
+            # Rate limit: max 5 requests per hour per IP
+            one_hour_ago = timezone.now() - timezone.timedelta(hours=1)
+            recent_requests = DownloadRequest.objects.filter(ip_address=ip, timestamp__gte=one_hour_ago)
+            if recent_requests.count() >= 5:
+                return JsonResponse({"error": "Rate limit exceeded (5/hour)."}, status=429)
+
+            # Log request
+            DownloadRequest.objects.create(name=name, email=email, ip_address=ip, timestamp=timezone.now())
+
+            # Create CSV in memory
+            csv_buffer = io.StringIO()
+            writer = csv.writer(csv_buffer)
+            features = filtered_data.get("features", [])
+
+            if not features:
+                return JsonResponse({"error": "No data provided."}, status=400)
+
+            headers = list(features[0]["properties"].keys())
+            writer.writerow(headers)
+            for feature in features:
+                writer.writerow([feature["properties"].get(h, "") for h in headers])
+            csv_buffer.seek(0)
+
+            # Upload to Google Drive
+            credentials = service_account.Credentials.from_service_account_file(
+                GOOGLE_SERVICE_ACCOUNT_FILE,
+                scopes=["https://www.googleapis.com/auth/drive.file"]
+            )
+            service = build("drive", "v3", credentials=credentials)
+
+            file_metadata = {
+                "name": f"{name.replace(' ', '_')}_data.csv",
+                "parents": [GOOGLE_DRIVE_FOLDER_ID]
+            }
+
+            media = MediaIoBaseUpload(csv_buffer, mimetype="text/csv", resumable=True)
+            uploaded_file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+
+            # Make the file shareable
+            service.permissions().create(
+                fileId=uploaded_file["id"],
+                body={"role": "reader", "type": "anyone"}
+            ).execute()
+
+            file_id = uploaded_file["id"]
+            file_link = f"https://drive.google.com/file/d/{file_id}/view?usp=sharing"
+
+            # Email the link
+            email_message = EmailMessage(
+                subject="Your CSV Download Link",
+                body=f"Hi {name},\n\nYour CSV file is ready:\n\n{file_link}\n\nThanks!",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
+            email_message.send()
+
+            return JsonResponse({"success": "Link sent via email."})
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        return x_forwarded_for.split(",")[0]
+    return request.META.get("REMOTE_ADDR")

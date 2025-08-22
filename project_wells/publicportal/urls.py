@@ -25,6 +25,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('',views.homepage),
     path('wells/', include('wells.urls')),
+    # path('', include('yourapp.urls')),
+    # path('send-csv-email/', views.send_csv_email, name='send_csv_email'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
