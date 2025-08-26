@@ -1565,7 +1565,7 @@ function filterProd(data) {
                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
                 feature.properties.well_name + "<br><b>Operator: </b>" + 
                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-                feature.properties.lng + "<br><b>Latitude: </b>" 
+                feature.properties.longitude + "<br><b>Latitude: </b>" + feature.properties.latitude
             );
         }
 
@@ -1596,7 +1596,7 @@ function filterProd(data) {
                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
                 feature.properties.well_name + "<br><b>Operator: </b>" + 
                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-                feature.properties.lng + "<br><b>Latitude: </b>" 
+                feature.properties.longitude + "<br><b>Latitude: </b>" + feature.properties.latitude
             );
         }
     });
@@ -1626,7 +1626,7 @@ function filterProd(data) {
                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
                 feature.properties.well_name + "<br><b>Operator: </b>" + 
                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-                feature.properties.lng + "<br><b>Latitude: </b>" 
+                feature.properties.longitude + "<br><b>Latitude: </b>" + feature.properties.latitude
             );
         }
     });
@@ -1656,7 +1656,7 @@ function filterProd(data) {
                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
                 feature.properties.well_name + "<br><b>Operator: </b>" + 
                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-                feature.properties.lng + "<br><b>Latitude: </b>" 
+                feature.properties.longitude + "<br><b>Latitude: </b>" + feature.properties.latitude
             );
         }
     });
@@ -1686,7 +1686,7 @@ function filterProd(data) {
                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
                 feature.properties.well_name + "<br><b>Operator: </b>" + 
                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-                feature.properties.lng + "<br><b>Latitude: </b>" 
+                feature.properties.longitude + "<br><b>Latitude: </b>" + feature.properties.latitude
             );
         }
     });
@@ -1716,7 +1716,7 @@ function filterProd(data) {
                 feature.properties.well_status + "<br><b>Well Name: </b>" + 
                 feature.properties.well_name + "<br><b>Operator: </b>" + 
                 feature.properties.operator + "<br><b>Longitude:</b> " + 
-                feature.properties.lng + "<br><b>Latitude: </b>" 
+                feature.properties.longitude + "<br><b>Latitude: </b>" + feature.properties.latitude
             );
         }
     });
