@@ -1,3 +1,4 @@
+
 # forms.py
 from django import forms
 from .models import DownloadLog
@@ -6,37 +7,28 @@ class DownloadForm(forms.ModelForm):
     class Meta:
         model = DownloadLog
         fields = ['name', 'email', 'affiliation', 'state']
-        labels = {
-            'name' : 'Name' ,
-            'email' : 'Email address',
-            'affiliation' : 'Affiliation',
-            'state' : 'State'
-        }
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter your preferred name',
-                'required': True
+                'placeholder': 'Enter your name',
+                'required': True,
+                'id': 'userName'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter your email address',
-                'required': True
+                'placeholder': 'Enter your email',
+                'required': True,
+                'id': 'userEmail'
             }),
-            'affiliation': forms.TextInput(attrs={
+            'affiliation': forms.Select(attrs={
                 'class': 'form-control',
-                'placeholder': 'Select your affiliation',
-                'required': True
+                'required': True,
+                'id': 'userAffiliation'
             }),
-            'state': forms.TextInput(attrs={
+            'state': forms.Select(attrs={
                 'class': 'form-control',
-                'placeholder': 'Select your state',
-                'required': True
+                'required': True,
+                'id': 'userState'
             })
         }
     
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email:
-            email = email.lower().strip()
-        return email

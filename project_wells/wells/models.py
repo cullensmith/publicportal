@@ -113,18 +113,89 @@ class Wells(models.Model):
 
 
 class DownloadLog(models.Model):
+    AFFILIATION_CHOICES = [
+        ('','Oppo'),
+        ('', ''),
+        ('NG', ''),
+        ('Community Member', 'Community Member'),
+        ('Student', 'Student'),
+        ('Industry', 'Industry'),
+        ('Nonprofit', 'Nonprofit'),
+        ('Government', 'Government'),
+        ('Other', 'Other'),
+    ]
+    
+    STATE_CHOICES = [
+        ('', ''),
+        ('Alabama','Alabama'),
+        ('AL', 'Alabama'),
+        ('AK', 'Alaska'),
+        ('AZ', 'Arizona'),
+        ('AR', 'Arkansas'),
+        ('CA', 'California'),
+        ('CO', 'Colorado'),
+        ('CT', 'Connecticut'),
+        ('DE', 'Delaware'),
+        ('FL', 'Florida'),
+        ('GA', 'Georgia'),
+        ('HI', 'Hawaii'),
+        ('ID', 'Idaho'),
+        ('IL', 'Illinois'),
+        ('IN', 'Indiana'),
+        ('IA', 'Iowa'),
+        ('KS', 'Kansas'),
+        ('KY', 'Kentucky'),
+        ('LA', 'Louisiana'),
+        ('ME', 'Maine'),
+        ('MD', 'Maryland'),
+        ('MA', 'Massachusetts'),
+        ('MI', 'Michigan'),
+        ('MN', 'Minnesota'),
+        ('MS', 'Mississippi'),
+        ('MO', 'Missouri'),
+        ('MT', 'Montana'),
+        ('NE', 'Nebraska'),
+        ('NV', 'Nevada'),
+        ('NH', 'New Hampshire'),
+        ('NJ', 'New Jersey'),
+        ('NM', 'New Mexico'),
+        ('NY', 'New York'),
+        ('NC', 'North Carolina'),
+        ('ND', 'North Dakota'),
+        ('OH', 'Ohio'),
+        ('OK', 'Oklahoma'),
+        ('OR', 'Oregon'),
+        ('PA', 'Pennsylvania'),
+        ('RI', 'Rhode Island'),
+        ('SC', 'South Carolina'),
+        ('SD', 'South Dakota'),
+        ('TN', 'Tennessee'),
+        ('TX', 'Texas'),
+        ('UT', 'Utah'),
+        ('VT', 'Vermont'),
+        ('VA', 'Virginia'),
+        ('WA', 'Washington'),
+        ('WV', 'West Virginia'),
+        ('WI', 'Wisconsin'),
+        ('WY', 'Wyoming'),
+        ('DC', 'District of Columbia'),
+        ('Other', 'International'),
+    ]
+    
     name = models.CharField(max_length=100)
     email = models.EmailField()
-    affiliation = models.CharField(max_length=30)
-    state = models.CharField(max_length=30)
-    download_date = models.DateTimeField(default=timezone.now)
-    file_name = models.CharField(max_length=255, blank=True)
+    affiliation = models.CharField(max_length=50, choices=AFFILIATION_CHOICES)
+    state = models.CharField(max_length=50, choices=STATE_CHOICES)
+    file_name = models.CharField(max_length=255, blank=True, null=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
+    download_date = models.DateTimeField(default=timezone.now)
+    
+
+    
+    def __str__(self):
+        return f"{self.name} - {self.email} - {self.created_at}"
     
     class Meta:
         ordering = ['-download_date']
         managed = False
         db_table = '"portals"."wells_downloads"'
-    
-    def __str__(self):
-        return f"{self.name} - {self.email} - {self.download_date} - {self.affiliation} - {self.state}"

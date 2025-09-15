@@ -735,6 +735,8 @@ def download_csv(request):
         data = json.loads(request.body)
         name = data.get('name', '').strip()
         email = data.get('email', '').strip().lower()
+        affiliation = data.get('affiliation','').strip()
+        state = data.get('state','').strip()
         filtered_data = data.get('filtered_data', [])  # Get the filtered data
         
         # Basic validation
@@ -749,7 +751,9 @@ def download_csv(request):
             name=name,
             email=email,
             file_name='wells_data_export.csv',
-            ip_address=get_client_ip(request)
+            ip_address=get_client_ip(request),
+            affiliation=affiliation,
+            state=state
         )
         
         # Generate CSV content using filtered data
@@ -793,30 +797,53 @@ def download_csv(request):
             'error': str(e)
         })
 
-# Alternative approach using regular form submission
 class DownloadView(View):
     def get(self, request):
         form = DownloadForm()
         return render(request, 'your_template.html', {'form': form})
     
     def post(self, request):
-        form = DownloadForm(request.POST)
-        if form.is_valid():
-            # Save the form data
-            download_log = form.save(commit=False)
-            download_log.file_name = 'data_export.csv'
-            download_log.ip_address = get_client_ip(request)
-            download_log.save()
+        print('Processing form submission')
+        try:
+            # Handle both JSON and form data
+            if request.content_type == 'application/json':
+                data = json.loads(request.body)
+            else:
+                data = request.POST.dict()
             
-            # Generate and return CSV
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="data_export.csv"'
+            print("Received data:", data)
             
-            writer = csv.writer(response)
-            # Replace with your actual data
-            writer.writerow(['Column1', 'Column2', 'Column3'])
-            writer.writerow(['Sample', 'Data', 'Row'])
+            form = DownloadForm(data)
             
-            return response
-        else:
-            return render(request, 'your_template.html', {'form': form})
+            if form.is_valid():
+                print("Form is valid, saving to database")
+                download_log = form.save(commit=False)
+                download_log.file_name = 'data_export.csv'
+                download_log.ip_address = get_client_ip(request)
+                download_log.save()
+                
+                print(f"Saved download log with ID: {download_log.id}")
+                
+                # Create CSV response
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="data_export.csv"'
+                
+                writer = csv.writer(response)
+                writer.writerow(['Column1', 'Column2', 'Column3', 'Column4', 'Column5'])
+                writer.writerow(['Sample', 'Data', 'Row', 'To', 'Export'])
+                
+                return response
+            else:
+                print("Form errors:", form.errors)
+                # Return form errors
+                if request.content_type == 'application/json':
+                    return JsonResponse({'error': dict(form.errors)}, status=400)
+                else:
+                    return render(request, 'your_template.html', {'form': form})
+                    
+        except json.JSONDecodeError as e:
+            print(f'JSON decode error: {e}')
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            print(f'Unexpected error: {e}')
+            return JsonResponse({'error': 'Server error'}, status=500)
