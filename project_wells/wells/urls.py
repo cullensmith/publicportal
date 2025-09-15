@@ -15,6 +15,7 @@ urlpatterns = [
     path('createCountyList',views.createCountyList, name="createCountyList"),
     path('createStatusList',views.createStatusList, name="createStatusList"),
     path('createTypeList',views.createTypeList, name="createTypeList"),
+    path('download-csv/', views.download_csv, name='download_csv'),
     # path('request-csv/', request_csv, name='request_csv'),
     # path('send-csv-email/', views.send_csv_email, name='send_csv_email'),
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # models.py
 
@@ -109,3 +110,21 @@ class Wells(models.Model):
     def __str__(self) -> str:
         return super().__str__()
     
+
+
+class DownloadLog(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    affiliation = models.CharField(max_length=30)
+    state = models.CharField(max_length=30)
+    download_date = models.DateTimeField(default=timezone.now)
+    file_name = models.CharField(max_length=255, blank=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-download_date']
+        managed = False
+        db_table = '"portals"."wells_downloads"'
+    
+    def __str__(self):
+        return f"{self.name} - {self.email} - {self.download_date} - {self.affiliation} - {self.state}"

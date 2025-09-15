@@ -885,6 +885,8 @@ function updateTable(features) {
 
 
 }
+
+
 // Function to download CSV of table data
 function downloadTableData(filteredData) {
     console.log('starting the download')
@@ -894,35 +896,19 @@ function downloadTableData(filteredData) {
         return;
     }
 
-    // console.log(filteredData)
-    // Parse filtered data
-    // var data = JSON.parse(filteredData);
-
     var data = filteredData
-    // console.log(data)
-    // Function to properly encode special characters for CSV
     function encodeForCSV(str) {
-        // If the string contains comma, double quote, or newline characters,
-        // wrap it in double quotes and escape any double quotes within the string
         if (/[,"\n#]/.test(str)) {
             return '"' + str.replace(/"/g, '""').replace(/#/g, '') + '"';
-            
         }
         return str;
     }
 
     // Convert data to CSV format
     var csvContent = "data:text/csv;charset=utf-8,";
-
-    // Get the headers from the first data item
-    // var headers = ['api_num','county','ft_category','fta_uid','id','latitude','longitude','municipality','operator','other_id','plug_date','spud_date','stusps','well_configuration','well_name','well_status','well_type'];
-    // csvContent += headers.map(encodeForCSV).join(",") + "\n"; 
-
     var headers = Object.keys(data.features[0].properties);
     csvContent += headers.join(',') + '\n';
 
-    // console.log(headers)
-    
     // Convert each data item to CSV format
     data.features.forEach(function(dataItem) {
         // console.log(dataItem)

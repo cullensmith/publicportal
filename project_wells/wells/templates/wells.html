@@ -151,7 +151,7 @@
             font-family: 'Archivo Black'; 
             font-size:18px;
             background-color: #a3cf5f;
-            color: white;
+            color: #02253a;
             padding: 12px 24px;
             border: none;
             border-radius: 4px;
@@ -603,8 +603,10 @@
 
         .alert {
             padding: 20px;
-            background-color: #f44336;
-            color: white;
+            background-color: white;
+
+            {% comment %} background-color: #f44336; {% endcomment %}
+            color: black;
         }
         .alert.hide {
             display: none,
@@ -817,6 +819,73 @@
             min-height: 150px;
           }
 
+          /* Modal overlay */
+          .modal {
+              display: none; /* Hidden by default */
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background-color: rgba(0, 0, 0, 0.5);
+              z-index: 1000;
+              justify-content: center;
+              align-items: center;
+          }
+          .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+          /* Modal content */
+          .modal-dialog {
+              background-color: white;
+              padding: 20px;
+              border-radius: 5px;
+              max-width: 514px;
+              width: 100%;
+          }
+          
+          /* Modal header */
+          .modal-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+          }
+          
+          /* Modal footer */
+          .modal-footer {
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+          }
+          
+          /* Close button */
+          .close {
+              font-size: 24px;
+              background: none;
+              border: none;
+              cursor: pointer;
+          }
+          
+          /* Show the modal */
+
+          /* Spinner */
+          .spinner-border {
+              display: inline-block;
+              width: 1rem;
+              height: 1rem;
+              border: 0.15em solid transparent;
+              border-top: 0.15em solid currentColor;
+              border-radius: 50%;
+              animation: spin 0.75s linear infinite;
+          }
+          
+          @keyframes spin {
+              to { transform: rotate(360deg); }
+          }
+          
+
     </style>
 </head>
 <body>
@@ -965,13 +1034,17 @@
                             <button class="divbtns" id="pbutton" style="display:none;width:100%;font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="showPrintPreview()"><i class="fa-solid fa-print"></i> Print Map</button>
                         </div>
                         
-                        <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
+                        {% comment %} <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
                             <button class="divbtns" id="dlbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="downloadTableData(filteredData)">Download <span style="font-size: 20px; display: inline-block; transform: rotate(270deg); margin-left: 8px;">&#8676;</span></button>
+                        </div> {% endcomment %}
+                        <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
+                            <button type="button" class="btn btn-primary divbtns" data-bs-toggle="modal" data-bs-target="#downloadModal" style="width:100%; font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" >Download <span style="font-size: 20px; display: inline-block; transform: rotate(270deg); margin-left: 8px;">&#8676;</span></button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
         <div class="right" id="container">
             <!-- Top content of the right side -->
             <div id="map">
@@ -1085,67 +1158,161 @@
                 </div>
             </div>
         </div>
+    </div>
+<!-- Download Modal -->
+<div id="downloadModal" class="modal fade" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <p class="modal-title" id="downloadModalLabel" style="color:#02253a;font-family:archivo black">Your data is ready!</p
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
         </div>
-            {% comment %} <div id="emailModal" style="display:block; position:fixed; z-index:50000; background:white; padding:20px; border:1px solid #ccc; top:0; left:35%; width:30%;">
-                <h3>Send Data to Email</h3>
-                <label>Name: <input type="text" id="userName"></label><br><br>
-                <label>Email: <input type="email" id="userEmail"></label><br><br>
-                <button id="sendEmailBtn">Send CSV</button>
-                <button id="sndbtn" onclick="document.getElementById('emailModal').style.display='none'">Cancel</button> 
-                <div id="emailStatus" style="margin-top:10px;"></div>
-            </div> {% endcomment %}
-            <!-- Print Preview Modal -->
-            <div id="printModal" class="print-modal">
-                <div class="print-content">
-                    <button class="close-btn" onclick="closePrintPreview()">&times;</button>
-                    <div class="print-header">
-                        <h2>Map Preview</h2>
-                        <p>Date: <span id="printDate"></span></p>
-                    </div>
-                    <div id="printMap" class="print-map"></div>
-                    <div class="print-actions">
-                        {% comment %} <div class="controls" style="position: absolute; bottom: 87px; left: 10px; right: 10px;"> {% endcomment %}
-                            {% comment %} <button class="print-btn" onclick="showPrintPreview()">📋 Create Map Screenshot</button> {% endcomment %}
-                        <button class="screenshot-btn" onclick="captureMapScreenshot()"><i class="fa-solid fa-print"></i> Print Map</button>
-                        {% comment %} <button class="screenshot-btn" onclick="captureMapScreenshot()">📸 Download Screenshot</button> {% endcomment %}
-                        <button class="print-btn" onclick="closePrintPreview()">Cancel</button>
-                    </div>
-                </div>
+        <div class="modal-body" style="margin-top:18px">
+          <p class="mb-3" style="margin-bottom:4px;font-family:arial;font-weight:normal;color:#02253a">Please provide some basic information to help us better serve you:</p>
+          <form id="downloadForm">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="userName" class="form-label" style="color:#02253a;font-family:archivo black">Name <span style="color: red;">*</span></label>
+              <input type="text" class="form-control" id="userName" name="name" style="margin-left:34px;width:160px" required placeholder="Enter your name">
             </div>
-            <!-- Splash Modal -->
-            <div id="splashScreen" class="splash-modal">
-                <div class="splash-content">
-                <span class="close-button" onclick="closeSplash()">&times;</span>
-            
-                <!-- Main Content Area (changes when tabs are clicked) -->
-                <div id="tabContent" class="tab-content" style="overflow-y:auto">
-                    <h2>Welcome</h2>
-                    <p>This is the default content shown in the modal.</p>
-                </div>
-            
-                <!-- Tab Buttons -->
-                <div class="tab-buttons">
-                    <button disabled onclick="showTab('tab1')" class="btn" id="btn1" disabled>Terms of Service</button>
-                    {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
-                    <button disabled onclick="showTab('tab3')" class="btn" id="btn2" disabled>Data Details</button>
-                </div>
+            <div class="mb-3">
+              <label for="userEmail" class="form-label" style="color:#02253a;font-family:archivo black">Email <span style="color: red;">*</span></label>
+              <input type="email" class="form-control" id="userEmail" name="email" style="margin-left:36px;width:160px" required placeholder="Enter your email">
             </div>
-            <!-- Modal -->
-            {% comment %} <div id="csvModal" style="display:none; position:fixed; background:white; padding:20px; border:1px solid gray;">
-                <h3>Request CSV</h3>
-                <form id="csvForm">
-                    <input type="text" name="name" placeholder="Your name" required><br>
-                    <input type="email" name="email" placeholder="Your email" required><br>
-                    <button type="submit">Send CSV</button>
-                    <button type="button" onclick="closeModal()">Cancel</button>
-                </form>
-                <div id="csvMsg"></div>
-            </div> {% endcomment %}
+            <div class="mb-3">
+                <label for="userAffiliation" class="form-label" style="color:#02253a;font-family:archivo black">Affiliation <span style="color: red;">*</span></label>
+                <select class="form-control" id="userAffiliation" name="affiliation" style="margin-left:0px;width:160px" required>
+                    <option value=""></option>
+                    <option value="Community Member">Community Member</option>
+                    <option value="Student">Student</option>
+                    <option value="Industry">Industry</option>
+                    <option value="Nonprofit">Nonprofit</option>
+                    <option value="Government">Government</option>
+                    <option value="Other">Other</option>
+                </select>              
+            </div>
+            <div class="mb-3">
+                <label for="userState" class="form-label" style="color:#02253a;font-family:archivo black">
+                    State 
+                </label>
+                <select class="form-control" id="userState" name="state"  style="margin-left:52px;width:160px" required>
+                    <option value=""></option>
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="AR">Arkansas</option>
+                    <option value="CA">California</option>
+                    <option value="CO">Colorado</option>
+                    <option value="CT">Connecticut</option>
+                    <option value="DE">Delaware</option>
+                    <option value="FL">Florida</option>
+                    <option value="GA">Georgia</option>
+                    <option value="HI">Hawaii</option>
+                    <option value="ID">Idaho</option>
+                    <option value="IL">Illinois</option>
+                    <option value="IN">Indiana</option>
+                    <option value="IA">Iowa</option>
+                    <option value="KS">Kansas</option>
+                    <option value="KY">Kentucky</option>
+                    <option value="LA">Louisiana</option>
+                    <option value="ME">Maine</option>
+                    <option value="MD">Maryland</option>
+                    <option value="MA">Massachusetts</option>
+                    <option value="MI">Michigan</option>
+                    <option value="MN">Minnesota</option>
+                    <option value="MS">Mississippi</option>
+                    <option value="MO">Missouri</option>
+                    <option value="MT">Montana</option>
+                    <option value="NE">Nebraska</option>
+                    <option value="NV">Nevada</option>
+                    <option value="NH">New Hampshire</option>
+                    <option value="NJ">New Jersey</option>
+                    <option value="NM">New Mexico</option>
+                    <option value="NY">New York</option>
+                    <option value="NC">North Carolina</option>
+                    <option value="ND">North Dakota</option>
+                    <option value="OH">Ohio</option>
+                    <option value="OK">Oklahoma</option>
+                    <option value="OR">Oregon</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="RI">Rhode Island</option>
+                    <option value="SC">South Carolina</option>
+                    <option value="SD">South Dakota</option>
+                    <option value="TN">Tennessee</option>
+                    <option value="TX">Texas</option>
+                    <option value="UT">Utah</option>
+                    <option value="VT">Vermont</option>
+                    <option value="VA">Virginia</option>
+                    <option value="WA">Washington</option>
+                    <option value="WV">West Virginia</option>
+                    <option value="WI">Wisconsin</option>
+                    <option value="WY">Wyoming</option>
+                    <option value="DC">District of Columbia</option>
+                    <option value="Other">International</option>
+                </select>
+            </div>
+            
+            <div style="margin-top:6px">
+                <label style="font-family:arial;font-weight:normal;font-size:smaller;color:#02253a"><input type="checkbox" class ="checkbox-feedback" id="fCheckbox"> Open our feedback form in a new tab to provide additional insight</label>
+            </div>
+          </form>
+          <div id="errorMessage" class="alert alert-danger d-none"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="print-btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="screenshot-btn btn-primary" id="downloadBtn">
+            Download CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- Print Preview Modal -->
+    <div id="printModal" class="print-modal">
+        <div class="print-content">
+            <button class="close-btn" onclick="closePrintPreview()">&times;</button>
+            <div class="print-header">
+                <h2>Map Preview</h2>
+                <p>Date: <span id="printDate"></span></p>
+            </div>
+            <div id="printMap" class="print-map">
+            </div>
+            <div class="print-actions">
+                {% comment %} <div class="controls" style="position: absolute; bottom: 87px; left: 10px; right: 10px;"> {% endcomment %}
+                    {% comment %} <button class="print-btn" onclick="showPrintPreview()">📋 Create Map Screenshot</button> {% endcomment %}
+                <button class="screenshot-btn" onclick="captureMapScreenshot()"><i class="fa-solid fa-print"></i> Print Map</button>
+                {% comment %} <button class="screenshot-btn" onclick="captureMapScreenshot()">📸 Download Screenshot</button> {% endcomment %}
+                <button class="print-btn" onclick="closePrintPreview()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <!-- Splash Modal -->
+    <div id="splashScreen" class="splash-modal">
+        <div class="splash-content">
+            <span class="close-button" onclick="closeSplash()">&times;</span>
+        
+            <!-- Main Content Area (changes when tabs are clicked) -->
+            <div id="tabContent" class="tab-content" style="overflow-y:auto">
+                <h2>Welcome</h2>
+                <p>This is the default content shown in the modal.</p>
+            </div>
+        
+            <!-- Tab Buttons -->
+            <div class="tab-buttons">
+                <button disabled onclick="showTab('tab1')" class="btn" id="btn1" disabled>Terms of Service</button>
+                {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
+                <button disabled onclick="showTab('tab3')" class="btn" id="btn2" disabled>Data Details</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
     <script>
 
         let printMapInstance;
@@ -1153,14 +1320,14 @@
 
         // Screenshot preview function
         function showPrintPreview() {
-            const modal = document.getElementById('printModal');
+            const pmodal = document.getElementById('printModal');
             const printDate = document.getElementById('printDate');
             
             // Set current date
             printDate.textContent = new Date().toLocaleDateString();
             
             // Show modal
-            modal.style.display = 'block';
+            pmodal.style.display = 'block';
             
             // Create print map instance with better layer handling
             setTimeout(() => {
@@ -1630,6 +1797,7 @@
           }
       }
       document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('splash-checkbox')) {
         const mcheckbox = document.getElementById('splash-checkbox');
     
         // Restore state on load (within session)
@@ -1640,7 +1808,7 @@
         // Update state when checkbox is clicked
         mcheckbox.addEventListener('change', () => {
           sessionStorage.setItem('modalCheckboxChecked', mcheckbox.checked);
-        });
+        });}
       });
       
       document.addEventListener('DOMContentLoaded', () => {
@@ -1699,14 +1867,14 @@
           });
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('printModal');
-            if (event.target === modal) {
+            const pmodal = document.getElementById('printModal');
+            if (event.target === pmodal) {
                 closePrintPreview();
             }
         };
 
 
-
+{% comment %} 
         function openModal() {
             document.getElementById('csvModal').style.display = 'block';
         }
@@ -1738,7 +1906,163 @@
             .catch(() => {
                 document.getElementById('csvMsg').innerText = '⚠️ Error sending request.';
             });
+        }); {% endcomment %}
+
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const downloadBtn = document.getElementById('downloadBtn');
+            const downloadForm = document.getElementById('downloadForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const dmodal = document.getElementById('downloadModal');
+            {% comment %} const closeModalBtn = document.getElementById('closeModalBtn');
+            const closeModal = document.getElementById('closeModal'); {% endcomment %}
+        
+            // Open the modal
+            function showModal() {
+                dmodal.classList.add('show');
+            }
+        
+            // Close the modal
+            function closeModalHandler() {
+                const bootstrapModal = bootstrap.Modal.getInstance(dmodal) || new bootstrap.Modal(dmodal);
+                bootstrapModal.hide();
+                downloadForm.reset();
+                clearErrors();
+            }
+        
+            // Modal event listeners
+            {% comment %} closeModalBtn.addEventListener('click', closeModalHandler);
+            closeModal.addEventListener('click', closeModalHandler); {% endcomment %}
+            dmodal.querySelector('.modal-dialog').addEventListener('click', (e) => e.stopPropagation()); // Prevent closing when clicking inside the modal
+        
+            downloadBtn.addEventListener('click', async function () {
+                // Clear previous errors
+                clearErrors();
+        
+                // Get form data
+                const formData = new FormData(downloadForm);
+                const name = formData.get('name').trim();
+                const email = formData.get('email').trim();
+        
+                // Basic validation
+                if (!name || !email) {
+                    showError('Please fill in all required fields.');
+                    return;
+                }
+        
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError('Please enter a valid email address.');
+                    showFieldError('userEmail', 'Please enter a valid email address.');
+                    return;
+                }
+        
+                // Show loading state
+                {% comment %} setLoadingState(true); {% endcomment %}
+        
+                try {
+                    // Get CSRF token
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+                    // Send AJAX request with filtered data
+                    const response = await fetch('{% url "wells:download_csv" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            {% comment %} filtered_data: filteredData// currentFilteredData // Pass the filtered data {% endcomment %}
+                        })
+                    });
+        
+                    if (response.ok) {
+                        // Check if response is JSON (error) or CSV (success)
+                        const contentType = response.headers.get('content-type');
+        
+                        if (contentType && contentType.includes('application/json')) {
+                            // Handle JSON error response
+                            const data = await response.json();
+                            showError(data.error || 'An error occurred while processing your request.');
+                        } else {
+                            // Handle successful CSV download
+                            {% comment %} const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'wells_data_export.csv'; // Updated filename
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url); {% endcomment %}
+                            downloadTableData(filteredData)
+                            const fbcheckbox = document.getElementById('fCheckbox');
+                            {% comment %} console.log('fbcheckbox is:', fbcheckbox); {% endcomment %}
+
+                            if (fbcheckbox.checked) {
+                                window.open('https://forms.gle/NQ7QLRCm4HYm1SXF8', '_blank');
+                                console.log('opening Feedback')
+                            } else {
+                                console.log('did not find box checked')
+                            }
+                            // Close modal and reset form
+                            closeModalHandler();
+
+                        }
+                    } else {
+                        showError('Server error. Please try again later.');
+                    }
+                } catch (error) {
+                    console.error('Download error:', error);
+                    showError('An error occurred. Please check your connection and try again.');
+                } finally {
+                    console.log('downloaded')
+                    {% comment %} setLoadingState(false); {% endcomment %}
+                }
+            });
+        
+            function setLoadingState(loading) {
+                const spinner = downloadBtn.querySelector('.spinner-border');
+                if (loading) {
+                    downloadBtn.disabled = true;
+                    spinner.classList.remove('d-none');
+                    downloadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                } else {
+                    downloadBtn.disabled = false;
+                    spinner.classList.add('d-none');
+                    downloadBtn.innerHTML = 'Download CSV';
+                }
+            }
+        
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('d-none');
+            }
+        
+            function showFieldError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                const feedback = field.nextElementSibling;
+                field.classList.add('is-invalid');
+                feedback.textContent = message;
+            }
+        
+            function clearErrors() {
+                errorMessage.classList.add('d-none');
+                const invalidFields = document.querySelectorAll('.is-invalid');
+                invalidFields.forEach(field => {
+                    field.classList.remove('is-invalid');
+                });
+            }
+        
+
         });
+        
+
     </script>
 </body>
 </html>

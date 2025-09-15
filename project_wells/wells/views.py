@@ -1,9 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from .models import Wells, Counties, States, stStatus, stType #, CountyNames
-from django.http import HttpResponse
-from django.http import JsonResponse
-# from django.views.generic import View
-# from django.db.models import Q
+from django.http import HttpResponse, JsonResponse, FileResponse
 import json 
 import ast
 import time
@@ -23,10 +20,12 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.db import connection
-from .models import DownloadRequest
-# from google.oauth2 import service_account
-# from googleapiclient.discovery import build
-# from googleapiclient.http import MediaIoBaseUpload
+from .models import DownloadRequest,DownloadLog
+from django.contrib import messages
+from django.urls import reverse
+from .forms import DownloadForm
+import os
+import logging
 
 # Create your views here.
 def wells(request):
@@ -710,8 +709,114 @@ class DownloadCSVView(View):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
+# def get_client_ip(request):
+#     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+#     if x_forwarded_for:
+#         return x_forwarded_for.split(",")[0]
+#     return request.META.get("REMOTE_ADDR")
+
+
+
 def get_client_ip(request):
-    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    """Get the client's IP address from the request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        return x_forwarded_for.split(",")[0]
-    return request.META.get("REMOTE_ADDR")
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+@require_POST
+@csrf_exempt  # You may want to handle CSRF properly instead
+def download_csv(request):
+    """Handle the AJAX request to download CSV after form submission"""
+    try:
+        # Get JSON data from request
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip().lower()
+        filtered_data = data.get('filtered_data', [])  # Get the filtered data
+        
+        # Basic validation
+        if not name or not email:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Name and email are required'
+            })
+        
+        # Create download log entry
+        download_log = DownloadLog.objects.create(
+            name=name,
+            email=email,
+            file_name='wells_data_export.csv',
+            ip_address=get_client_ip(request)
+        )
+        
+        # Generate CSV content using filtered data
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="wells_data_export.csv"'
+        
+        writer = csv.writer(response)
+        
+        # If filtered_data is provided, use it; otherwise use default/all data
+        if filtered_data and len(filtered_data) > 0:
+            # Assuming filtered_data is a list of dictionaries
+            # Get headers from the first row
+            if isinstance(filtered_data[0], dict):
+                headers = list(filtered_data[0].keys())
+                writer.writerow(headers)
+                
+                # Write data rows
+                for row in filtered_data:
+                    writer.writerow([row.get(header, '') for header in headers])
+            else:
+                # If it's not a dict, treat as simple list
+                writer.writerow(['Data'])
+                for item in filtered_data:
+                    writer.writerow([item])
+        else:
+            # Fallback: generate default CSV structure
+            # Replace this with your actual data generation logic
+            writer.writerow(['Well ID', 'Location', 'Status', 'Type', 'Date'])  # Example headers
+            writer.writerow(['Sample', 'Data', 'Active', 'Oil', '2024-01-01'])  # Example data
+        
+        return response
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False, 
+            'error': 'Invalid JSON data'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'error': str(e)
+        })
+
+# Alternative approach using regular form submission
+class DownloadView(View):
+    def get(self, request):
+        form = DownloadForm()
+        return render(request, 'your_template.html', {'form': form})
+    
+    def post(self, request):
+        form = DownloadForm(request.POST)
+        if form.is_valid():
+            # Save the form data
+            download_log = form.save(commit=False)
+            download_log.file_name = 'data_export.csv'
+            download_log.ip_address = get_client_ip(request)
+            download_log.save()
+            
+            # Generate and return CSV
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="data_export.csv"'
+            
+            writer = csv.writer(response)
+            # Replace with your actual data
+            writer.writerow(['Column1', 'Column2', 'Column3'])
+            writer.writerow(['Sample', 'Data', 'Row'])
+            
+            return response
+        else:
+            return render(request, 'your_template.html', {'form': form})
