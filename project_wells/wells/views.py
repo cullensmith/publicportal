@@ -26,6 +26,8 @@ from django.urls import reverse
 from .forms import DownloadForm
 import os
 import logging
+import requests 
+
 
 # Create your views here.
 def wells(request):
@@ -726,65 +728,81 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
 @require_POST
 @csrf_exempt  # You may want to handle CSRF properly instead
 def download_csv(request):
-    """Handle the AJAX request to download CSV after form submission"""
+    """Handle the AJAX request to log download form submission"""
     try:
         # Get JSON data from request
         data = json.loads(request.body)
         name = data.get('name', '').strip()
         email = data.get('email', '').strip().lower()
-        affiliation = data.get('affiliation','').strip()
-        state = data.get('state','').strip()
-        filtered_data = data.get('filtered_data', [])  # Get the filtered data
+        affiliation = data.get('affiliation', '').strip()
+        state = data.get('state', '').strip()
         
-        # Basic validation
-        if not name or not email:
+        # Enhanced validation
+        if not name:
             return JsonResponse({
                 'success': False, 
-                'error': 'Name and email are required'
+                'error': 'Name is required'
+            })
+            
+        if not email:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Email is required'
+            })
+            
+        # Validate email format
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Please enter a valid email address'
+            })
+            
+        if not affiliation:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Affiliation is required'
+            })
+            
+        if not state:
+            return JsonResponse({
+                'success': False, 
+                'error': 'State is required'
             })
         
         # Create download log entry
-        download_log = DownloadLog.objects.create(
-            name=name,
-            email=email,
-            file_name='wells_data_export.csv',
-            ip_address=get_client_ip(request),
-            affiliation=affiliation,
-            state=state
-        )
+        try:
+            download_log = DownloadLog.objects.create(
+                name=name,
+                email=email,
+                file_name='wells_data_export.csv',
+                ip_address=get_client_ip(request),
+                affiliation=affiliation,
+                state=state
+            )
+        except Exception as e:
+            return JsonResponse({
+                'success': False, 
+                'error': f'Failed to log download: {str(e)}'
+            })
         
-        # Generate CSV content using filtered data
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="wells_data_export.csv"'
-        
-        writer = csv.writer(response)
-        
-        # If filtered_data is provided, use it; otherwise use default/all data
-        if filtered_data and len(filtered_data) > 0:
-            # Assuming filtered_data is a list of dictionaries
-            # Get headers from the first row
-            if isinstance(filtered_data[0], dict):
-                headers = list(filtered_data[0].keys())
-                writer.writerow(headers)
-                
-                # Write data rows
-                for row in filtered_data:
-                    writer.writerow([row.get(header, '') for header in headers])
-            else:
-                # If it's not a dict, treat as simple list
-                writer.writerow(['Data'])
-                for item in filtered_data:
-                    writer.writerow([item])
-        else:
-            # Fallback: generate default CSV structure
-            # Replace this with your actual data generation logic
-            writer.writerow(['Well ID', 'Location', 'Status', 'Type', 'Date'])  # Example headers
-            writer.writerow(['Sample', 'Data', 'Active', 'Oil', '2024-01-01'])  # Example data
-        
-        return response
+        # Return success response
+        return JsonResponse({
+            'success': True,
+            # 'message': 'Download triggered successfully',
+            'download_id': download_log.id
+        })
         
     except json.JSONDecodeError:
         return JsonResponse({
@@ -796,6 +814,81 @@ def download_csv(request):
             'success': False, 
             'error': str(e)
         })
+
+# @require_POST
+# @csrf_exempt  # You may want to handle CSRF properly instead
+# def download_csv(request):
+#     """Handle the AJAX request to download CSV after form submission"""
+#     try:
+#         # Get JSON data from request
+#         data = json.loads(request.body)
+#         name = data.get('name', '').strip()
+#         email = data.get('email', '').strip().lower()
+#         affiliation = data.get('affiliation','').strip()
+#         state = data.get('state','').strip()
+#         # filtered_data = data.get('filteredData', [])  # Get the filtered data
+        
+#         # Basic validation
+#         if not name or not email:
+#             return JsonResponse({
+#                 'success': False, 
+#                 'error': 'Name and email are required'
+#             })
+        
+#         # Create download log entry
+#         download_log = DownloadLog.objects.create(
+#             name=name,
+#             email=email,
+#             file_name='wells_data_export.csv',
+#             ip_address=get_client_ip(request),
+#             affiliation=affiliation,
+#             state=state
+#         )
+        
+#         # # Generate CSV content using filtered data
+#         # response = HttpResponse(content_type='text/csv')
+#         # response['Content-Disposition'] = 'attachment; filename="wells_data_export.csv"'
+        
+#         # writer = csv.writer(response)
+        
+#         # # If filtered_data is provided, use it; otherwise use default/all data
+#         # if filtered_data and len(filtered_data) > 0:
+#         #     # Assuming filtered_data is a list of dictionaries
+#         #     # Get headers from the first row
+#         #     if isinstance(filtered_data[0], dict):
+#         #         headers = list(filtered_data[0].keys())
+#         #         writer.writerow(headers)
+                
+#         #         # Write data rows
+#         #         for row in filtered_data:
+#         #             writer.writerow([row.get(header, '') for header in headers])
+#         #     else:
+#         #         # If it's not a dict, treat as simple list
+#         #         writer.writerow(['Data'])
+#         #         for item in filtered_data:
+#         #             writer.writerow([item])
+#         # else:
+#         #     # Fallback: generate default CSV structure
+#         #     # Replace this with your actual data generation logic
+#         #     writer.writerow(['Well ID', 'Location', 'Status', 'Type', 'Date'])  # Example headers
+#         #     writer.writerow(['Sample', 'Data', 'Active', 'Oil', '2024-01-01'])  # Example data
+        
+#         # return response
+#         return JsonResponse({
+#             'success': True, 
+#             'error': 'Data Download Triggered'
+#         })
+        
+#     except json.JSONDecodeError:
+#         return JsonResponse({
+#             'success': False, 
+#             'error': 'Invalid JSON data'
+#         })
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False, 
+#             'error': str(e)
+#         })
 
 class DownloadView(View):
     def get(self, request):
@@ -847,3 +940,13 @@ class DownloadView(View):
         except Exception as e:
             print(f'Unexpected error: {e}')
             return JsonResponse({'error': 'Server error'}, status=500)
+        
+
+# def check_ip(request):
+#     # Add this temporarily at the top of any view
+#     try:
+#         response = requests.get('https://api.ipify.org?format=json')
+#         ip = response.json()['ip']
+#         print(f"PythonAnywhere IP: {ip}")  # Will appear in error logs
+#     except Exception as e:
+#         print(f"Could not get IP: {e}")

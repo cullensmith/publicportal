@@ -1910,7 +1910,6 @@
 
 
 
-
         document.addEventListener('DOMContentLoaded', function () {
             const downloadBtn = document.getElementById('downloadBtn');
             const downloadForm = document.getElementById('downloadForm');
@@ -1941,7 +1940,7 @@
                 
                 console.log(affiliation)
                 console.log(state)
-
+        
                 // Basic validation - check all required fields
                 if (!name || !email || !affiliation || !state) {
                     showError('Please fill in all required fields.');
@@ -1963,7 +1962,7 @@
                     // Get CSRF token
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
-                    // Send AJAX request with filtered data
+                    // Send AJAX request
                     const response = await fetch('{% url "wells:download_csv" %}', {
                         method: 'POST',
                         headers: {
@@ -1974,17 +1973,45 @@
                             name: name,
                             email: email,
                             affiliation: affiliation,
-                            state: state
+                            state: state,
                         })
                     });
-                    console.log(response.body)
+                    
+                    console.log(`response status: ${response.status}`);
+                    
                     if (response.ok) {
-                        // Check if response is JSON (error) or CSV (success)
-                        const contentType = response.headers.get('content-type');
-        
-                        if (contentType && contentType.includes('application/json')) {
-                            // Handle JSON error response
-                            const data = await response.json();
+                        // Parse JSON response (since your Django view now returns JSON)
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Handle successful form submission
+                            console.log('Form successfully submitted and saved to database');
+                            console.log('Download ID:', data.download_id);
+                            
+                            // Show success message
+                            {% comment %} showSuccess(data.message || 'Form submitted successfully!'); {% endcomment %}
+                            showSuccess(data.message || '');
+
+                            
+                            // Check if feedback form should be opened
+                            const fbcheckbox = document.getElementById('fCheckbox');
+                            if (fbcheckbox && fbcheckbox.checked) {
+                                window.open('https://forms.gle/NQ7QLRCm4HYm1SXF8', '_blank');
+                                console.log('Opening feedback form');
+                            }
+                            
+                            // Download the CSV using client-side data
+                            if (typeof filteredData !== 'undefined' && filteredData) {
+                                downloadTableData(filteredData);
+                            }
+                            
+                            // Close modal and reset form after a short delay
+                            setTimeout(() => {
+                                closeModalHandler();
+                            }, 1500);
+                            
+                        } else {
+                            // Handle error from server
                             if (data.error && typeof data.error === 'object') {
                                 // Handle field-specific errors from Django form validation
                                 let errorMessages = [];
@@ -1996,31 +2023,6 @@
                             } else {
                                 showError(data.error || 'An error occurred while processing your request.');
                             }
-                        } else {
-                            // Handle successful CSV download - form was saved to database
-                            console.log('Form successfully submitted and saved to database');
-                            
-                            // Download the CSV file
-                            const blob = await response.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = 'wells_data_export.csv';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                            
-                            // Check if feedback form should be opened
-                            const fbcheckbox = document.getElementById('fCheckbox');
-                            if (fbcheckbox && fbcheckbox.checked) {
-                                window.open('https://forms.gle/NQ7QLRCm4HYm1SXF8', '_blank');
-                                console.log('Opening feedback form');
-                            }
-                            
-                            // Close modal and reset form
-                            closeModalHandler();
                         }
                     } else {
                         // Handle HTTP error responses
@@ -2032,11 +2034,11 @@
                         }
                     }
                 } catch (error) {
-                    console.error('Download error:', error);
+                    console.error('Submit error:', error);
                     showError('An error occurred. Please check your connection and try again.');
                 } finally {
                     setLoadingState(false);
-                    console.log('Download process completed');
+                    console.log('Submit process completed');
                 }
             });
         
@@ -2053,6 +2055,23 @@
             function showError(message) {
                 errorMessage.innerHTML = message;
                 errorMessage.classList.remove('d-none');
+            }
+        
+            function showSuccess(message) {
+                // Clear any existing errors first
+                clearErrors();
+                
+                // Show success message in the error message div (reusing the same element)
+                errorMessage.innerHTML = message;
+                errorMessage.classList.remove('d-none');
+                errorMessage.classList.remove('alert-danger');
+                errorMessage.classList.add('alert-success');
+                
+                // Reset to error styling after a delay
+                setTimeout(() => {
+                    errorMessage.classList.remove('alert-success');
+                    errorMessage.classList.add('alert-danger');
+                }, 3000);
             }
         
             function showFieldError(fieldId, message) {

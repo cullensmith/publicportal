@@ -923,7 +923,7 @@ function downloadTableData(filteredData) {
     var encodedUri = encodeURI(csvContent);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "filtered_well_data.csv");
+    link.setAttribute("download", "fractracker_wells_download.csv");
 
     // Initiate download
     document.body.appendChild(link); // Required for Firefox
