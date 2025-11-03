@@ -459,6 +459,7 @@ def generate_geojson(request):
         } for d in newwell]
     }
     stop_time5a = time.time()
+    # print(f'we found {geojson} records in that category')
     print(f'part 5a took: {stop_time5a - stop_time4} sec')
     mapdata = json.dumps(geojson)
 

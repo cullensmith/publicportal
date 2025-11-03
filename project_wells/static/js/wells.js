@@ -392,7 +392,7 @@ function getColor(stype) {
         return 'red';
         case 'Other / Unknown':
         return '#00253B';
-        case 'Orphaned / Abandoned / Unverified Plug':
+        case 'Orphaned / Abandoned / Unverified':
         return '#FFC857';
         case 'Not Drilled':
         return 'green';
@@ -1055,7 +1055,7 @@ const statesarray = [
     // "South Carolina", 
     "South Dakota", 
     "Tennessee", 
-    "Texas (disabled)", 
+    "Texas (coming 11/5)", 
     "Utah", 
     // "Vermont", 
     "Virginia", 
@@ -1622,7 +1622,7 @@ function filterProd(data) {
     } ;
     orphanwells = L.geoJSON(fd, {
         filter: function (feature) {
-            return feature.properties.ft_category === 'Orphaned / Abandoned / Unverified Plug';
+            return feature.properties.ft_category === 'Orphaned / Abandoned / Unverified';
         },
         pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
