@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "C:\\Users\\culms\\.claude\\projects\\c--repos-publicportal"
+    ],
+    "allow": [
+      "Bash(pip freeze)"
+    ]
+  }
+}
