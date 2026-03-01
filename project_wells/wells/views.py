@@ -233,7 +233,18 @@ def generate_geojson(request):
     except Exception:
         county = []
 
-    filter_kwargs = {'stusps__in': states}
+    FIELDS = [
+        'id', 'api_num', 'other_id', 'latitude', 'longitude', 'stusps',
+        'county', 'municipality', 'well_name', 'operator', 'spud_date',
+        'plug_date', 'well_type', 'well_status', 'well_configuration', 'ft_category',
+    ]
+    MAX_RESULTS = 150_000
+
+    filter_kwargs = {
+        'stusps__in': states,
+        'latitude__isnull': False,
+        'longitude__isnull': False,
+    }
     if county:
         filter_kwargs['county__in'] = county
     if well_status:
@@ -243,7 +254,7 @@ def generate_geojson(request):
     if fcats and fcats != ['default']:
         filter_kwargs['ft_category__in'] = fcats
 
-    attrvals = Wells.objects.filter(**filter_kwargs)
+    attrvals = Wells.objects.filter(**filter_kwargs).values(*FIELDS)[:MAX_RESULTS]
 
     geojson = {
         'type': 'FeatureCollection',
@@ -252,9 +263,9 @@ def generate_geojson(request):
                 'type': 'Feature',
                 'geometry': {
                     'type': 'Point',
-                    'coordinates': [w.longitude, w.latitude],
+                    'coordinates': [w['longitude'], w['latitude']],
                 },
-                'properties': {k: v for k, v in vars(w).items() if k != '_state'},
+                'properties': w,
             }
             for w in attrvals
         ],

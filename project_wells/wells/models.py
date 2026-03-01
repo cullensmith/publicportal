@@ -114,9 +114,7 @@ class Wells(models.Model):
 
 class DownloadLog(models.Model):
     AFFILIATION_CHOICES = [
-        ('','Oppo'),
         ('', ''),
-        ('NG', ''),
         ('Community Member', 'Community Member'),
         ('Student', 'Student'),
         ('Industry', 'Industry'),
@@ -127,7 +125,6 @@ class DownloadLog(models.Model):
     
     STATE_CHOICES = [
         ('', ''),
-        ('Alabama','Alabama'),
         ('AL', 'Alabama'),
         ('AK', 'Alaska'),
         ('AZ', 'Arizona'),
