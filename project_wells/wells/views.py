@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from .models import Wells, Counties, States, stStatus, stType
 from django.http import HttpResponse, JsonResponse
+from django.db.models import Count
 import json
 import ast
+import math
 import time
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
@@ -193,7 +195,8 @@ def parse_states(data):
     return list(set(states))
 
 
-def generate_geojson(request):
+def parse_filters(request):
+    """Parse common filter params into a filter_kwargs dict for Wells.objects.filter()."""
     states_in = request.GET.getlist('states')[0].split(',')
     states = parse_states(states_in)
 
@@ -233,13 +236,6 @@ def generate_geojson(request):
     except Exception:
         county = []
 
-    FIELDS = [
-        'id', 'api_num', 'other_id', 'latitude', 'longitude', 'stusps',
-        'county', 'municipality', 'well_name', 'operator', 'spud_date',
-        'plug_date', 'well_type', 'well_status', 'well_configuration', 'ft_category',
-    ]
-    MAX_RESULTS = 150_000
-
     filter_kwargs = {
         'stusps__in': states,
         'latitude__isnull': False,
@@ -254,7 +250,22 @@ def generate_geojson(request):
     if fcats and fcats != ['default']:
         filter_kwargs['ft_category__in'] = fcats
 
-    attrvals = Wells.objects.filter(**filter_kwargs).values(*FIELDS)[:MAX_RESULTS]
+    return filter_kwargs
+
+
+WELL_FIELDS = [
+    'id', 'api_num', 'other_id', 'latitude', 'longitude', 'stusps',
+    'county', 'municipality', 'well_name', 'operator', 'spud_date',
+    'plug_date', 'well_type', 'well_status', 'well_configuration', 'ft_category',
+]
+
+
+def generate_geojson(request):
+    MAX_RESULTS = 150_000
+    filter_kwargs = parse_filters(request)
+    qs = Wells.objects.filter(**filter_kwargs)
+    total_count = qs.count()
+    attrvals = qs.values(*WELL_FIELDS)[:MAX_RESULTS]
 
     geojson = {
         'type': 'FeatureCollection',
@@ -271,7 +282,74 @@ def generate_geojson(request):
         ],
     }
 
-    return JsonResponse(json.dumps(geojson), safe=False)
+    response = JsonResponse(json.dumps(geojson), safe=False)
+    response['X-Total-Count'] = total_count
+    return response
+
+
+def get_county_counts(request):
+    filter_kwargs = parse_filters(request)
+    counts = (
+        Wells.objects
+        .filter(**filter_kwargs)
+        .values('stusps', 'county')
+        .annotate(count=Count('id'))
+    )
+    return JsonResponse(list(counts), safe=False)
+
+
+def get_table_page(request):
+    page = max(1, int(request.GET.get('page', 1)))
+    page_size = min(200, max(1, int(request.GET.get('page_size', 50))))
+    offset = (page - 1) * page_size
+
+    filter_kwargs = parse_filters(request)
+    qs = Wells.objects.filter(**filter_kwargs)
+    total_count = qs.count()
+    total_pages = math.ceil(total_count / page_size) if total_count else 1
+    records = list(qs.values(*WELL_FIELDS)[offset:offset + page_size])
+
+    return JsonResponse({
+        'features': records,
+        'total_count': total_count,
+        'page': page,
+        'total_pages': total_pages,
+    })
+
+
+def get_records_in_circle(request):
+    try:
+        lat = float(request.GET.get('lat'))
+        lng = float(request.GET.get('lng'))
+        radius = float(request.GET.get('radius'))  # metres
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'lat, lng, radius are required numeric params'}, status=400)
+
+    page = max(1, int(request.GET.get('page', 1)))
+    page_size = min(200, max(1, int(request.GET.get('page_size', 50))))
+    offset = (page - 1) * page_size
+
+    filter_kwargs = parse_filters(request)
+    qs = Wells.objects.filter(**filter_kwargs).extra(
+        where=[
+            "ST_DWithin("
+            "ST_MakePoint(longitude, latitude)::geography,"
+            "ST_MakePoint(%s, %s)::geography,"
+            "%s"
+            ")"
+        ],
+        params=[lng, lat, radius],
+    )
+    total_count = qs.count()
+    total_pages = math.ceil(total_count / page_size) if total_count else 1
+    records = list(qs.values(*WELL_FIELDS)[offset:offset + page_size])
+
+    return JsonResponse({
+        'features': records,
+        'total_count': total_count,
+        'page': page,
+        'total_pages': total_pages,
+    })
 
 
 def get_client_ip(request):

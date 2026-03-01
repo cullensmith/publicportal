@@ -162,7 +162,7 @@ function getStates(data) {
             stateLayer=canvasLayer_state._leaflet_id
             try {
                 statebounds = canvasLayer_state.getBounds();
-                map.fitBounds(statebounds);
+                map.fitBounds(statebounds, {animate: false});
                 map.on('moveend', function() {
                     // setCheckboxes();
                 })
@@ -180,82 +180,77 @@ function getStates(data) {
 }
 
 // Function to fetch GeoJSON data from a view
-function getCounties(s,c,data) {
-    pts = data
+function getCounties(s, c, well_type, well_status, category) {
     var states = getSelValues('statePicks')
-    $.ajax({
-        url: '/wells/getcounties_view', 
+    var polygonRequest = $.ajax({
+        url: '/wells/getcounties_view',
+        method: 'GET',
+        data: { states: states },
+    });
+    var countsRequest = $.ajax({
+        url: '/wells/get_county_counts',
         method: 'GET',
         data: {
             states: states,
+            county: c,
+            well_type: well_type,
+            well_status: well_status,
+            category: category,
         },
-        success: function(data) {
-            
-            // console.log('GeoJSON data received:', data);
-            // Convert GeoJSON to vector tiles using leaflet-geojson-vt
-            map.eachLayer(function(layer) {
-                try {
-                    if (layer._leaflet_id == countyLayer) {
-                        map.removeLayer(layer);
-                    } else {
-                        // console.log('layer id did not match')
-                    }
-                    }
-                    catch(err) {
-                        // console.log('no such county layer exists');
-                    }
-                    
-            }); 
+    });
 
-            
-            var geojsonStyle = {
-                fillColor:"#FFFFFF",
-                color: "#000",
-                weight: 1,
-                opacity: .5,
-                fillOpacity: 0.00001,
-                };
+    $.when(polygonRequest, countsRequest).done(function(polygonResult, countsResult) {
+        var polygonData = polygonResult[0];
+        var countsData = countsResult[0];
 
-            canvasLayer_cty = L.geoJSON(data, {
-                style: geojsonStyle,
-                zIndex: 10,
-                maxZoom: 20,
-                minZoom: 1,
-                tolerance: 3,
-                debug: 0,
-                onEachFeature: function(feature, layer) {
-                    const county = feature.county;
-                    // layer.bindPopup(`<strong>County:</strong> ${county}`);
-                    // Add hover functionality to show county name in a tooltip
-                    layer.on({
-                        mouseover: function(e) {
-                            var layer = e.target;
-                            layer.bindTooltip(`<strong>County:</strong> ${county}`, {
-                                permanent: false,
-                                direction: 'top',
-                                opacity: 0.8
-                            }).openTooltip();
-                        },
-                        mouseout: function(e) {
-                            e.target.closeTooltip();
-                        }
-                    });
-                    // layer.on('click', function () {
-                    //     console.log('clicked it');  // Log the message when the polygon is clicked
-                    // });
+        // Build tally from server-side aggregate counts
+        var tally = {};
+        countsData.forEach(function(item) {
+            tally[item.stusps + '_' + (item.county || '').toLowerCase()] = item.count;
+        });
+
+        map.eachLayer(function(layer) {
+            try {
+                if (layer._leaflet_id == countyLayer) {
+                    map.removeLayer(layer);
                 }
-            }).addTo(map);
+            } catch(err) {}
+        });
 
-            ctyct(data,pts);
+        var geojsonStyle = {
+            fillColor: "#FFFFFF",
+            color: "#000",
+            weight: 1,
+            opacity: .5,
+            fillOpacity: 0.00001,
+        };
 
+        canvasLayer_cty = L.geoJSON(polygonData, {
+            style: geojsonStyle,
+            onEachFeature: function(feature, layer) {
+                const county = feature.county;
+                layer.on({
+                    mouseover: function(e) {
+                        var layer = e.target;
+                        layer.bindTooltip(`<strong>County:</strong> ${county}`, {
+                            permanent: false,
+                            direction: 'top',
+                            opacity: 0.8
+                        }).openTooltip();
+                    },
+                    mouseout: function(e) {
+                        e.target.closeTooltip();
+                    }
+                });
+            }
+        }).addTo(map);
 
-            countyLayer = canvasLayer_cty._leaflet_id
-            
-        },
-        error: function(xhr, status, error) {
-            // Handle error
-            console.error(error);
-        }
+        ctyct(polygonData, tally);
+        countyLayer = canvasLayer_cty._leaflet_id;
+        map.invalidateSize();
+
+    }).fail(function() {
+        console.error('Error loading county data');
     });
 }
 
@@ -412,26 +407,19 @@ var numicon;
 
 var ctytallyLayer;
 var markerIconCollection;
-function ctyct(data, d) {
-    // Initialize a tally object
-    let tally = {};
+var currentFilters = {};
+var tableMode = 'filter';   // 'filter' | 'circle'
+var circleParams = {};
+var currentTableTotal = 0;
+var radiusCircle = null;    // L.Circle placed via radius input
+var radiusMarker = null;    // draggable center marker for radiusCircle
+function ctyct(data, tally) {
     let minCount = Infinity;
     let maxCount = -Infinity;
 
     if (ctytallyLayer) {
         map.removeLayer(ctytallyLayer);
-    } ;
-
-
-    // Parse the data and tally occurrences
-    JSON.parse(d).features.forEach(feature => {
-        const { stusps, county } = feature.properties;
-        const key = `${stusps}_${county}`;
-        if (!tally[key]) {
-            tally[key] = 0;
-        }
-        tally[key]++;
-    });
+    };
 
     // Loop through each feature and check the tally count
     var filteredCtyCtGeoJSON = {
@@ -447,7 +435,7 @@ function ctyct(data, d) {
         const statename = feature.statename;
         const county = feature.county;
         const geometry = feature.geometry;
-        const tallyKey = `${statename}_${county}`;
+        const tallyKey = `${statename}_${county.toLowerCase()}`;
         const count = tally[tallyKey] || 0;
 
         // Track the min and max counts to later adjust opacity proportionally
@@ -486,22 +474,21 @@ function ctyct(data, d) {
         style: function(feature) {
             const county = feature.county;
             const statename = feature.statename;
-            const count = tally[`${statename}_${county}`] || 0;
+            const count = tally[`${statename}_${county.toLowerCase()}`] || 0;
             const opacity = calculateOpacity(count); // Calculate opacity based on count
 
             return {
-                fillColor: '#025687',        
+                fillColor: '#025687',
                 color: '#025687',
-                weight: 2,              
-                opacity: 1,             
+                weight: 2,
+                opacity: 1,
                 fillOpacity: opacity // Set fill opacity based on count
             };
         },
-        zIndex: 200,
         onEachFeature: function(feature, layer) {
             const county = feature.county;
             const statename = feature.statename;
-            const count = tally[`${statename}_${county}`] || 0;
+            const count = tally[`${statename}_${county.toLowerCase()}`] || 0;
             // layer.bindPopup(`<strong>County:</strong> ${county}<br><strong>Count:</strong> ${count}`);
             // Add hover functionality to show county name in a tooltip
             layer.on({
@@ -627,21 +614,22 @@ function applyCategoryFilter() {
             well_status: well_status,
             category: category,
         },
-        success: function(data) {
+        success: function(data, status, xhr) {
             filteredData = JSON.parse(data);
             console.log('had success retrieving the records') // replace with action item
-            // updateMapMarkers(data);
-            // console.log(data);
-            // console.log(filteredData);
-            // console.log(filteredData.features);
-            updateTable(filteredData.features);
+            const totalCount = parseInt(xhr.getResponseHeader('X-Total-Count')) || 0;
+            currentFilters = { states: states, county: counties, well_type: well_type, well_status: well_status, category: category };
+            tableMode = 'filter';
+            currentTableTotal = totalCount;
+            loadTablePage(1);
             filterProd(data);
-            getCounties(states, counties, data);
+            getCounties(states, counties, well_type, well_status, category);
             getStates(states);
             // document.getElementById('refineblock').style.display = 'block';
             // document.getElementById('loading-popupid').style.display = 'none';
             document.getElementById('loadingpanel').classList.add('hide')
             document.getElementById('resultspanel').classList.remove('hide')
+            map.invalidateSize();
             document.getElementById('resultsbtn').classList.add('sel')
 
             document.getElementById('legenditemid21').classList.remove('dim')
@@ -723,7 +711,7 @@ document.getElementById('sortbtn').addEventListener('click', function () {
 //     updateTable(filteredData)
 // }
 
-function updateTable(features) {
+function updateTable(features, totalCount) {
     console.log('UT')
     console.log(features)
     var tableBody = document.getElementById('maintablebody');
@@ -769,7 +757,11 @@ function updateTable(features) {
         maxrec(currentPage)
     
         // maxrec(currentPage)
-        document.getElementById('records').innerText = 'Records ' + (((currentPage-1)*50)+1) + ' - ' + pgrecsMax + ' of ' + features.length
+        const displayTotal = totalCount && totalCount > features.length ? totalCount : features.length;
+        const cappedNote = totalCount && totalCount > features.length
+            ? ' (showing ' + features.length.toLocaleString() + ' of ' + totalCount.toLocaleString() + ' total)'
+            : '';
+        document.getElementById('records').innerText = 'Records ' + (((currentPage-1)*50)+1) + ' - ' + pgrecsMax + ' of ' + displayTotal.toLocaleString() + cappedNote;
 
 
         // Clear existing rows in table body
@@ -884,6 +876,96 @@ function updateTable(features) {
     };
 
 
+}
+
+
+function loadTablePage(page) {
+    var params = Object.assign({}, currentFilters, { page: page });
+    var url = '/wells/get_table_page';
+    if (tableMode === 'circle') {
+        url = '/wells/get_records_in_circle';
+        Object.assign(params, circleParams);
+    }
+    $.ajax({
+        url: url,
+        method: 'GET',
+        data: params,
+        success: function(data) {
+            currentTableTotal = data.total_count;
+            renderServerTablePage(data.features, page, data.total_pages, data.total_count);
+        },
+        error: function() {
+            console.error('Error loading table page');
+        }
+    });
+}
+
+function renderServerTablePage(records, page, totalPages, totalCount) {
+    var tableBody = document.getElementById('maintablebody');
+    var startRec = ((page - 1) * 50) + 1;
+    var endRec = (page - 1) * 50 + records.length;
+
+    document.getElementById('records').innerText = 'Records ' + startRec.toLocaleString() + ' - ' + endRec.toLocaleString() + ' of ' + totalCount.toLocaleString();
+
+    tableBody.innerHTML = '';
+    records.forEach(function(record) {
+        var row = document.createElement('tr');
+        for (var prop in record) {
+            if (prop === 'id' || prop === 'wellwiki' || prop === 'ftuid') { continue; }
+            var cell = document.createElement('td');
+            cell.textContent = record[prop] !== null ? record[prop] : '';
+            row.appendChild(cell);
+        }
+        tableBody.appendChild(row);
+    });
+
+    var paginationCell = document.getElementById('pagination');
+    paginationCell.innerHTML = '';
+    if (totalPages > 0) {
+        if (page > 1) {
+            var firstButton = document.createElement('button');
+            firstButton.textContent = 'First';
+            firstButton.className = 'pagebtn';
+            firstButton.onclick = function() { loadTablePage(1); };
+            paginationCell.appendChild(firstButton);
+
+            var prevButton = document.createElement('button');
+            prevButton.textContent = 'Previous';
+            prevButton.className = 'pagebtn';
+            prevButton.onclick = function() { loadTablePage(page - 1); };
+            paginationCell.appendChild(prevButton);
+        }
+
+        var currentButton = document.createElement('button');
+        currentButton.textContent = 'Page: ' + page;
+        currentButton.className = 'pagebtn';
+        paginationCell.appendChild(currentButton);
+
+        if (page < totalPages) {
+            var nextButton = document.createElement('button');
+            nextButton.textContent = 'Next';
+            nextButton.className = 'pagebtn';
+            nextButton.onclick = function() { loadTablePage(page + 1); };
+            paginationCell.appendChild(nextButton);
+
+            var lastButton = document.createElement('button');
+            lastButton.textContent = 'Last';
+            lastButton.className = 'pagebtn';
+            lastButton.onclick = function() { loadTablePage(totalPages); };
+            paginationCell.appendChild(lastButton);
+        }
+    }
+
+    window.goToPage = function() {
+        var pageNumber = parseInt(document.getElementById('page-input').value);
+        if (pageNumber && pageNumber >= 1 && pageNumber <= totalPages) {
+            loadTablePage(pageNumber);
+        } else {
+            alert('Please enter a valid page number (1-' + totalPages + ').');
+        }
+    };
+
+    map.invalidateSize();
 }
 
 
@@ -1055,7 +1137,7 @@ const statesarray = [
     // "South Carolina", 
     "South Dakota", 
     "Tennessee", 
-    "Texas (coming 11/5)", 
+    "Texas", 
     "Utah", 
     // "Vermont", 
     "Virginia", 
@@ -1843,118 +1925,93 @@ var drawControl = new L.Control.Draw({
     }
 });
 
-// Manually attach the draw control to a div outside the map
-var drawControlsDiv = document.getElementById('draw-controls');
-
-// Attach the draw control to the separate div
+// Add draw control to the map (needed to activate draw event machinery)
 map.addControl(drawControl);
+// Hide Leaflet's built-in control; we use custom buttons below
+drawControl.getContainer().style.display = 'none';
 
-// Move the control outside of the map container
-var controlContainer = document.querySelector('.leaflet-draw-toolbar');
-drawControlsDiv.appendChild(controlContainer);
+// Create custom draw buttons in the sidebar
+var drawControlsDiv = document.getElementById('draw-controls');
+var circleHandler = new L.Draw.Circle(map, drawControl.options.draw.circle);
 
-// Event listener to count points inside the circle
+var circleBtn = document.createElement('button');
+circleBtn.textContent = 'Draw Circle';
+circleBtn.title = 'Draw a circle to select wells';
+circleBtn.className = 'draw-custom-btn';
+circleBtn.addEventListener('click', function () { circleHandler.enable(); });
+
+var clearBtn = document.createElement('button');
+clearBtn.textContent = 'Clear Circle';
+clearBtn.title = 'Remove drawn circle and reset table';
+clearBtn.className = 'draw-custom-btn';
+function clearAllCircles() {
+    drawnItems.clearLayers();
+    if (radiusCircle)  { map.removeLayer(radiusCircle);  radiusCircle = null; }
+    if (radiusMarker)  { map.removeLayer(radiusMarker);  radiusMarker = null; }
+}
+
+clearBtn.addEventListener('click', function () {
+    clearAllCircles();
+    tableMode = 'filter';
+    loadTablePage(1);
+});
+
+drawControlsDiv.appendChild(circleBtn);
+drawControlsDiv.appendChild(clearBtn);
+
+// Radius-input + draggable circle
+document.getElementById('place-circle-btn').addEventListener('click', function () {
+    var miles = parseFloat(document.getElementById('circle-radius-input').value);
+    if (isNaN(miles) || miles <= 0) { alert('Please enter a valid radius in miles.'); return; }
+    var meters = miles * 1609.344;
+    var center = map.getCenter();
+
+    clearAllCircles();
+
+    radiusCircle = L.circle(center, {
+        radius: meters,
+        color: '#3388ff',
+        fillOpacity: 0.1,
+    }).addTo(map);
+
+    radiusMarker = L.marker(center, {
+        draggable: true,
+        icon: L.divIcon({
+            className: '',
+            html: '<div style="width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #3388ff;box-shadow:0 1px 4px rgba(0,0,0,0.4);cursor:grab;margin-left:-9px;margin-top:-9px"></div>',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9],
+        }),
+    }).addTo(map);
+
+    radiusMarker.on('drag', function () {
+        radiusCircle.setLatLng(radiusMarker.getLatLng());
+    });
+
+    radiusMarker.on('dragend', function () {
+        var pos = radiusMarker.getLatLng();
+        circleParams = { lat: pos.lat, lng: pos.lng, radius: meters };
+        loadTablePage(1);
+    });
+
+    tableMode = 'circle';
+    circleParams = { lat: center.lat, lng: center.lng, radius: meters };
+    loadTablePage(1);
+});
+
+// Event listener for hand-drawn circle (Leaflet Draw)
 map.on('draw:created', function (e) {
 var layer = e.layer;
 
 if (layer instanceof L.Circle) {
-    // Get circle's center and radius
     var circleCenter = layer.getLatLng();
     var circleRadius = layer.getRadius();
+    clearAllCircles();  // remove any previous circle (drawn or radius-input)
+    drawnItems.addLayer(layer);
 
-    // Count how many points are inside the circle
-    var pointsInside = 0;
-        // JSON object to store points inside the circle
-    var pointsInsideJSON = {
-        count: 0,
-        points: []
-        };
-
-    const wellftcat = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
-    
-    
-    for (const [k,v] of Object.entries(wellftcat)) {
-        if (document.getElementById(k).checked === true) {
-            v.eachLayer(function (marker) {
-                // console.log(marker)
-                // console.log(marker.feature.properties.api_num)
-                // Check if the marker is inside the circle
-                var distance = circleCenter.distanceTo(marker.getLatLng());
-                if (distance <= circleRadius) {
-                pointsInsideJSON.count++;
-
-                // Collect all attributes of the marker, including coordinates
-                var markerData = {
-                    api_num: marker.feature.properties.api_num,     // Custom attribute
-                    other_id: marker.feature.properties.other_id,     // Custom attribute
-                    latitude: marker.feature.properties.latitude,     // Custom attribute
-                    longitude: marker.feature.properties.longitude,     // Custom attribute
-                    stusps: marker.feature.properties.stusps,     // Custom attribute
-                    county: marker.feature.properties.county,     // Custom attribute
-                    municipality: marker.feature.properties.municipality,     // Custom attribute
-                    well_name: marker.feature.properties.well_name,     // Custom attribute
-                    operator: marker.feature.properties.operator,     // Custom attribute
-                    spud_date: marker.feature.properties.spud_date,     // Custom attribute
-                    plug_date: marker.feature.properties.plug_date,     // Custom attribute
-                    well_type: marker.feature.properties.well_type,     // Custom attribute
-                    well_status: marker.feature.properties.well_status,     // Custom attribute
-                    well_configuration: marker.feature.properties.well_configuration,     // Custom attribute
-                    ft_category: marker.feature.properties.ft_category,     // Custom attribute
-                    id: marker.feature.properties.id,     // Custom attribute
-                };
-
-                pointsInsideJSON.points.push(markerData);
-                }
-            });
-    }}
-    // console.log(JSON.stringify(pointsInsideJSON, null, 2));
-
-    //   starting here ============
-    data = JSON.stringify(pointsInsideJSON, null, 2)
-    // Convert the points to GeoJSON
-    function convertToGeoJSON(data) {
-        return {
-            type: "FeatureCollection",
-            features: data.points.map(point => ({
-            type: "Feature",
-            geometry: {
-                type: "Point",
-                coordinates: [point.longitude, point.latitude]
-            },
-            properties: {
-                api_num: point.api_num,
-                other_id: point.other_id,
-                latitude: point.latitude,
-                longitude: point.longitude,
-                stusps: point.stusps,
-                county: point.county,
-                municipality: point.municipality,
-                well_name: point.well_name,
-                operator: point.operator,
-                spud_date: point.spud_date,
-                plug_date: point.plug_date,
-                well_type: point.well_type,
-                well_status: point.well_status,
-                well_configuration: point.well_configuration,
-                ft_category: point.ft_category,
-                id: point.id,
-
-            }
-            }))
-        };
-        }
-    
-        // Convert data to GeoJSON
-        const refinedrad = convertToGeoJSON(pointsInsideJSON);
-        
-        updateTable(refinedrad.features)
-        // Log the result
-        // console.log(JSON.stringify(geoJSON, null, 2));
-
-
-      // Display the JSON object in the console
-    //   console.log(JSON.stringify(pointsInsideJSON, null, 2));
-    // alert("Points inside the circle: " + pointsInside);
+    tableMode = 'circle';
+    circleParams = { lat: circleCenter.lat, lng: circleCenter.lng, radius: circleRadius };
+    loadTablePage(1);
 }
 });
 
@@ -1985,8 +2042,7 @@ resultsbtn.addEventListener('click', (e) => {
     document.getElementById('resultspanel').classList.remove('hide');
     document.getElementById('filterbtn').classList.remove('sel')
     document.getElementById('resultsbtn').classList.add('sel')
-
-
+    map.invalidateSize();
 });
 
 

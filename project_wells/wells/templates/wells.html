@@ -1019,10 +1019,15 @@
                                 <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
                             </div>    
                         </div>
-                        <div id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
-                            <div id="drawtext" style="margin-top:4px;color:white;font-family:arial;font-weight:normal;font-size:12px"><h4>Select wells within a circle:</h4></div>
-                            <div id="controls" style="width:fit-content;justify-self:right">
-                                <div id="draw-controls"></div> <!-- Draw control outside the map -->
+                        <div id="drawradius" style="margin-top:10px">
+                            <div id="drawtext" style="color:white;font-family:arial;font-weight:normal;font-size:12px">
+                                <h4 style="margin-bottom:6px">Select wells within a circle:</h4>
+                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                                    <input type="number" id="circle-radius-input" min="0.1" step="0.1" placeholder="Radius (mi)"
+                                        style="width:100px;padding:3px 6px;border-radius:4px;border:none;font-size:12px">
+                                    <button id="place-circle-btn" class="draw-custom-btn">Place Circle</button>
+                                    <div id="draw-controls" style="display:inline-flex;gap:4px"></div>
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -1719,7 +1724,7 @@
               tab1: {
                 title: 'Welcome to our National Oil & Gas Well Inventory Portal',
                 text: `<br>This application was developed with the intention of providing a national database of oil and gas well infrastructure in a single location.<br>`+
-                       `<br>© Copyright 2025 `+
+                       `<br>© Copyright 2026 `+
                        `<a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>`+
                        `<br>The FracTracker data available to the public on this web page is subject to the following terms and conditions:<br><br>`+
                        `<div style="font-size:13px;font-weight:normal;font-family:arial;margin-left:20px">1. The Site and App are provided on an “as is” basis without warranties or representations of any kind, either express or implied, including, but not limited to, warranties of title or implied warranties of merchantability or fitness for a particular purpose. <br>2. In no event shall FracTracker be liable for any special, direct, indirect, consequential, or incidental damages or any damages whatsoever arising out of or in connection with the use of the Site and App or the contents of the Site and App.<br>3. FracTracker Alliance retains all rights, title, and interest in and to the Data compilation, the database structure, and the Portal itself, including all associated intellectual property rights. The license granted herein is strictly limited to the uses permitted under these Terms.<br>4. A core condition of using the Data is that your use must be consistent with and supportive of the mission of FracTracker Alliance. Our mission is to "map, analyze, and communicate the risks of oil, gas, and petrochemical development to advance just energy alternatives that protect public health, natural resources, and the climate." We reserve the right, <strong>in our sole discretion</strong>, to determine whether a particular use is consistent with our mission.<br>5. When using the Data in any public-facing materials, you must cite FracTracker Alliance as the source.<br>6. By using the Site and/or App, you agree to our <a href="https://www.fractracker.org/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a> (“Terms”) and our <a href="https://www.fractracker.org/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a> (“Privacy Policy”).</div>` +
@@ -1730,9 +1735,9 @@
               tab3: {
                 title: 'About The Dataset',
                 text:
-                `<br><span><b>In need of background information? </b></span><a href="https://www.fractracker.org/resources/oil-and-gas-101/" target="_blank" rel="noopener noreferrer">Petrochemical Basics</a><br>`+
+                {% comment %} `<br><span><b>In need of background information? </b></span><a href="https://www.fractracker.org/resources/oil-and-gas-101/" target="_blank" rel="noopener noreferrer">Petrochemical Basics</a><br>`+ {% endcomment %}
                 `<br><span><b>Help Us Improve the FracTracker Data Portals:</b></span> <a href="https://forms.gle/NQ7QLRCm4HYm1SXF8" target="_blank" rel="noopener noreferrer">Feedback Form</a>`+
-                '<br><br>This dataset is updated by FracTracker on a monthly basis and was last updated 08/01/25.'+
+                '<br><br>This dataset is updated by FracTracker on a monthly basis and was last updated 2/01/2026.'+
                 '<br><br><b>Oil and Natural Gas</b>'+
                 `<br><br><u>Oil</u> – <i>Oil is a liquid fossil fuel that is found in underground reservoirs.  It is the result of organic materials that have been subjected to geologic heat and pressure over millions of years.</i>`+
                 `<br><br><u>Gas</u> – <i>Often called “natural gas,” gas refers to methane or a mixture that is dominated by methane.  It is in the gaseous phase at surface temperature and pressure, but can be converted to liquids at extremely low temperatures.  “Fracked gas” and “shale gas” both refer to gas that has been trapped in tight formations such as shale that typically requires industrial-scale hydraulic fracturing to release in economically viable quantities.</i>`+
@@ -1769,17 +1774,19 @@
             const btn2 = document.getElementById('btn2');
           
             // Restore checkbox state from sessionStorage
-            const savedState = sessionStorage.getItem('splashCheckboxChecked');
-            if (savedState === 'true') {
-              checkbox.checked = true;
-              enterBtn.classList.add('enabled');
-              {% comment %} close_x.classList.add('enabled'); {% endcomment %}
-              btn1.classList.add('active');
-              btn2.classList.add('active');
-            }
-          
+            try {
+              const savedState = sessionStorage.getItem('splashCheckboxChecked');
+              if (savedState === 'true') {
+                checkbox.checked = true;
+                enterBtn.classList.add('enabled');
+                {% comment %} close_x.classList.add('enabled'); {% endcomment %}
+                btn1.classList.add('active');
+                btn2.classList.add('active');
+              }
+            } catch(e) {}
+
             checkbox.addEventListener('change', function () {
-              sessionStorage.setItem('splashCheckboxChecked', checkbox.checked);
+              try { sessionStorage.setItem('splashCheckboxChecked', checkbox.checked); } catch(e) {}
           
               if (checkbox.checked) {
                 enterBtn.classList.add('enabled');
@@ -1801,13 +1808,15 @@
         const mcheckbox = document.getElementById('splash-checkbox');
     
         // Restore state on load (within session)
-        if (sessionStorage.getItem('modalCheckboxChecked') === 'true') {
-          mcheckbox.checked = true;
-        }
-    
+        try {
+          if (sessionStorage.getItem('modalCheckboxChecked') === 'true') {
+            mcheckbox.checked = true;
+          }
+        } catch(e) {}
+
         // Update state when checkbox is clicked
         mcheckbox.addEventListener('change', () => {
-          sessionStorage.setItem('modalCheckboxChecked', mcheckbox.checked);
+          try { sessionStorage.setItem('modalCheckboxChecked', mcheckbox.checked); } catch(e) {}
         });}
       });
       
@@ -1844,7 +1853,7 @@
             }
         };
         window.addEventListener('beforeunload', function () {
-            sessionStorage.clear();
+            try { sessionStorage.clear(); } catch(e) {}
           });
 
         document.addEventListener('DOMContentLoaded', () => {

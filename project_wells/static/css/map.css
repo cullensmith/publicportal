@@ -4,7 +4,6 @@
   #map {
     flex-grow: 1;
     height: 75%;
-    padding: 20px;
     overflow: hidden;
   }
 
@@ -69,4 +68,22 @@
   }
   .legend-header span {
       font-weight: bold;
+  }
+
+  /* Leaflet draw toolbar moved outside map — ensure it renders on top */
+  #controls {
+      position: relative;
+      z-index: 2000;
+  }
+  .draw-custom-btn {
+      padding: 4px 8px;
+      cursor: pointer;
+      background: #fff;
+      border: 2px solid rgba(0,0,0,0.32);
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 4px;
+  }
+  .draw-custom-btn:hover {
+      background: #f0f0f0;
   }
