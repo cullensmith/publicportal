@@ -19,6 +19,8 @@ urlpatterns = [
     path('get_table_page', views.get_table_page, name='get_table_page'),
     path('get_records_in_circle', views.get_records_in_circle, name='get_records_in_circle'),
     path('download-csv/', views.download_csv, name='download_csv'),
+    path('tiles/<int:z>/<int:x>/<int:y>', views.well_tiles, name='well_tiles'),
+    path('nearest_well', views.nearest_well, name='nearest_well'),
     # path('check_ip', views.check_ip, name='check_ip'),
     # path('send-csv-email/', views.send_csv_email, name='send_csv_email'),
 

@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from .models import Wells, Counties, States, stStatus, stType
 from django.http import HttpResponse, JsonResponse
+from django.db import connection
 from django.db.models import Count
 import json
 import ast
 import math
-import time
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -20,12 +20,9 @@ def wells(request):
 def createCountyList(request):
     states_in = request.GET.getlist('states')[0].split(',')
     states = [s.strip().replace('input-', '') for s in states_in]
-    cl = Counties.objects.filter(statename__in=states)
-    filtered = [
-        {'county': c.county, 'statename': c.statename, 'stusps': c.stusps}
-        for c in cl
-    ]
-    return JsonResponse(json.dumps(sorted(filtered, key=lambda x: (x['stusps'], x['county']))), safe=False)
+    cl = list(Counties.objects.filter(statename__in=states).values('county', 'statename', 'stusps'))
+    cl.sort(key=lambda x: (x['stusps'], x['county']))
+    return JsonResponse(cl, safe=False)
 
 
 def createStatusList(request):
@@ -298,6 +295,13 @@ def get_county_counts(request):
     return JsonResponse(list(counts), safe=False)
 
 
+_SEARCHABLE_FIELDS = {
+    'api_num', 'other_id', 'stusps', 'county', 'municipality',
+    'well_name', 'operator', 'well_type', 'well_status',
+    'well_configuration', 'ft_category',
+}
+
+
 def get_table_page(request):
     page = max(1, int(request.GET.get('page', 1)))
     page_size = min(200, max(1, int(request.GET.get('page_size', 50))))
@@ -305,6 +309,12 @@ def get_table_page(request):
 
     filter_kwargs = parse_filters(request)
     qs = Wells.objects.filter(**filter_kwargs)
+
+    search_field = request.GET.get('search_field', '').strip()
+    search_value = request.GET.get('search_value', '').strip()
+    if search_field in _SEARCHABLE_FIELDS and search_value:
+        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+
     total_count = qs.count()
     total_pages = math.ceil(total_count / page_size) if total_count else 1
     records = list(qs.values(*WELL_FIELDS)[offset:offset + page_size])
@@ -330,6 +340,13 @@ def get_records_in_circle(request):
     offset = (page - 1) * page_size
 
     filter_kwargs = parse_filters(request)
+
+    visible_categories_raw = request.GET.get('visible_categories', '')
+    if visible_categories_raw:
+        visible_list = [c.strip() for c in visible_categories_raw.split(',') if c.strip()]
+        if visible_list:
+            filter_kwargs['ft_category__in'] = visible_list
+
     qs = Wells.objects.filter(**filter_kwargs).extra(
         where=[
             "ST_DWithin("
@@ -399,3 +416,131 @@ def download_csv(request):
         return JsonResponse({'success': False, 'error': 'Invalid JSON data'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+def well_tiles(request, z, x, y):
+    z, x, y = int(z), int(x), int(y)
+    try:
+        filter_kwargs = parse_filters(request)
+    except Exception:
+        return HttpResponse(b'', content_type='application/x-protobuf')
+
+    conditions, params = [], []
+    if filter_kwargs.get('stusps__in'):
+        conditions.append("w.stusps = ANY(%s)")
+        params.append(filter_kwargs['stusps__in'])
+    if filter_kwargs.get('county__in'):
+        conditions.append("LOWER(w.county) = ANY(%s)")
+        params.append([c.lower() for c in filter_kwargs['county__in']])
+    if filter_kwargs.get('well_status__in'):
+        conditions.append("w.well_status = ANY(%s)")
+        params.append(filter_kwargs['well_status__in'])
+    if filter_kwargs.get('well_type__in'):
+        conditions.append("w.well_type = ANY(%s)")
+        params.append(filter_kwargs['well_type__in'])
+    if filter_kwargs.get('ft_category__in'):
+        conditions.append("w.ft_category = ANY(%s)")
+        params.append(filter_kwargs['ft_category__in'])
+
+    extra_where = ('AND ' + ' AND '.join(conditions)) if conditions else ''
+
+    # Transform the tile envelope to 4326 once, then work entirely in 4326.
+    # ST_AsMVTGeom works in any CRS as long as the geometry and bounds match.
+    # && (bbox overlap) is index-aware and equivalent to ST_Intersects for rectangular tiles.
+    sql = f"""
+        WITH bounds AS (
+            SELECT ST_Transform(ST_TileEnvelope(%s, %s, %s), 4326) AS geom
+        ),
+        mvtgeom AS (
+            SELECT
+                ST_AsMVTGeom(
+                    ST_SetSRID(ST_MakePoint(w.longitude, w.latitude), 4326),
+                    bounds.geom, 4096, 64, true
+                ) AS geom,
+                w.id, w.api_num, w.well_name, w.operator,
+                w.well_status, w.well_type, w.stusps,
+                w.ft_category, w.latitude, w.longitude
+            FROM wells.wells w, bounds
+            WHERE w.latitude  IS NOT NULL
+              AND w.longitude IS NOT NULL
+              AND ST_SetSRID(ST_MakePoint(w.longitude, w.latitude), 4326) && bounds.geom
+              {extra_where}
+        )
+        SELECT ST_AsMVT(mvtgeom, 'wells', 4096, 'geom') FROM mvtgeom
+        WHERE geom IS NOT NULL
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [z, x, y] + params)
+        row = cursor.fetchone()
+
+    tile_data = bytes(row[0]) if row and row[0] else b''
+    response = HttpResponse(tile_data, content_type='application/x-protobuf')
+    response['Cache-Control'] = 'public, max-age=3600'
+    return response
+
+
+def nearest_well(request):
+    try:
+        lat = float(request.GET.get('lat'))
+        lng = float(request.GET.get('lng'))
+        tolerance = float(request.GET.get('tolerance', 0.01))
+    except (TypeError, ValueError):
+        return JsonResponse({})
+
+    try:
+        filter_kwargs = parse_filters(request)
+    except Exception:
+        return JsonResponse({})
+
+    conditions = [
+        "w.latitude IS NOT NULL",
+        "w.longitude IS NOT NULL",
+        "ST_DWithin(ST_SetSRID(ST_MakePoint(w.longitude, w.latitude), 4326), ST_SetSRID(ST_MakePoint(%s, %s), 4326), %s)",
+    ]
+    params = [lng, lat, tolerance]
+
+    if filter_kwargs.get('stusps__in'):
+        conditions.append("w.stusps = ANY(%s)")
+        params.append(filter_kwargs['stusps__in'])
+    if filter_kwargs.get('county__in'):
+        conditions.append("LOWER(w.county) = ANY(%s)")
+        params.append([c.lower() for c in filter_kwargs['county__in']])
+    if filter_kwargs.get('well_status__in'):
+        conditions.append("w.well_status = ANY(%s)")
+        params.append(filter_kwargs['well_status__in'])
+    if filter_kwargs.get('well_type__in'):
+        conditions.append("w.well_type = ANY(%s)")
+        params.append(filter_kwargs['well_type__in'])
+    if filter_kwargs.get('ft_category__in'):
+        conditions.append("w.ft_category = ANY(%s)")
+        params.append(filter_kwargs['ft_category__in'])
+
+    visible_categories_raw = request.GET.get('visible_categories', '')
+    if visible_categories_raw:
+        visible_list = [c.strip() for c in visible_categories_raw.split(',') if c.strip()]
+        if visible_list:
+            conditions.append("w.ft_category = ANY(%s)")
+            params.append(visible_list)
+
+    where = 'WHERE ' + ' AND '.join(conditions)
+
+    sql = f"""
+        SELECT id, api_num, well_name, operator, well_status, well_type, stusps, ft_category, latitude, longitude
+        FROM wells.wells w
+        {where}
+        ORDER BY ST_SetSRID(ST_MakePoint(w.longitude, w.latitude), 4326)
+                 <-> ST_SetSRID(ST_MakePoint(%s, %s), 4326)
+        LIMIT 1
+    """
+    params_knn = params + [lng, lat]
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql, params_knn)
+        row = cursor.fetchone()
+
+    if not row:
+        return JsonResponse({})
+
+    cols = ['id', 'api_num', 'well_name', 'operator', 'well_status', 'well_type', 'stusps', 'ft_category', 'latitude', 'longitude']
+    return JsonResponse(dict(zip(cols, row)))
