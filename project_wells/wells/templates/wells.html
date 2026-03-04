@@ -2011,10 +2011,8 @@
                                 console.log('Opening feedback form');
                             }
                             
-                            // Download the CSV using client-side data
-                            if (typeof filteredData !== 'undefined' && filteredData) {
-                                downloadTableData(filteredData);
-                            }
+                            // Download the CSV — downloadTableData handles lazy fetch if filteredData is null
+                            downloadTableData(filteredData);
                             
                             // Close modal and reset form after a short delay
                             setTimeout(() => {
