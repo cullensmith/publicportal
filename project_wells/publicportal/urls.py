@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from . import views
+from wells.views import wells as wells_view
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -25,6 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('',views.homepage),
     path('wells/', include('wells.urls')),
+    path('<slug:state_slug>', wells_view),
     # path('', include('yourapp.urls')),
     # path('send-csv-email/', views.send_csv_email, name='send_csv_email'),
 

@@ -23,5 +23,5 @@ urlpatterns = [
     path('nearest_well', views.nearest_well, name='nearest_well'),
     # path('check_ip', views.check_ip, name='check_ip'),
     # path('send-csv-email/', views.send_csv_email, name='send_csv_email'),
-
+    path('<slug:state_slug>', views.wells, name='home_state'),  # must be last — catch-all
 ]

@@ -1314,6 +1314,8 @@
     </div>
 
 
+    <!-- Pre-filter state from URL (read by wells.js on init) -->
+    <script>var PRESELECTED_STATE = '{{ preselected_state|default:"" }}';</script>
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -2114,5 +2116,7 @@
         
 
     </script>
+
+
 </body>
 </html>

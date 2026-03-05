@@ -12,9 +12,29 @@ from django.core.validators import validate_email
 from .models import DownloadLog
 
 
-def wells(request):
-    wells = Wells.objects.all()
-    return render(request, 'wells.html', {'wells': wells})
+# Enabled states — keys are separator-free lowercase, must match statesarray in wells.js
+# Handles new-york, new_york, newyork, etc. by stripping separators before lookup.
+_SLUG_TO_STATE = {
+    'alabama': 'Alabama', 'arizona': 'Arizona', 'arkansas': 'Arkansas',
+    'california': 'California', 'colorado': 'Colorado', 'florida': 'Florida',
+    'idaho': 'Idaho', 'illinois': 'Illinois', 'indiana': 'Indiana',
+    'iowa': 'Iowa', 'kansas': 'Kansas', 'kentucky': 'Kentucky',
+    'louisiana': 'Louisiana', 'maryland': 'Maryland', 'michigan': 'Michigan',
+    'mississippi': 'Mississippi', 'missouri': 'Missouri', 'montana': 'Montana',
+    'nebraska': 'Nebraska', 'nevada': 'Nevada', 'newmexico': 'New Mexico',
+    'newyork': 'New York', 'northdakota': 'North Dakota', 'ohio': 'Ohio',
+    'oklahoma': 'Oklahoma', 'oregon': 'Oregon', 'pennsylvania': 'Pennsylvania',
+    'southdakota': 'South Dakota', 'tennessee': 'Tennessee', 'texas': 'Texas',
+    'utah': 'Utah', 'virginia': 'Virginia', 'washington': 'Washington',
+    'westvirginia': 'West Virginia', 'wyoming': 'Wyoming',
+}
+
+def wells(request, state_slug=None):
+    preselected_state = None
+    if state_slug:
+        normalized = state_slug.lower().replace('-', '').replace('_', '').replace(' ', '')
+        preselected_state = _SLUG_TO_STATE.get(normalized)
+    return render(request, 'wells.html', {'preselected_state': preselected_state})
 
 
 def createCountyList(request):

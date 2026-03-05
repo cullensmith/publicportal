@@ -2068,3 +2068,9 @@ window.onload = function() {
     document.getElementById('countychoropleth').checked = false;
 
 }
+
+// Auto-apply pre-selected state if passed via URL (set by template before this script loads)
+if (window.PRESELECTED_STATE) {
+    toggleselection('state', window.PRESELECTED_STATE);
+    applyCategoryFilter();
+}
