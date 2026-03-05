@@ -195,6 +195,8 @@ function getCounties(s, c, well_type, well_status, category) {
             well_type: well_type,
             well_status: well_status,
             category: category,
+            search_field: refineParams.field || '',
+            search_value: refineParams.value || '',
         },
     });
 
@@ -420,6 +422,7 @@ var markerIconCollection;
 var vectorLayer = null;     // Leaflet.VectorGrid MVT tile layer
 var _lastHoveredProps = null; // properties of the well the mouse is currently over
 var currentFilters = {};
+var refineParams = {};       // search_field / search_value from the results-pane refine box
 var tableMode = 'filter';   // 'filter' | 'circle'
 var circleParams = {};
 var currentTableTotal = 0;
@@ -612,6 +615,7 @@ function applyCategoryFilter() {
 
     // Set filters immediately — no need to wait for GeoJSON
     currentFilters = { states: states, county: counties, well_type: well_type, well_status: well_status, category: category };
+    refineParams = {};    // clear any previous text search when main filters change
     filteredData = null;  // will be fetched lazily on download/sort/search
     tableMode = 'filter';
 
@@ -857,6 +861,10 @@ function updateTable(features, totalCount) {
 
 function loadTablePage(page) {
     var params = Object.assign({}, currentFilters, { page: page });
+    if (refineParams.field && refineParams.value) {
+        params.search_field = refineParams.field;
+        params.search_value = refineParams.value;
+    }
     var url = '/wells/get_table_page';
     if (tableMode === 'circle') {
         url = '/wells/get_records_in_circle';
@@ -1587,11 +1595,13 @@ function loadVectorTiles() {
     if (!currentFilters.states) return;
 
     var params = new URLSearchParams({
-        states:      currentFilters.states      || '',
-        county:      currentFilters.county      || '',
-        well_type:   currentFilters.well_type   || '',
-        well_status: currentFilters.well_status || '',
-        category:    currentFilters.category    || '',
+        states:       currentFilters.states      || '',
+        county:       currentFilters.county      || '',
+        well_type:    currentFilters.well_type   || '',
+        well_status:  currentFilters.well_status || '',
+        category:     currentFilters.category    || '',
+        search_field: refineParams.field         || '',
+        search_value: refineParams.value         || '',
     }).toString();
 
     vectorLayer = L.vectorGrid.protobuf('/wells/tiles/{z}/{x}/{y}?' + params, {
@@ -1950,11 +1960,22 @@ function clearAllCircles() {
     if (radiusMarker)  { map.removeLayer(radiusMarker);  radiusMarker = null; }
 }
 
-clearBtn.addEventListener('click', function () {
+clearBtn.addEventListener('click', function () { clearSelection(); });
+
+function clearSelection() {
+    var wasCircle = (tableMode === 'circle');
     clearAllCircles();
     tableMode = 'filter';
+    if (!wasCircle) {
+        // No circle was active — treat this as clearing the refine filter
+        refineParams = {};
+        document.getElementById('sort-field2').value = '';
+        document.getElementById('srch-input').value = '';
+    }
+    loadVectorTiles();
+    getCounties(currentFilters.states, currentFilters.county, currentFilters.well_type, currentFilters.well_status, currentFilters.category);
     loadTablePage(1);
-});
+}
 
 drawControlsDiv.appendChild(circleBtn);
 drawControlsDiv.appendChild(clearBtn);
@@ -2019,6 +2040,10 @@ function refinefilter () {
     var f = document.getElementById('sort-field2').value;
     var s = document.getElementById('srch-input').value.trim();
     if (!f || !s) return;
+
+    refineParams = { field: f, value: s };
+    loadVectorTiles();
+    getCounties(currentFilters.states, currentFilters.county, currentFilters.well_type, currentFilters.well_status, currentFilters.category);
 
     var params = Object.assign({}, currentFilters, {
         page: 1,

@@ -306,12 +306,14 @@ def generate_geojson(request):
 
 def get_county_counts(request):
     filter_kwargs = parse_filters(request)
-    counts = (
-        Wells.objects
-        .filter(**filter_kwargs)
-        .values('stusps', 'county')
-        .annotate(count=Count('id'))
-    )
+    qs = Wells.objects.filter(**filter_kwargs)
+
+    search_field = request.GET.get('search_field', '').strip()
+    search_value = request.GET.get('search_value', '').strip()
+    if search_field in _SEARCHABLE_FIELDS and search_value:
+        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+
+    counts = qs.values('stusps', 'county').annotate(count=Count('id'))
     return JsonResponse(list(counts), safe=False)
 
 
@@ -367,7 +369,14 @@ def get_records_in_circle(request):
         if visible_list:
             filter_kwargs['ft_category__in'] = visible_list
 
-    qs = Wells.objects.filter(**filter_kwargs).extra(
+    qs = Wells.objects.filter(**filter_kwargs)
+
+    search_field = request.GET.get('search_field', '').strip()
+    search_value = request.GET.get('search_value', '').strip()
+    if search_field in _SEARCHABLE_FIELDS and search_value:
+        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+
+    qs = qs.extra(
         where=[
             "ST_DWithin("
             "ST_MakePoint(longitude, latitude)::geography,"
@@ -461,6 +470,12 @@ def well_tiles(request, z, x, y):
     if filter_kwargs.get('ft_category__in'):
         conditions.append("w.ft_category = ANY(%s)")
         params.append(filter_kwargs['ft_category__in'])
+
+    search_field = request.GET.get('search_field', '').strip()
+    search_value = request.GET.get('search_value', '').strip()
+    if search_field in _SEARCHABLE_FIELDS and search_value:
+        conditions.append(f"w.{search_field} ILIKE %s")
+        params.append(f'%{search_value}%')
 
     extra_where = ('AND ' + ' AND '.join(conditions)) if conditions else ''
 
