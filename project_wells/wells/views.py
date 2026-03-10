@@ -272,8 +272,8 @@ def parse_filters(request):
 
 WELL_FIELDS = [
     'id', 'api_num', 'other_id', 'latitude', 'longitude', 'stusps',
-    'county', 'municipality', 'well_name', 'operator', 'spud_date',
-    'plug_date', 'well_type', 'well_status', 'well_configuration', 'ft_category',
+    'county', 'municipality', 'well_field', 'well_name', 'operator', 'spud_date',
+    'plug_date', 'well_type', 'well_status', 'well_configuration', 'ft_category', 'orphan',
 ]
 
 
@@ -318,9 +318,9 @@ def get_county_counts(request):
 
 
 _SEARCHABLE_FIELDS = {
-    'api_num', 'other_id', 'stusps', 'county', 'municipality',
+    'api_num', 'other_id', 'stusps', 'county', 'municipality', 'well_field',
     'well_name', 'operator', 'well_type', 'well_status',
-    'well_configuration', 'ft_category',
+    'well_configuration', 'ft_category', 'orphan',
 }
 
 

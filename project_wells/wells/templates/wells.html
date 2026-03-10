@@ -1006,14 +1006,17 @@
                                 <option value="" style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
                                 <option value="api_num" class="ovdrop">API Number</option>
                                 <option value="county" class="ovdrop">County</option>
+                                <option value="municipality" class="ovdrop">Municipality</option>
+                                <option value="well_field" class="ovdrop">Well Field</option>
                                 <option value="well_name" class="ovdrop">Well Name</option>
                                 <option value="operator" class="ovdrop">Operator</option>
                                 <option value="spud_date" class="ovdrop">Spud Date</option>
                                 <option value="plug_date" class="ovdrop">Plug Date</option>
                                 <option value="well_type" class="ovdrop">Well Type</option>
                                 <option value="well_status" class="ovdrop">Well Status</option>
-                                <option value="well_configuratin" class="ovdrop">Well Configuration</option>
+                                <option value="well_configuration" class="ovdrop">Well Configuration</option>
                                 <option value="ft_category" class="ovdrop">FracTracker Category</option>
+                                <option value="orphan" class="ovdrop">Orphan</option>
                             </select>
                             <div style="display:grid;grid-template-columns:84% 16%;width:100%">
                                 <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
@@ -1102,14 +1105,17 @@
                                 <option value="" style="color:#8a8a8a" selected>Choose a field</option> <!-- Placeholder option -->
                                 <option value="api_num">API Number</option>
                                 <option value="county">County</option>
+                                <option value="municipality">Municipality</option>
+                                <option value="well_field">Well Field</option>
                                 <option value="well_name">Well Name</option>
                                 <option value="operator">Operator</option>
                                 <option value="spud_date">Spud Date</option>
                                 <option value="plug_date">Plug Date</option>
                                 <option value="well_type">Well Type</option>
                                 <option value="well_status">Well Status</option>
-                                <option value="well_configuratin">Well Configuration</option>
+                                <option value="well_configuration">Well Configuration</option>
                                 <option value="ft_category">FracTracker Category</option>
+                                <option value="orphan">Orphan</option>
                             </select>
                             {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
                             <button id="sortbtn" class="divbtns" onclick="sortTable()">Sort</button>
@@ -1147,6 +1153,7 @@
                                 <th>State</th>
                                 <th>County</th>
                                 <th>Municipality</th>
+                                <th>Well Field</th>
                                 <th>Well Name</th>
                                 <th>Operator</th>
                                 <th>Spud Date</th>
@@ -1155,6 +1162,7 @@
                                 <th>Well Status</th>
                                 <th>Well Configuration</th>
                                 <th>FracTracker Category</th>
+                                <th>Orphan</th>
                                 {% comment %} <th>UID</th> {% endcomment %}
                             </tr>
                         </thead>
