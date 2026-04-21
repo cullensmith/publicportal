@@ -27,9 +27,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', views.homepage),
     path('wells/', include('wells.urls')),
-    path('metrics/', metrics_view, name='metrics'),
-    path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('metrics', metrics_view, name='metrics'),
+    path('accounts/login', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('accounts/logout', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
     path('<slug:state_slug>', wells_view),
 ]
 

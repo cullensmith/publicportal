@@ -582,7 +582,7 @@ def nearest_well(request):
     return JsonResponse(dict(zip(cols, row)))
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/login')
 @permission_required('wells.view_metrics', raise_exception=True)
 def metrics(request):
     total_downloads = DownloadLog.objects.count()
