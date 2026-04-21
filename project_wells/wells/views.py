@@ -585,25 +585,49 @@ def nearest_well(request):
 @login_required(login_url='/accounts/login')
 @permission_required('wells.view_metrics', raise_exception=True)
 def metrics(request):
-    total_downloads = DownloadLog.objects.count()
+    from django.utils import timezone as tz
+    from datetime import timedelta
+
+    base_qs = DownloadLog.objects.filter(metrics__isnull=True)
+
+    # Date filtering
+    date_range = request.GET.get('range')
+    start_str = request.GET.get('start', '')
+    end_str = request.GET.get('end', '')
+    active_filter = date_range or ('custom' if start_str or end_str else 'all')
+
+    if date_range in ('7', '14', '30'):
+        cutoff = tz.now() - timedelta(days=int(date_range))
+        base_qs = base_qs.filter(download_date__gte=cutoff)
+    elif start_str or end_str:
+        if start_str:
+            base_qs = base_qs.filter(download_date__date__gte=start_str)
+        if end_str:
+            base_qs = base_qs.filter(download_date__date__lte=end_str)
+
+    total_downloads = base_qs.count()
     by_state = (
-        DownloadLog.objects
+        base_qs
         .exclude(state='')
         .values('state')
         .annotate(count=Count('id'))
         .order_by('-count')
     )
     by_affiliation = (
-        DownloadLog.objects
+        base_qs
         .exclude(affiliation='')
         .values('affiliation')
         .annotate(count=Count('id'))
         .order_by('-count')
     )
-    recent = DownloadLog.objects.order_by('-download_date')[:50]
+    recent = base_qs.order_by('-download_date')
+
     return render(request, 'metrics.html', {
         'total_downloads': total_downloads,
         'by_state': list(by_state),
         'by_affiliation': list(by_affiliation),
         'recent': recent,
+        'active_filter': active_filter,
+        'start_str': start_str,
+        'end_str': end_str,
     })

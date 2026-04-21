@@ -194,6 +194,7 @@ class DownloadLog(models.Model):
     file_name = models.CharField(max_length=255, blank=True, null=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     download_date = models.DateTimeField(default=timezone.now)
+    metrics = models.CharField(max_length=255, blank=True, null=True)
     
 
     

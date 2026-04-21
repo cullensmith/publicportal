@@ -55,6 +55,41 @@
     .bar-list .bar-wrap { flex: 1; background: #e5e7eb; border-radius: 3px; height: 10px; }
     .bar-list .bar { background: #1a56db; height: 10px; border-radius: 3px; }
     .bar-list .count { min-width: 30px; text-align: right; color: #6b7280; }
+    .filter-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filter-bar a, .filter-bar button {
+      padding: 0.4rem 0.9rem;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      cursor: pointer;
+    }
+    .filter-bar a:hover, .filter-bar button:hover { background: #f3f4f6; }
+    .filter-bar a.active, .filter-bar button.active {
+      background: #1a56db;
+      color: #fff;
+      border-color: #1a56db;
+    }
+    .custom-range { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .custom-range input[type="date"] {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid #d1d5db;
+      border-radius: 5px;
+      font-size: 0.85rem;
+    }
+    .custom-range button[type="submit"] {
+      padding: 0.4rem 0.9rem;
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
     table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     th {
       text-align: left;
@@ -78,6 +113,19 @@
   </header>
 
   <main>
+    <div class="filter-bar">
+      <a href="/metrics" class="{% if active_filter == 'all' %}active{% endif %}">All time</a>
+      <a href="/metrics?range=7" class="{% if active_filter == '7' %}active{% endif %}">Last 7 days</a>
+      <a href="/metrics?range=14" class="{% if active_filter == '14' %}active{% endif %}">Last 14 days</a>
+      <a href="/metrics?range=30" class="{% if active_filter == '30' %}active{% endif %}">Last 30 days</a>
+      <form method="get" action="/metrics" class="custom-range">
+        <input type="date" name="start" value="{{ start_str }}" placeholder="Start">
+        <span style="color:#6b7280;font-size:.85rem;">to</span>
+        <input type="date" name="end" value="{{ end_str }}" placeholder="End">
+        <button type="submit" class="{% if active_filter == 'custom' %}active{% endif %}">Apply</button>
+      </form>
+    </div>
+
     <div class="stat-row">
       <div class="stat-card">
         <div class="label">Total Downloads</div>
@@ -128,7 +176,7 @@
 
       <!-- Recent downloads table -->
       <div class="card full-width">
-        <h2>Recent Downloads (last 50)</h2>
+        <h2>Downloads ({{ recent|length }})</h2>
         {% if recent %}
         <table>
           <thead>
