@@ -85,7 +85,7 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '5432'),
         'OPTIONS': {
-            'options': '-c search_path=portal_wells,wells'
+            'options': '-c search_path=portal_wells,public,wells'
         }
     }
 }
