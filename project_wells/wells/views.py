@@ -9,6 +9,7 @@ import math
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.contrib.auth.decorators import login_required, permission_required
 from .models import DownloadLog
 
 
@@ -579,3 +580,30 @@ def nearest_well(request):
 
     cols = ['id', 'api_num', 'well_name', 'operator', 'well_status', 'well_type', 'stusps', 'ft_category', 'latitude', 'longitude']
     return JsonResponse(dict(zip(cols, row)))
+
+
+@login_required(login_url='/accounts/login/')
+@permission_required('wells.view_metrics', raise_exception=True)
+def metrics(request):
+    total_downloads = DownloadLog.objects.count()
+    by_state = (
+        DownloadLog.objects
+        .exclude(state='')
+        .values('state')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    by_affiliation = (
+        DownloadLog.objects
+        .exclude(affiliation='')
+        .values('affiliation')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    recent = DownloadLog.objects.order_by('-download_date')[:50]
+    return render(request, 'metrics.html', {
+        'total_downloads': total_downloads,
+        'by_state': list(by_state),
+        'by_affiliation': list(by_affiliation),
+        'recent': recent,
+    })

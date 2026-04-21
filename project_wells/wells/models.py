@@ -114,6 +114,12 @@ class Wells(models.Model):
     
 
 
+class MetricsAccess(models.Model):
+    class Meta:
+        managed = False
+        permissions = [('view_metrics', 'Can view metrics page')]
+
+
 class DownloadLog(models.Model):
     AFFILIATION_CHOICES = [
         ('', ''),
