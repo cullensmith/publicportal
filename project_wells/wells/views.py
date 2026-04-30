@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from .models import Wells, Counties, States, stStatus, stType
-from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db import connection
 from django.db.models import Count
 import json
 import ast
 import math
 import csv
+import io
+import zipfile
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -288,22 +290,18 @@ def generate_csv(request):
     if search_field in _SEARCHABLE_FIELDS and search_value:
         qs = qs.filter(**{f'{search_field}__icontains': search_value})
 
-    class Echo:
-        def write(self, value):
-            return value
+    csv_buffer = io.StringIO()
+    writer = csv.writer(csv_buffer)
+    writer.writerow(WELL_FIELDS)
+    for w in qs.values(*WELL_FIELDS).iterator(chunk_size=2000):
+        writer.writerow([w[f] if w[f] is not None else '' for f in WELL_FIELDS])
 
-    writer = csv.writer(Echo())
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr('fractracker_wells_download.csv', csv_buffer.getvalue())
 
-    def rows():
-        yield WELL_FIELDS
-        for w in qs.values(*WELL_FIELDS).iterator(chunk_size=2000):
-            yield [w[f] if w[f] is not None else '' for f in WELL_FIELDS]
-
-    response = StreamingHttpResponse(
-        (writer.writerow(row) for row in rows()),
-        content_type='text/csv',
-    )
-    response['Content-Disposition'] = 'attachment; filename="fractracker_wells_download.csv"'
+    response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="fractracker_wells_download.zip"'
     return response
 
 
