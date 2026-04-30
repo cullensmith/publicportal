@@ -2021,8 +2021,17 @@
                                 console.log('Opening feedback form');
                             }
                             
-                            // Download the CSV — downloadTableData handles lazy fetch if filteredData is null
-                            downloadTableData(filteredData);
+                            // Download CSV from server — respects all active filters including text search
+                            const csvParams = new URLSearchParams({
+                                states:       currentFilters.states      || '',
+                                county:       currentFilters.county      || '',
+                                well_type:    currentFilters.well_type   || '',
+                                well_status:  currentFilters.well_status || '',
+                                category:     currentFilters.category    || '',
+                                search_field: refineParams.field         || '',
+                                search_value: refineParams.value         || '',
+                            });
+                            window.location.href = '/wells/generate_csv?' + csvParams.toString();
                             
                             // Close modal and reset form after a short delay
                             setTimeout(() => {

@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from .models import Wells, Counties, States, stStatus, stType
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.db import connection
 from django.db.models import Count
 import json
 import ast
 import math
+import csv
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -276,6 +277,34 @@ WELL_FIELDS = [
     'county', 'municipality', 'well_field', 'well_name', 'operator', 'spud_date',
     'plug_date', 'well_type', 'well_status', 'well_configuration', 'ft_category', 'orphan',
 ]
+
+
+def generate_csv(request):
+    filter_kwargs = parse_filters(request)
+    qs = Wells.objects.filter(**filter_kwargs)
+
+    search_field = request.GET.get('search_field', '').strip()
+    search_value = request.GET.get('search_value', '').strip()
+    if search_field in _SEARCHABLE_FIELDS and search_value:
+        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+
+    class Echo:
+        def write(self, value):
+            return value
+
+    writer = csv.writer(Echo())
+
+    def rows():
+        yield WELL_FIELDS
+        for w in qs.values(*WELL_FIELDS).iterator(chunk_size=2000):
+            yield [w[f] if w[f] is not None else '' for f in WELL_FIELDS]
+
+    response = StreamingHttpResponse(
+        (writer.writerow(row) for row in rows()),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = 'attachment; filename="fractracker_wells_download.csv"'
+    return response
 
 
 def generate_geojson(request):
