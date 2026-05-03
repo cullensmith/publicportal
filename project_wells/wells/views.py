@@ -2,7 +2,8 @@ from django.shortcuts import render
 from .models import Wells, Counties, States, stStatus, stType
 from django.http import HttpResponse, JsonResponse
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Count, Q
+from collections import defaultdict
 import json
 import ast
 import math
@@ -285,10 +286,7 @@ def generate_csv(request):
     filter_kwargs = parse_filters(request)
     qs = Wells.objects.filter(**filter_kwargs)
 
-    search_field = request.GET.get('search_field', '').strip()
-    search_value = request.GET.get('search_value', '').strip()
-    if search_field in _SEARCHABLE_FIELDS and search_value:
-        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+    qs = _apply_search_filters(qs, request)
 
     csv_buffer = io.StringIO()
     writer = csv.writer(csv_buffer)
@@ -336,10 +334,7 @@ def get_county_counts(request):
     filter_kwargs = parse_filters(request)
     qs = Wells.objects.filter(**filter_kwargs)
 
-    search_field = request.GET.get('search_field', '').strip()
-    search_value = request.GET.get('search_value', '').strip()
-    if search_field in _SEARCHABLE_FIELDS and search_value:
-        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+    qs = _apply_search_filters(qs, request)
 
     counts = qs.values('stusps', 'county').annotate(count=Count('id'))
     return JsonResponse(list(counts), safe=False)
@@ -352,6 +347,34 @@ _SEARCHABLE_FIELDS = {
 }
 
 
+def _apply_search_filters(qs, request):
+    """AND across different fields; OR within the same field when selected multiple times."""
+    grouped = defaultdict(list)
+    for sf, sv in zip(request.GET.getlist('search_field'), request.GET.getlist('search_value')):
+        sf, sv = sf.strip(), sv.strip()
+        if sf in _SEARCHABLE_FIELDS and sv:
+            grouped[sf].append(sv)
+    for sf, values in grouped.items():
+        q = Q()
+        for v in values:
+            q |= Q(**{f'{sf}__icontains': v})
+        qs = qs.filter(q)
+    return qs
+
+
+def _apply_search_conditions(conditions, params, request):
+    """Same logic for raw SQL tile queries."""
+    grouped = defaultdict(list)
+    for sf, sv in zip(request.GET.getlist('search_field'), request.GET.getlist('search_value')):
+        sf, sv = sf.strip(), sv.strip()
+        if sf in _SEARCHABLE_FIELDS and sv:
+            grouped[sf].append(sv)
+    for sf, values in grouped.items():
+        clauses = ' OR '.join([f"w.{sf} ILIKE %s"] * len(values))
+        conditions.append(f"({clauses})")
+        params.extend([f'%{v}%' for v in values])
+
+
 def get_table_page(request):
     page = max(1, int(request.GET.get('page', 1)))
     page_size = min(200, max(1, int(request.GET.get('page_size', 50))))
@@ -360,10 +383,7 @@ def get_table_page(request):
     filter_kwargs = parse_filters(request)
     qs = Wells.objects.filter(**filter_kwargs)
 
-    search_field = request.GET.get('search_field', '').strip()
-    search_value = request.GET.get('search_value', '').strip()
-    if search_field in _SEARCHABLE_FIELDS and search_value:
-        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+    qs = _apply_search_filters(qs, request)
 
     total_count = qs.count()
     total_pages = math.ceil(total_count / page_size) if total_count else 1
@@ -399,10 +419,7 @@ def get_records_in_circle(request):
 
     qs = Wells.objects.filter(**filter_kwargs)
 
-    search_field = request.GET.get('search_field', '').strip()
-    search_value = request.GET.get('search_value', '').strip()
-    if search_field in _SEARCHABLE_FIELDS and search_value:
-        qs = qs.filter(**{f'{search_field}__icontains': search_value})
+    qs = _apply_search_filters(qs, request)
 
     qs = qs.extra(
         where=[
@@ -499,11 +516,7 @@ def well_tiles(request, z, x, y):
         conditions.append("w.ft_category = ANY(%s)")
         params.append(filter_kwargs['ft_category__in'])
 
-    search_field = request.GET.get('search_field', '').strip()
-    search_value = request.GET.get('search_value', '').strip()
-    if search_field in _SEARCHABLE_FIELDS and search_value:
-        conditions.append(f"w.{search_field} ILIKE %s")
-        params.append(f'%{search_value}%')
+    _apply_search_conditions(conditions, params, request)
 
     extra_where = ('AND ' + ' AND '.join(conditions)) if conditions else ''
 

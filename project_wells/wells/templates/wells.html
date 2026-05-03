@@ -585,6 +585,9 @@
             padding: 4px;
             border-radius: 6px;
         }
+        .gobtn {
+            background-color: #ffc857;
+        }
         .divbtns:hover {
             cursor: pointer;
         }
@@ -1021,8 +1024,14 @@
                             <div style="display:grid;grid-template-columns:84% 16%;width:100%">
                                 <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
                                 {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
-                                <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
-                            </div>    
+                                <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px">
+                                    <button id="sortbtn2" class="divbtns gobtn" onclick="refinefilter()">Go</button>
+                                    <button id="primary-close-btn" class="divbtns" style="display:none" onclick="removePrimaryFilter()">&#x2715;</button>
+                                </div>
+                            </div>
+                            <div id="extra-filters"></div>
+                            <button id="add-filter-btn" style="display:none;margin-top:8px;width:100%;background:none;border:1px dashed #aaa;color:#ccc;cursor:pointer;border-radius:4px;padding:4px 0;font-size:12px" onclick="addExtraFilter()">+ Add another filter</button>
+                            <button id="sortbtn2-bottom" class="divbtns gobtn" style="display:none;margin-top:6px;width:100%;border-radius:4px" onclick="refinefilter()">Go</button>
                         </div>
                         <div id="drawradius" style="margin-top:10px">
                             <div id="drawtext" style="color:white;font-family:arial;font-weight:normal;font-size:12px">
@@ -2037,13 +2046,15 @@
                             
                             // Download CSV from server — respects all active filters including text search
                             const csvParams = new URLSearchParams({
-                                states:       currentFilters.states      || '',
-                                county:       currentFilters.county      || '',
-                                well_type:    currentFilters.well_type   || '',
-                                well_status:  currentFilters.well_status || '',
-                                category:     currentFilters.category    || '',
-                                search_field: refineParams.field         || '',
-                                search_value: refineParams.value         || '',
+                                states:      currentFilters.states      || '',
+                                county:      currentFilters.county      || '',
+                                well_type:   currentFilters.well_type   || '',
+                                well_status: currentFilters.well_status || '',
+                                category:    currentFilters.category    || '',
+                            });
+                            refineParams.forEach(function(r) {
+                                csvParams.append('search_field', r.field);
+                                csvParams.append('search_value', r.value);
                             });
                             window.location.href = '/wells/generate_csv?' + csvParams.toString();
                             

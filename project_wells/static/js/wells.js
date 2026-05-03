@@ -192,14 +192,15 @@ function getCounties(s, c, well_type, well_status, category) {
     var countsRequest = $.ajax({
         url: '/wells/get_county_counts',
         method: 'GET',
+        traditional: true,
         data: {
             states: states,
             county: c,
             well_type: well_type,
             well_status: well_status,
             category: category,
-            search_field: refineParams.field || '',
-            search_value: refineParams.value || '',
+            search_field: refineParams.map(function(r) { return r.field; }),
+            search_value: refineParams.map(function(r) { return r.value; }),
         },
     });
 
@@ -425,7 +426,7 @@ var markerIconCollection;
 var vectorLayer = null;     // Leaflet.VectorGrid MVT tile layer
 var _lastHoveredProps = null; // properties of the well the mouse is currently over
 var currentFilters = {};
-var refineParams = {};       // search_field / search_value from the results-pane refine box
+var refineParams = [];       // array of {field, value} pairs from the results-pane refine box
 var tableMode = 'filter';   // 'filter' | 'circle'
 var circleParams = {};
 var currentTableTotal = 0;
@@ -618,7 +619,7 @@ function applyCategoryFilter() {
 
     // Set filters immediately — no need to wait for GeoJSON
     currentFilters = { states: states, county: counties, well_type: well_type, well_status: well_status, category: category };
-    refineParams = {};    // clear any previous text search when main filters change
+    refineParams = [];    // clear any previous text search when main filters change
     filteredData = null;  // will be fetched lazily on download/sort/search
     tableMode = 'filter';
 
@@ -864,9 +865,9 @@ function updateTable(features, totalCount) {
 
 function loadTablePage(page) {
     var params = Object.assign({}, currentFilters, { page: page });
-    if (refineParams.field && refineParams.value) {
-        params.search_field = refineParams.field;
-        params.search_value = refineParams.value;
+    if (refineParams.length) {
+        params.search_field = refineParams.map(function(r) { return r.field; });
+        params.search_value = refineParams.map(function(r) { return r.value; });
     }
     var url = '/wells/get_table_page';
     if (tableMode === 'circle') {
@@ -879,6 +880,7 @@ function loadTablePage(page) {
     $.ajax({
         url: url,
         method: 'GET',
+        traditional: true,
         data: params,
         success: function(data) {
             currentTableTotal = data.total_count;
@@ -1601,15 +1603,15 @@ function loadVectorTiles() {
     }
     document.getElementById('showAllWellsBtn').style.display = '';
 
-    var params = new URLSearchParams({
-        states:       currentFilters.states      || '',
-        county:       currentFilters.county      || '',
-        well_type:    currentFilters.well_type   || '',
-        well_status:  currentFilters.well_status || '',
-        category:     currentFilters.category    || '',
-        search_field: refineParams.field         || '',
-        search_value: refineParams.value         || '',
-    }).toString();
+    var _tp = new URLSearchParams({
+        states:      currentFilters.states      || '',
+        county:      currentFilters.county      || '',
+        well_type:   currentFilters.well_type   || '',
+        well_status: currentFilters.well_status || '',
+        category:    currentFilters.category    || '',
+    });
+    refineParams.forEach(function(r) { _tp.append('search_field', r.field); _tp.append('search_value', r.value); });
+    var params = _tp.toString();
 
     vectorLayer = L.vectorGrid.protobuf('/wells/tiles/{z}/{x}/{y}?' + params, {
         vectorTileLayerStyles: {
@@ -1995,9 +1997,12 @@ function clearSelection() {
     tableMode = 'filter';
     if (!wasCircle) {
         // No circle was active — treat this as clearing the refine filter
-        refineParams = {};
+        refineParams = [];
         document.getElementById('sort-field2').value = '';
         document.getElementById('srch-input').value = '';
+        document.getElementById('extra-filters').innerHTML = '';
+        document.getElementById('add-filter-btn').style.display = 'none';
+        updateFilterButtonLayout();
     }
     loadVectorTiles();
     getCounties(currentFilters.states, currentFilters.county, currentFilters.well_type, currentFilters.well_status, currentFilters.category);
@@ -2063,34 +2068,115 @@ if (layer instanceof L.Circle) {
 }
 });
 
+function updateAddFilterBtn() {
+    var f = document.getElementById('sort-field2').value;
+    var s = document.getElementById('srch-input').value.trim();
+    document.getElementById('add-filter-btn').style.display = (f && s) ? '' : 'none';
+}
+document.getElementById('sort-field2').addEventListener('change', updateAddFilterBtn);
+document.getElementById('srch-input').addEventListener('input', updateAddFilterBtn);
+
+function updateFilterButtonLayout() {
+    var hasExtras = document.querySelectorAll('#extra-filters .extra-filter-row').length > 0;
+    document.getElementById('sortbtn2').style.display = hasExtras ? 'none' : '';
+    document.getElementById('primary-close-btn').style.display = hasExtras ? '' : 'none';
+    document.getElementById('sortbtn2-bottom').style.display = hasExtras ? '' : 'none';
+}
+
+function collapseExtraFilters() {
+    document.getElementById('extra-filters').innerHTML = '';
+    updateFilterButtonLayout();
+}
+
+function removePrimaryFilter() {
+    var firstExtra = document.querySelector('#extra-filters .extra-filter-row');
+    if (firstExtra) {
+        document.getElementById('sort-field2').value = firstExtra.querySelector('.extra-field').value;
+        document.getElementById('srch-input').value = firstExtra.querySelector('.extra-value').value;
+        firstExtra.remove();
+    } else {
+        document.getElementById('sort-field2').value = '';
+        document.getElementById('srch-input').value = '';
+    }
+    updateAddFilterBtn();
+    updateFilterButtonLayout();
+}
+
+function addExtraFilter() {
+    var row = document.createElement('div');
+    row.className = 'extra-filter-row';
+    row.style.marginTop = '8px';
+
+    var sel = document.createElement('select');
+    sel.className = 'extra-field dropdownbutton';
+    sel.style.cssText = 'cursor:pointer;text-align:center;padding:5px;margin-bottom:8px;width:100%';
+    sel.innerHTML = document.getElementById('sort-field2').innerHTML;
+    sel.value = '';
+
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:84% 16%;width:100%';
+
+    var inputWrap = document.createElement('div');
+    inputWrap.style.cssText = 'text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px';
+    var input = document.createElement('input');
+    input.className = 'extra-value';
+    input.style.cssText = 'text-indent:5px;border:none;border-radius:4px;height:25px;width:100%';
+    inputWrap.appendChild(input);
+
+    var removeWrap = document.createElement('div');
+    removeWrap.style.cssText = 'justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px';
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'divbtns';
+    removeBtn.textContent = '×';
+    removeBtn.onclick = function() { row.remove(); updateFilterButtonLayout(); };
+    removeWrap.appendChild(removeBtn);
+
+    grid.appendChild(inputWrap);
+    grid.appendChild(removeWrap);
+    row.appendChild(sel);
+    row.appendChild(grid);
+    document.getElementById('extra-filters').appendChild(row);
+    updateFilterButtonLayout();
+}
+
+function flashDropdown(el) {
+    el.focus();
+    var flashes = 0;
+    var interval = setInterval(function() {
+        el.style.outline = flashes % 2 === 0 ? '4px solid #de541e' : '';
+        flashes++;
+        if (flashes >= 6) { clearInterval(interval); el.style.outline = ''; }
+    }, 250);
+}
+
 function refinefilter () {
     var f = document.getElementById('sort-field2').value;
     var s = document.getElementById('srch-input').value.trim();
-    if (!f) {
-        var sel = document.getElementById('sort-field2');
-        sel.focus();
-        var flashes = 0;
-        var flashInterval = setInterval(function() {
-            sel.style.outline = flashes % 2 === 0 ? '4px solid #de541e' : '';
-            flashes++;
-            if (flashes >= 6) { clearInterval(flashInterval); sel.style.outline = ''; }
-        }, 250);
-        return;
-    }
+    if (!f) { flashDropdown(document.getElementById('sort-field2')); return; }
     if (!s) { document.getElementById('srch-input').focus(); return; }
 
-    refineParams = { field: f, value: s };
+    var allFilters = [{ field: f, value: s }];
+    var extraInvalid = false;
+    document.querySelectorAll('#extra-filters .extra-filter-row').forEach(function(row) {
+        var ef = row.querySelector('.extra-field').value;
+        var ev = row.querySelector('.extra-value').value.trim();
+        if (ev && !ef) { flashDropdown(row.querySelector('.extra-field')); extraInvalid = true; return; }
+        if (ef && ev) allFilters.push({ field: ef, value: ev });
+    });
+    if (extraInvalid) return;
+    refineParams = allFilters;
     loadVectorTiles();
     getCounties(currentFilters.states, currentFilters.county, currentFilters.well_type, currentFilters.well_status, currentFilters.category);
 
     var params = Object.assign({}, currentFilters, {
         page: 1,
-        search_field: f,
-        search_value: s,
+        search_field: refineParams.map(function(r) { return r.field; }),
+        search_value: refineParams.map(function(r) { return r.value; }),
     });
     $.ajax({
         url: '/wells/get_table_page',
         method: 'GET',
+        traditional: true,
         data: params,
         success: function(data) {
             renderServerTablePage(data.features, 1, data.total_pages, data.total_count);
