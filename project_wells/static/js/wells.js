@@ -49,6 +49,9 @@ document.addEventListener('mouseup', () => {
 
 var map = L.map('map').setView([39.8283,-98.5795], 4);
 var geojsonLayer;
+
+map.createPane('wellTilesPane');
+map.getPane('wellTilesPane').style.zIndex = 300;
 var osmUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
         osmAttrib = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         osm = L.tileLayer(osmUrl, { maxZoom: 20, attribution: osmAttrib }).addTo(map),
@@ -399,7 +402,7 @@ function getColor(stype) {
         return 'red';
         case 'Other / Unknown':
         return '#00253B';
-        case 'Orphaned / Abandoned / Unverified':
+        case 'Orphaned / Abandoned / Unverified Plug':
         return '#FFC857';
         case 'Not Drilled':
         return 'green';
@@ -1585,14 +1588,18 @@ var _catCheckboxMap = {
     'Production Well':                   'category6',
     'Plugged':                           'category5',
     'Other / Unknown':                   'category4',
-    'Orphaned / Abandoned / Unverified': 'category3',
+    'Orphaned / Abandoned / Unverified Plug': 'category3',
     'Not Drilled':                       'category2',
     'Injection / Storage / Service':     'category1',
 };
 
 function loadVectorTiles() {
     if (vectorLayer) { map.removeLayer(vectorLayer); vectorLayer = null; }
-    if (!currentFilters.states) return;
+    if (!currentFilters.states) {
+        document.getElementById('showAllWellsBtn').style.display = 'none';
+        return;
+    }
+    document.getElementById('showAllWellsBtn').style.display = '';
 
     var params = new URLSearchParams({
         states:       currentFilters.states      || '',
@@ -1608,25 +1615,18 @@ function loadVectorTiles() {
         vectorTileLayerStyles: {
             'wells': function(properties) {
                 var cbId = _catCheckboxMap[properties.ft_category];
-                if (cbId && !document.getElementById(cbId).checked) {
+                if (!cbId || !document.getElementById(cbId).checked) {
                     return { fill: false, stroke: false, opacity: 0, fillOpacity: 0, radius: 0, interactive: false };
                 }
-                return {
-                    weight: 0,
-                    fillColor: getColor(properties.ft_category),
-                    fillOpacity: 0.8,
-                    fill: true,
-                    radius: 3,
-                    interactive: true,  // required for canvas hit-testing
-                };
+                return { weight: 0, fillColor: getColor(properties.ft_category), fillOpacity: 0.8, fill: true, radius: 3, interactive: true };
             }
         },
         rendererFactory: L.canvas.tile,
+        pane: 'wellTilesPane',
         interactive: true,
         maxZoom: 20,
         minZoom: 6,
     });
-
     if (map.getZoom() >= 6) { vectorLayer.addTo(map); }
 }
 
@@ -1738,7 +1738,7 @@ function filterProd(data) {
     } ;
     orphanwells = L.geoJSON(fd, {
         filter: function (feature) {
-            return feature.properties.ft_category === 'Orphaned / Abandoned / Unverified';
+            return feature.properties.ft_category === 'Orphaned / Abandoned / Unverified Plug';
         },
         pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
@@ -1840,6 +1840,33 @@ document.getElementById('countylayer').addEventListener('change', function() {
     }
 });
 
+
+var _catIds = ['category1','category2','category3','category4','category5','category6'];
+
+function updateWellsToggleBtn() {
+    var allChecked = _catIds.every(function(id) { return document.getElementById(id).checked; });
+    document.getElementById('showAllWellsBtn').textContent = allChecked ? 'Hide All' : 'Show All';
+}
+
+document.getElementById('showAllWellsBtn').addEventListener('click', function() {
+    var allChecked = _catIds.every(function(id) { return document.getElementById(id).checked; });
+    if (allChecked) {
+        _catIds.forEach(function(id) { document.getElementById(id).checked = false; });
+    } else {
+        _catIds.forEach(function(id) { document.getElementById(id).checked = true; });
+        var choropleth = document.getElementById('countychoropleth');
+        if (choropleth.checked) {
+            choropleth.checked = false;
+            if (ctytallyLayer) { map.removeLayer(ctytallyLayer); }
+        }
+    }
+    if (vectorLayer) { loadVectorTiles(); }
+    updateWellsToggleBtn();
+});
+
+_catIds.forEach(function(id) {
+    document.getElementById(id).addEventListener('change', updateWellsToggleBtn);
+});
 
 // Toggle polygons visibility based on checkbox
 document.getElementById('countychoropleth').addEventListener('click', function() {
