@@ -94,9 +94,10 @@
       opacity: .8;
       border-radius: 25%;
       border: 2px solid white;
-      display: flex;
+      display: flex !important;
       justify-content: center;
       align-items: center;
       font-size: 14px;
       font-weight: bold;
+      line-height: 1;
   }

@@ -1749,7 +1749,7 @@
                 text:
                 {% comment %} `<br><span><b>In need of background information? </b></span><a href="https://www.fractracker.org/resources/oil-and-gas-101/" target="_blank" rel="noopener noreferrer">Petrochemical Basics</a><br>`+ {% endcomment %}
                 `<br><span><b>Help Us Improve the FracTracker Data Portals:</b></span> <a href="https://forms.gle/NQ7QLRCm4HYm1SXF8" target="_blank" rel="noopener noreferrer">Feedback Form</a>`+
-                '<br><br>This dataset is updated by FracTracker on a monthly basis and was last updated 2/01/2026.'+
+                '<br><br>This dataset is updated by FracTracker on a monthly basis and was last updated {% now "n/01/Y" %}.'+
                 '<br><br><b>Oil and Natural Gas</b>'+
                 `<br><br><u>Oil</u> – <i>Oil is a liquid fossil fuel that is found in underground reservoirs.  It is the result of organic materials that have been subjected to geologic heat and pressure over millions of years.</i>`+
                 `<br><br><u>Gas</u> – <i>Often called “natural gas,” gas refers to methane or a mixture that is dominated by methane.  It is in the gaseous phase at surface temperature and pressure, but can be converted to liquids at extremely low temperatures.  “Fracked gas” and “shale gas” both refer to gas that has been trapped in tight formations such as shale that typically requires industrial-scale hydraulic fracturing to release in economically viable quantities.</i>`+
@@ -1777,6 +1777,18 @@
 
 
 
+        // Show close button on tab3 only if the user has already agreed
+        if (tabId === 'tab3') {
+            const closeBtn = document.querySelector('.close-button');
+            let agreed = false;
+            try { agreed = sessionStorage.getItem('splashCheckboxChecked') === 'true'; } catch(e) {}
+            if (agreed) {
+                closeBtn.classList.add('enabled');
+            } else {
+                closeBtn.classList.remove('enabled');
+            }
+        }
+
         // ✅ Only attach checkbox logic if this is tab1
         if (tabId === 'tab1') {
             const checkbox = document.getElementById('splash-checkbox');
@@ -1800,6 +1812,7 @@
             checkbox.addEventListener('change', function () {
               try { sessionStorage.setItem('splashCheckboxChecked', checkbox.checked); } catch(e) {}
           
+              const closeBtn = document.querySelector('.close-button');
               if (checkbox.checked) {
                 enterBtn.classList.add('enabled');
                 {% comment %} close_x.classList.add('enabled'); {% endcomment %}
@@ -1809,6 +1822,7 @@
               } else {
                 enterBtn.classList.remove('enabled');
                 {% comment %} close_x.classList.remove('enabled'); {% endcomment %}
+                closeBtn.classList.remove('enabled');
                 btn1.disabled=true;
                 btn2.disabled=true;
               }

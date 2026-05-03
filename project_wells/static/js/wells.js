@@ -556,9 +556,9 @@ function ctyct(data, tally) {
         pointToLayer: function(feature, latlng) {
             const numberIcon = L.divIcon({
                 className: 'number-icon',
-                html: `<div><strong>${feature.properties.count}</strong></div>`,
+                html: `<strong>${feature.properties.count}</strong>`,
                 iconSize: [55, 30],
-                iconAnchor: [30, 20],
+                iconAnchor: [27, 15],
             });
             return L.marker(latlng, { icon: numberIcon, zIndex: 1 });
         }
@@ -2066,7 +2066,18 @@ if (layer instanceof L.Circle) {
 function refinefilter () {
     var f = document.getElementById('sort-field2').value;
     var s = document.getElementById('srch-input').value.trim();
-    if (!f || !s) return;
+    if (!f) {
+        var sel = document.getElementById('sort-field2');
+        sel.focus();
+        var flashes = 0;
+        var flashInterval = setInterval(function() {
+            sel.style.outline = flashes % 2 === 0 ? '4px solid #de541e' : '';
+            flashes++;
+            if (flashes >= 6) { clearInterval(flashInterval); sel.style.outline = ''; }
+        }, 250);
+        return;
+    }
+    if (!s) { document.getElementById('srch-input').focus(); return; }
 
     refineParams = { field: f, value: s };
     loadVectorTiles();
