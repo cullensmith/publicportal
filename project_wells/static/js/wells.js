@@ -620,6 +620,11 @@ function applyCategoryFilter() {
     // Set filters immediately — no need to wait for GeoJSON
     currentFilters = { states: states, county: counties, well_type: well_type, well_status: well_status, category: category };
     refineParams = [];    // clear any previous text search when main filters change
+    document.getElementById('sort-field2').value = '';
+    document.getElementById('srch-input').value = '';
+    document.getElementById('circle-radius-input').value = '';
+    clearAllCircles();
+    collapseExtraFilters();
     filteredData = null;  // will be fetched lazily on download/sort/search
     tableMode = 'filter';
 
