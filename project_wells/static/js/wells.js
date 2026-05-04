@@ -2076,6 +2076,12 @@ function updateAddFilterBtn() {
 document.getElementById('sort-field2').addEventListener('change', updateAddFilterBtn);
 document.getElementById('srch-input').addEventListener('input', updateAddFilterBtn);
 
+function updateScrollState() {
+    var extraCount = document.querySelectorAll('#extra-filters .extra-filter-row').length;
+    var total = 1 + extraCount; // 1 primary + extras
+    document.getElementById('filter-pairs-scroll').classList.toggle('needs-scroll', total >= 4);
+}
+
 function updateFilterButtonLayout() {
     var hasExtras = document.querySelectorAll('#extra-filters .extra-filter-row').length > 0;
     document.getElementById('sortbtn2').style.display = hasExtras ? 'none' : '';
@@ -2086,6 +2092,7 @@ function updateFilterButtonLayout() {
 function collapseExtraFilters() {
     document.getElementById('extra-filters').innerHTML = '';
     updateFilterButtonLayout();
+    updateScrollState();
 }
 
 function removePrimaryFilter() {
@@ -2100,6 +2107,7 @@ function removePrimaryFilter() {
     }
     updateAddFilterBtn();
     updateFilterButtonLayout();
+    updateScrollState();
 }
 
 function addExtraFilter() {
@@ -2126,9 +2134,9 @@ function addExtraFilter() {
     var removeWrap = document.createElement('div');
     removeWrap.style.cssText = 'justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px';
     var removeBtn = document.createElement('button');
-    removeBtn.className = 'divbtns';
+    removeBtn.className = 'divbtns removebtn';
     removeBtn.textContent = '×';
-    removeBtn.onclick = function() { row.remove(); updateFilterButtonLayout(); };
+    removeBtn.onclick = function() { row.remove(); updateFilterButtonLayout(); updateScrollState(); };
     removeWrap.appendChild(removeBtn);
 
     grid.appendChild(inputWrap);
@@ -2137,6 +2145,7 @@ function addExtraFilter() {
     row.appendChild(grid);
     document.getElementById('extra-filters').appendChild(row);
     updateFilterButtonLayout();
+    updateScrollState();
 }
 
 function flashDropdown(el) {

@@ -588,6 +588,18 @@
         .gobtn {
             background-color: #ffc857;
         }
+        .removebtn {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        #filter-pairs-scroll {
+            max-height: 270px;
+            overflow-y: hidden;
+        }
+        #filter-pairs-scroll.needs-scroll {
+            overflow-y: scroll;
+            padding-right: 16px;
+        }
         .divbtns:hover {
             cursor: pointer;
         }
@@ -1004,6 +1016,7 @@
                     <div class="refine" id="refineblock">
 
                         <div id="search" style="margin-top:25px">
+                            <div id="filter-pairs-scroll">
                             {% comment %} <label>Refine your search</label> {% endcomment %}
                             <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
                                 <option value="" style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
@@ -1026,10 +1039,11 @@
                                 {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
                                 <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px">
                                     <button id="sortbtn2" class="divbtns gobtn" onclick="refinefilter()">Go</button>
-                                    <button id="primary-close-btn" class="divbtns" style="display:none" onclick="removePrimaryFilter()">&#x2715;</button>
+                                    <button id="primary-close-btn" class="divbtns removebtn" style="display:none" onclick="removePrimaryFilter()">&#x2715;</button>
                                 </div>
                             </div>
                             <div id="extra-filters"></div>
+                            </div>
                             <button id="add-filter-btn" style="display:none;margin-top:8px;width:100%;background:none;border:1px dashed #aaa;color:#ccc;cursor:pointer;border-radius:4px;padding:4px 0;font-size:12px" onclick="addExtraFilter()">+ Add another filter</button>
                             <button id="sortbtn2-bottom" class="divbtns gobtn" style="display:none;margin-top:6px;width:100%;border-radius:4px" onclick="refinefilter()">Go</button>
                         </div>
@@ -1362,6 +1376,8 @@
                 }
                 
                 printMapInstance = L.map('printMap').setView(map.getCenter(), map.getZoom());
+                // Pane for GeoJSON below well tiles — avoids overlay pane whose transform html2canvas doubles
+                printMapInstance.createPane('printGeoPane').style.zIndex = 250;
                 
                 // Find the current tile layer from the main map
                 let originalTileLayer;
@@ -1401,8 +1417,17 @@
                     tilesLoaded++;
                 });
                 
+                // Shared canvas renderer for all GeoJSON — one element, one transform, no drift
+                const sharedGeoRenderer = L.canvas({ pane: 'printGeoPane' });
+
                 // Copy all layers from original map with full styling
                 map.eachLayer(function(layer) {
+                    // Skip sub-layers registered by LayerGroups/GeoJSON — handled explicitly below
+                    if (layer._eventParents && Object.keys(layer._eventParents).some(function(id) {
+                        var parent = layer._eventParents[id];
+                        return parent instanceof L.LayerGroup;
+                    })) { return; }
+
                     if (layer instanceof L.Marker) {
                         // Copy marker with all options including custom icons
                         const newMarker = L.marker(layer.getLatLng(), {
@@ -1474,16 +1499,6 @@
                         if (layer.getPopup()) {
                             newCircleMarker.bindPopup(layer.getPopup().getContent());
                         }
-                    } else if (layer instanceof L.GeoJSON) {
-                        // Handle GeoJSON layers with styling
-                        const newGeoJSON = L.geoJSON(layer.toGeoJSON(), {
-                            style: layer.options.style,
-                            pointToLayer: layer.options.pointToLayer,
-                            onEachFeature: layer.options.onEachFeature,
-                            filter: layer.options.filter,
-                            coordsToLatLng: layer.options.coordsToLatLng,
-                            ...layer.options
-                        }).addTo(printMapInstance);
                     } else if (layer instanceof L.LayerGroup) {
                         // Handle layer groups recursively
                         const newLayerGroup = L.layerGroup();
@@ -1522,7 +1537,31 @@
                     }
                     // Note: TileLayer is handled separately above
                 });
-                
+
+                // Explicitly copy only the known border GeoJSON layers (state + county)
+                [canvasLayer_state, canvasLayer_cty].forEach(function(lyr) {
+                    if (lyr && map.hasLayer(lyr)) {
+                        L.geoJSON(lyr.toGeoJSON(), {
+                            style: lyr.options.style,
+                            renderer: sharedGeoRenderer,
+                            pane: 'printGeoPane',
+                        }).addTo(printMapInstance);
+                    }
+                });
+
+                // VectorGrid (well tiles) is not a standard Leaflet layer — copy it explicitly
+                if (vectorLayer && map.hasLayer(vectorLayer)) {
+                    printMapInstance.createPane('wellTilesPane').style.zIndex = 300;
+                    L.vectorGrid.protobuf(vectorLayer._url, {
+                        vectorTileLayerStyles: vectorLayer.options.vectorTileLayerStyles,
+                        rendererFactory: L.canvas.tile,
+                        pane: 'wellTilesPane',
+                        interactive: false,
+                        maxZoom: 20,
+                        minZoom: 6,
+                    }).addTo(printMapInstance);
+                }
+
                 // Ensure the print map renders properly
                 setTimeout(() => {
                     printMapInstance.invalidateSize();
@@ -1563,10 +1602,18 @@
         
             // Show waiting cursor
             document.body.style.cursor = 'wait';
-        
+
+            // Snapshot view before container resize changes it
+            const savedCenter = printMapInstance ? printMapInstance.getCenter() : null;
+            const savedZoom   = printMapInstance ? printMapInstance.getZoom()   : null;
+
             setTimeout(() => {
                 if (printMapInstance) {
-                    printMapInstance.invalidateSize();
+                    printMapInstance.invalidateSize({ animate: false, pan: false });
+                    if (savedCenter && savedZoom !== null) {
+                        printMapInstance.setView(savedCenter, savedZoom, { animate: false });
+                    }
+                    printMapInstance.fire('viewreset');
                 }
         
                 setTimeout(() => {
