@@ -1091,7 +1091,7 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 
 const statesarray = [
     "Alabama", 
-    // "Alaska", 
+    "Alaska", 
     "Arizona", 
     "Arkansas", 
     "California", 
